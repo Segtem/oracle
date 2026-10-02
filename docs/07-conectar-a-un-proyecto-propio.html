@@ -60,57 +60,66 @@ Próximos pasos:
   1. Creá un caso:     oracle caso &lt;grupo/id&gt;
   2. Creá una medida:  oracle nueva &lt;dominio.nombre&gt;
   3. Verificá todo:    oracle test</code></pre>
-<pre class="archivo" data-lenguaje="oracle.json"><code>{&quot;esquema&quot;:&quot;oracle.proyecto/v1&quot;,&quot;catalogo_base&quot;:true,&quot;perfiles&quot;:[]}</code></pre>
+<pre class="archivo" data-lenguaje="oracle.json"><code>{&quot;esquema&quot;:&quot;oracle.proyecto/v1&quot;,&quot;catalogo_base&quot;:true,&quot;perfiles&quot;:[]}
+</code></pre>
 <pre class="archivo" data-lenguaje="catalogos/documento/documento.nombre_sigue_la_convencion.oracle"><code><span class="tok-storage">ninguno</span> <span class="tok-entity">documento.nombre_sigue_la_convencion</span>:
 <span class="tok-keyword">    de</span> documento d
 <span class="tok-keyword">    donde</span> <span class="tok-variable">d</span>.<span class="tok-property">sigue_convencion</span> <span class="tok-operator">==</span> <span class="tok-keyword">false</span>
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;la convención de nombres es lo que hace que el índice se pueda generar solo; un archivo fuera de convención lo rompe&quot;</span>
-    ambito universal
-<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;no ve el contenido del documento, sólo su nombre; y no juzga si la convención en sí es buena&quot;</span></code></pre>
+<span class="tok-keyword">    ambito</span> universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;no ve el contenido del documento, sólo su nombre; y no juzga si la convención en sí es buena&quot;</span>
+</code></pre>
 <pre class="archivo" data-lenguaje="corpus/documento/001-un-nombre-fuera-de-convencion.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">001-un-nombre-fuera-de-convencion</span>:
-    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-09-25&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;aula/biblioteca&quot;</span>
-        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;aula/biblioteca&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sin-commit&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Un nombre fuera de convención&quot;</span>
-    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">falso_verde</span>
 <span class="tok-keyword">    sintoma</span>:
         Un documento tiene nombre fuera de convención.
-    como_se_detecto: <span class="tok-constant">persona</span>
-    medida: <span class="tok-variable">documento</span>.<span class="tok-property">nombre_sigue_la_convencion</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">persona</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">documento</span>.<span class="tok-property">nombre_sigue_la_convencion</span>
 <span class="tok-keyword">    evidencia</span>:
         documento: nombre, sigue_convencion
             <span class="tok-string">&quot;notas finales.md&quot;</span>, <span class="tok-keyword">false</span>
 <span class="tok-keyword">    leccion</span>:
-        El nombre fuera de convención debe ponerse rojo.</code></pre>
+        El nombre fuera de convención debe ponerse rojo.
+</code></pre>
 <pre class="archivo" data-lenguaje="corpus/documento/002-un-lote-en-convencion.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">002-un-lote-en-convencion</span>:
-    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-09-25&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;aula/biblioteca&quot;</span>
-        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;aula/biblioteca&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sin-commit&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Dos nombres en convención&quot;</span>
-    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">verde_correcto</span>
 <span class="tok-keyword">    sintoma</span>:
         Ambos nombres respetan la convención.
-    como_se_detecto: <span class="tok-constant">persona</span>
-    medida: <span class="tok-variable">documento</span>.<span class="tok-property">nombre_sigue_la_convencion</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">persona</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">documento</span>.<span class="tok-property">nombre_sigue_la_convencion</span>
 <span class="tok-keyword">    evidencia</span>:
         documento: nombre, sigue_convencion
             <span class="tok-string">&quot;2026-08-31-GUIA-Convencion-v1.0.md&quot;</span>, <span class="tok-keyword">true</span>
             <span class="tok-string">&quot;2026-09-01-INFORME-Primera-Medida-v1.0.md&quot;</span>, <span class="tok-keyword">true</span>
 <span class="tok-keyword">    leccion</span>:
-        Ninguno de estos nombres debe ponerse rojo.</code></pre>
+        Ninguno de estos nombres debe ponerse rojo.
+</code></pre>
 <pre class="archivo" data-lenguaje="relaciones/documento.relacion"><code><span class="tok-storage">relacion</span> <span class="tok-entity">documento</span>:
     nombre: texto
     sigue_convencion: booleano
-<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;el sensor lee el NOMBRE del archivo y nada más: no abre el documento, no mira su contenido ni su fecha de modificación&quot;</span></code></pre>
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;el sensor lee el NOMBRE del archivo y nada más: no abre el documento, no mira su contenido ni su fecha de modificación&quot;</span>
+</code></pre>
 <p>Los cuatro documentos de prueba están en <code>docs-de-prueba/</code>:</p>
-<pre class="archivo" data-lenguaje="docs-de-prueba/2026-08-31-GUIA-Convencion-v1.0.md"><code>Ejemplo de documento.</code></pre>
-<pre class="archivo" data-lenguaje="docs-de-prueba/2026-09-01-INFORME-Primera-Medida-v1.0.md"><code>Ejemplo de documento.</code></pre>
-<pre class="archivo" data-lenguaje="docs-de-prueba/borrador.md"><code>Ejemplo de documento.</code></pre>
-<pre class="archivo" data-lenguaje="docs-de-prueba/notas-finales.md"><code>Ejemplo de documento.</code></pre>
+<pre class="archivo" data-lenguaje="docs-de-prueba/2026-08-31-GUIA-Convencion-v1.0.md"><code>Ejemplo de documento.
+</code></pre>
+<pre class="archivo" data-lenguaje="docs-de-prueba/2026-09-01-INFORME-Primera-Medida-v1.0.md"><code>Ejemplo de documento.
+</code></pre>
+<pre class="archivo" data-lenguaje="docs-de-prueba/borrador.md"><code>Ejemplo de documento.
+</code></pre>
+<pre class="archivo" data-lenguaje="docs-de-prueba/notas-finales.md"><code>Ejemplo de documento.
+</code></pre>
 <p><code>sensores/nombres.py</code> — no importa nada del sistema de archivos:</p>
 <pre class="archivo" data-lenguaje="sensores/nombres.py"><code>&quot;&quot;&quot;El SENSOR: puro. Decide si un nombre sigue la convención, y nada más.&quot;&quot;&quot;
 import re
@@ -119,7 +128,8 @@ CONVENCION = re.compile(r&quot;^\d{4}-\d{2}-\d{2}-[A-Z]+-[A-Za-z0-9-]+-v\d+\.\d+
 
 
 def sigue_convencion(nombre: str) -&gt; bool:
-    return CONVENCION.fullmatch(nombre) is not None</code></pre>
+    return CONVENCION.fullmatch(nombre) is not None
+</code></pre>
 <p>Eso se testea con <code>assert sigue_convencion(&quot;borrador.md&quot;) is False</code>. No hace falta un disco.</p>
 <h2 id="el-adaptador"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>El adaptador<a class="ancla" href="#el-adaptador" aria-label="Enlace a esta sección">#</a></h2>
 <p><code>mide_nombres.py</code> — camina la carpeta y emite filas en la superficie que Oracle lee:</p>
@@ -133,7 +143,8 @@ carpeta = Path(sys.argv[1])
 print(&quot;documento: nombre, sigue_convencion&quot;)
 for p in sorted(carpeta.glob(&quot;*.md&quot;)):
     print(f&#x27;    {json.dumps(p.name, ensure_ascii=False)}, &#x27;
-          f&#x27;{&quot;true&quot; if sigue_convencion(p.name) else &quot;false&quot;}&#x27;)</code></pre>
+          f&#x27;{&quot;true&quot; if sigue_convencion(p.name) else &quot;false&quot;}&#x27;)
+</code></pre>
 <p>Fijate que <strong>el adaptador no tiene ni un <code>if</code> sobre la convención</strong>: pregunta y transcribe.</p>
 <pre data-lenguaje="bash"><code>python3 mide_nombres.py docs-de-prueba</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>documento: nombre, sigue_convencion
@@ -157,18 +168,18 @@ for p in sorted(carpeta.glob(&quot;*.md&quot;)):
 <h2 id="guardar-lo-que-se-observó"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>Guardar lo que se observó<a class="ancla" href="#guardar-lo-que-se-observó" aria-label="Enlace a esta sección">#</a></h2>
 <p>Un caso con <code>procedencia: observada</code> es evidencia que <strong>pasó</strong>, copiada tal cual:</p>
 <pre class="archivo" data-lenguaje="corpus/documento/003-la-biblioteca-real.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">003-la-biblioteca-real</span>:
-    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-09-25&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;aula/biblioteca&quot;</span>
-        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;aula/biblioteca&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sin-commit&quot;</span>
         comando: <span class="tok-string">&quot;python3 mide_nombres.py docs-de-prueba&quot;</span>
-    procedencia: <span class="tok-constant">observada</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">observada</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Dos archivos de la carpeta real están fuera de convención&quot;</span>
-    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">falso_verde</span>
 <span class="tok-keyword">    sintoma</span>:
         Un documento tiene nombre fuera de convención.
-    como_se_detecto: <span class="tok-constant">persona</span>
-    medida: <span class="tok-variable">documento</span>.<span class="tok-property">nombre_sigue_la_convencion</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">persona</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">documento</span>.<span class="tok-property">nombre_sigue_la_convencion</span>
 <span class="tok-keyword">    evidencia</span>:
         documento: nombre, sigue_convencion
             <span class="tok-string">&quot;2026-08-31-GUIA-Convencion-v1.0.md&quot;</span>, <span class="tok-keyword">true</span>
@@ -176,7 +187,8 @@ for p in sorted(carpeta.glob(&quot;*.md&quot;)):
             <span class="tok-string">&quot;borrador.md&quot;</span>, <span class="tok-keyword">false</span>
             <span class="tok-string">&quot;notas-finales.md&quot;</span>, <span class="tok-keyword">false</span>
 <span class="tok-keyword">    leccion</span>:
-        El nombre fuera de convención debe ponerse rojo.</code></pre>
+        El nombre fuera de convención debe ponerse rojo.
+</code></pre>
 <p><strong><code>observada</code> es una afirmación sobre el pasado</strong>, y Oracle no puede verificarla: el <code>alcance</code> de la medida que la juzga lo dice sin vueltas — <em>«mira lo que el caso declara sobre sí mismo… Un caso puede mentir en <code>procedencia</code> y esta medida no lo ve»</em>.</p>
 <p>Por eso la regla práctica es al revés de lo que uno querría: <strong>ante la duda, <code>construida</code></strong>. Es honesto, y no cierra nada que no deba cerrarse.</p>
 <p>Con ese caso, el proyecto cierra:</p>
@@ -311,13 +323,13 @@ git status --short -- vendor/oracle         # tiene que dar vacío</code></pre>
 <script src="./assets/pixel-sitio.js" defer></script>
 <script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
-document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+document.querySelectorAll(".prosa pre:not(.salida):not(.arbol)").forEach((pre) => {
   const b = document.createElement("button");
   b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
   b.addEventListener("click", () => {
-    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+    navigator.clipboard.writeText(pre.querySelector("code").textContent)
       .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
-      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
   });
   pre.append(b);
 });

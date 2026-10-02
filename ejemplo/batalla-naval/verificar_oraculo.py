@@ -3,8 +3,8 @@
 verificar_oraculo.py - Demostración de verificación rigurosa de reglas con Oracle
 
 Este script:
-1. Lee la partida guardada en 'partida_real.json'.
-2. Ejecuta `oracle juzgar --con partida_real.json` para comprobar que las 11 reglas se cumplen (VERDE).
+1. Lee 'partida_real.json' o, en la carpeta armada con la guía, 'hechos_partida.json'.
+2. Ejecuta `oracle juzgar --con <partida>` para comprobar que las 11 reglas se cumplen (VERDE).
 4. Genera variantes con infracciones deliberadas (trampas/errores) para demostrar
    que el oráculo es falsable y no un sello complaciente:
    a) Disparo duplicado a la misma celda.
@@ -85,6 +85,8 @@ def main():
     # 1. Partida real legítima
     print("\n[1/3] Leyendo partida real guardada...")
     ruta_real = BASE_DIR / "partida_real.json"
+    if not ruta_real.is_file():
+        ruta_real = BASE_DIR / "hechos_partida.json"
     evidencia_real = json.loads(ruta_real.read_text(encoding="utf-8"))
     print(f" -> Leída de {ruta_real.name}")
     print(f"    - Celdas de barco: {len(evidencia_real['celda_barco'])}")

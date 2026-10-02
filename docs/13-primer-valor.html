@@ -83,7 +83,8 @@ Próximos pasos:
   &quot;esquema&quot;: &quot;oracle.proyecto/v1&quot;,
   &quot;catalogo_base&quot;: false,
   &quot;perfiles&quot;: []
-}</code></pre>
+}
+</code></pre>
 <blockquote><p>[!TIP] Si tu proyecto recién comienza y busca verificar reglas de negocio propias, podés fijar <code>&quot;catalogo_base&quot;: false</code> para concentrarte exclusivamente en tus medidas de dominio sin evaluar políticas de proceso universales heredadas.</p></blockquote>
 <h3 id="la-medida-catalogoscolocacioncolocaciondentro_del_tablerooracle">La medida: <code>catalogos/colocacion/colocacion.dentro_del_tablero.oracle</code><a class="ancla" href="#la-medida-catalogoscolocacioncolocaciondentro_del_tablerooracle" aria-label="Enlace a esta sección">#</a></h3>
 <p>En Oracle, las medidas se enuncian buscando <strong>lo que ofende</strong> (el defecto), no lo que está bien:</p>
@@ -93,8 +94,9 @@ Próximos pasos:
 <span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;el tablero es de 10x10 (coordenadas 0 a 9); cualquier casilla fuera de ese rango corrompe el estado del juego&quot;</span>
 <span class="tok-keyword">    requiere</span> celda_ocupada
-    ambito universal
-<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;valida que las celdas reportadas estén en el rango 0..9. NO ve si los buques tienen la longitud declarada ni si se solapan entre sí&quot;</span></code></pre>
+<span class="tok-keyword">    ambito</span> universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;valida que las celdas reportadas estén en el rango 0..9. NO ve si los buques tienen la longitud declarada ni si se solapan entre sí&quot;</span>
+</code></pre>
 <p>Los cuatro componentes esenciales:</p>
 <ul><li><strong><code>donde</code> (filtro)</strong>: Selecciona únicamente las filas que violan la regla (<code>fila &lt; 0 o fila &gt; 9 ...</code>).</li><li><strong><code>umbral</code> con <code>segun</code></strong>: Exige <code>&lt;= 0</code> violaciones y declara su origen (<code>contrato</code>) con la defensa que lo justifica.</li><li><strong><code>requiere</code></strong>: Exige la presencia de la relación <code>celda_ocupada</code> para evitar falsos verdes si el sensor devolviera una estructura vacía o errónea.</li><li><strong><code>alcance</code></strong>: Declara obligatoriamente el punto ciego de la medida (lo que <strong>no</strong> mira).</li></ul>
 <hr class="divisor-pixel" aria-hidden="true">
@@ -103,38 +105,39 @@ Próximos pasos:
 <h3 id="caso-1-polaridad-negativa-falso_verde-esperado-rojo">Caso 1: Polaridad negativa (<code>falso_verde</code> esperado ROJO)<a class="ancla" href="#caso-1-polaridad-negativa-falso_verde-esperado-rojo" aria-label="Enlace a esta sección">#</a></h3>
 <p>Archivo <a href="https://github.com/Segtem/oracle/blob/main/ejemplo/primer-valor/corpus/colocacion/001-desborde-tablero.caso" rel="noopener"><code>corpus/colocacion/001-desborde-tablero.caso</code></a>:</p>
 <pre class="archivo" data-lenguaje="ejemplo/primer-valor/corpus/colocacion/001-desborde-tablero.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">001-desborde-tablero</span>:
-    fecha: <span class="tok-string">&quot;2026-09-21&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-09-21&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
-        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sin-commit&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Buque colocado parcialmente fuera del tablero (fila 10)&quot;</span>
-    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">falso_verde</span>
 <span class="tok-keyword">    sintoma</span>:
         Un buque destructor colocado verticalmente en fila <span class="tok-number">9</span> desborda hacia la fila <span class="tok-number">10</span>, fuera de la cuadrícula 10x10.
-    como_se_detecto: <span class="tok-constant">persona</span>
-    medida: <span class="tok-variable">colocacion</span>.<span class="tok-property">dentro_del_tablero</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">persona</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">colocacion</span>.<span class="tok-property">dentro_del_tablero</span>
 <span class="tok-keyword">    evidencia</span>:
         celda_ocupada: barco, fila, columna
             <span class="tok-string">&quot;destructor&quot;</span>, <span class="tok-number">9</span>, <span class="tok-number">5</span>
             <span class="tok-string">&quot;destructor&quot;</span>, <span class="tok-number">10</span>, <span class="tok-number">5</span>
 <span class="tok-keyword">    leccion</span>:
-        La medida debe detectar la celda fuera de rango (<span class="tok-number">10</span>, <span class="tok-number">5</span>) <span class="tok-keyword">y</span> ponerse en rojo para evitar desbordes de memoria <span class="tok-keyword">o</span> estado inválido.</code></pre>
+        La medida debe detectar la celda fuera de rango (<span class="tok-number">10</span>, <span class="tok-number">5</span>) <span class="tok-keyword">y</span> ponerse en rojo para evitar desbordes de memoria <span class="tok-keyword">o</span> estado inválido.
+</code></pre>
 <ul><li>Este caso contiene exactamente 1 celda ofensiva (<code>fila: 10</code>).</li><li>Falla la condición del umbral (<code>1 &lt;= 0</code> es falso), por lo que la medida se pone en <strong>ROJO</strong>.</li><li>Como declara <code>etiqueta: falso_verde</code>, la suite de aceptación confirma que la medida atrapó el defecto.</li><li>Mata el mutante <code>aflojar_umbral</code> (que probaría relajar el umbral a <code>&lt;= 1</code>).</li></ul>
 <h3 id="caso-2-polaridad-positiva-verde_correcto-esperado-verde">Caso 2: Polaridad positiva (<code>verde_correcto</code> esperado VERDE)<a class="ancla" href="#caso-2-polaridad-positiva-verde_correcto-esperado-verde" aria-label="Enlace a esta sección">#</a></h3>
 <p>Archivo <a href="https://github.com/Segtem/oracle/blob/main/ejemplo/primer-valor/corpus/colocacion/002-colocacion-valida.caso" rel="noopener"><code>corpus/colocacion/002-colocacion-valida.caso</code></a>:</p>
 <pre class="archivo" data-lenguaje="ejemplo/primer-valor/corpus/colocacion/002-colocacion-valida.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">002-colocacion-valida</span>:
-    fecha: <span class="tok-string">&quot;2026-09-21&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-09-21&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
-        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sin-commit&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Flota colocada enteramente dentro de la cuadrícula 10x10&quot;</span>
-    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">verde_correcto</span>
 <span class="tok-keyword">    sintoma</span>:
         Despliegue reglamentario de buques con todas sus celdas dentro del rango válido de <span class="tok-number">0</span> a <span class="tok-number">9</span>.
-    como_se_detecto: <span class="tok-constant">persona</span>
-    medida: <span class="tok-variable">colocacion</span>.<span class="tok-property">dentro_del_tablero</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">persona</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">colocacion</span>.<span class="tok-property">dentro_del_tablero</span>
 <span class="tok-keyword">    evidencia</span>:
         celda_ocupada: barco, fila, columna
             <span class="tok-string">&quot;fragata&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">2</span>
@@ -143,7 +146,8 @@ Próximos pasos:
             <span class="tok-string">&quot;destructor&quot;</span>, <span class="tok-number">8</span>, <span class="tok-number">5</span>
             <span class="tok-string">&quot;destructor&quot;</span>, <span class="tok-number">9</span>, <span class="tok-number">5</span>
 <span class="tok-keyword">    leccion</span>:
-        Una colocación reglamentaria debe dar <span class="tok-number">0</span> testigos ofensivos <span class="tok-keyword">y</span> resultar verde; fija la medida contra mutaciones que eliminen el filtro.</code></pre>
+        Una colocación reglamentaria debe dar <span class="tok-number">0</span> testigos ofensivos <span class="tok-keyword">y</span> resultar verde; fija la medida contra mutaciones que eliminen el filtro.
+</code></pre>
 <ul><li>Este caso contiene 5 celdas legítimas.</li><li>La medida obtiene valor 0, resultando en <strong>VERDE</strong>.</li><li>Mata el mutante <code>quitar_filtro</code> (que al suprimir el filtro contaría las 5 celdas y daría 5 &gt; 0, disparando un falso rojo).</li></ul>
 <hr class="divisor-pixel" aria-hidden="true">
 <h3 id="casos-adicionales-necesarios">Casos adicionales necesarios<a class="ancla" href="#casos-adicionales-necesarios" aria-label="Enlace a esta sección">#</a></h3>
@@ -152,73 +156,77 @@ Próximos pasos:
 <h2 id="5-paso-4-validar-el-catálogo-con-oracle-test"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>5. Paso 4: Validar el catálogo con <code>oracle test</code><a class="ancla" href="#5-paso-4-validar-el-catálogo-con-oracle-test" aria-label="Enlace a esta sección">#</a></h2>
 <p>Corremos <code>oracle test</code> para verificar que las medidas del catálogo compilen, satisfagan los contratos sintácticos y queden fijadas contra mutación:</p>
 <pre class="archivo" data-lenguaje="ejemplo/primer-valor/corpus/colocacion/003-fila-negativa.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">003-fila-negativa</span>:
-    fecha: <span class="tok-string">&quot;2026-09-21&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-09-21&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
-        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sin-commit&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Fila justo por debajo del tablero&quot;</span>
-    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">falso_verde</span>
 <span class="tok-keyword">    sintoma</span>:
         Fila justo por debajo del tablero; la medida debe rechazar esta evidencia.
-    como_se_detecto: <span class="tok-constant">mutacion</span>
-    medida: <span class="tok-variable">colocacion</span>.<span class="tok-property">dentro_del_tablero</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">mutacion</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">colocacion</span>.<span class="tok-property">dentro_del_tablero</span>
 <span class="tok-keyword">    evidencia</span>:
         celda_ocupada: barco, fila, columna
             <span class="tok-string">&quot;borde&quot;</span>, -<span class="tok-number">1</span>, <span class="tok-number">5</span>
 <span class="tok-keyword">    leccion</span>:
-        Cada borde <span class="tok-keyword">y</span> la falta de evidencia deben quedar fijados por el corpus.</code></pre>
+        Cada borde <span class="tok-keyword">y</span> la falta de evidencia deben quedar fijados por el corpus.
+</code></pre>
 <pre class="archivo" data-lenguaje="ejemplo/primer-valor/corpus/colocacion/004-columna-negativa.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">004-columna-negativa</span>:
-    fecha: <span class="tok-string">&quot;2026-09-21&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-09-21&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
-        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sin-commit&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Columna justo por debajo del tablero&quot;</span>
-    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">falso_verde</span>
 <span class="tok-keyword">    sintoma</span>:
         Columna justo por debajo del tablero; la medida debe rechazar esta evidencia.
-    como_se_detecto: <span class="tok-constant">mutacion</span>
-    medida: <span class="tok-variable">colocacion</span>.<span class="tok-property">dentro_del_tablero</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">mutacion</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">colocacion</span>.<span class="tok-property">dentro_del_tablero</span>
 <span class="tok-keyword">    evidencia</span>:
         celda_ocupada: barco, fila, columna
             <span class="tok-string">&quot;borde&quot;</span>, <span class="tok-number">5</span>, -<span class="tok-number">1</span>
 <span class="tok-keyword">    leccion</span>:
-        Cada borde <span class="tok-keyword">y</span> la falta de evidencia deben quedar fijados por el corpus.</code></pre>
+        Cada borde <span class="tok-keyword">y</span> la falta de evidencia deben quedar fijados por el corpus.
+</code></pre>
 <pre class="archivo" data-lenguaje="ejemplo/primer-valor/corpus/colocacion/005-columna-desbordada.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">005-columna-desbordada</span>:
-    fecha: <span class="tok-string">&quot;2026-09-21&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-09-21&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
-        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sin-commit&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Columna justo por encima del tablero&quot;</span>
-    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">falso_verde</span>
 <span class="tok-keyword">    sintoma</span>:
         Columna justo por encima del tablero; la medida debe rechazar esta evidencia.
-    como_se_detecto: <span class="tok-constant">mutacion</span>
-    medida: <span class="tok-variable">colocacion</span>.<span class="tok-property">dentro_del_tablero</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">mutacion</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">colocacion</span>.<span class="tok-property">dentro_del_tablero</span>
 <span class="tok-keyword">    evidencia</span>:
         celda_ocupada: barco, fila, columna
             <span class="tok-string">&quot;borde&quot;</span>, <span class="tok-number">5</span>, <span class="tok-number">10</span>
 <span class="tok-keyword">    leccion</span>:
-        Cada borde <span class="tok-keyword">y</span> la falta de evidencia deben quedar fijados por el corpus.</code></pre>
+        Cada borde <span class="tok-keyword">y</span> la falta de evidencia deben quedar fijados por el corpus.
+</code></pre>
 <pre class="archivo" data-lenguaje="ejemplo/primer-valor/corpus/colocacion/006-sin-celdas.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">006-sin-celdas</span>:
-    fecha: <span class="tok-string">&quot;2026-09-21&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-09-21&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
-        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sin-commit&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Sensor sin celdas observadas&quot;</span>
-    etiqueta: <span class="tok-constant">falso_verde</span>
-    espera: sin_evidencia
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    espera</span>: sin_evidencia
 <span class="tok-keyword">    sintoma</span>:
         Sensor sin celdas observadas; la medida debe rechazar esta evidencia.
-    como_se_detecto: <span class="tok-constant">mutacion</span>
-    medida: <span class="tok-variable">colocacion</span>.<span class="tok-property">dentro_del_tablero</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">mutacion</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">colocacion</span>.<span class="tok-property">dentro_del_tablero</span>
 <span class="tok-keyword">    evidencia</span>:
         celda_ocupada:
 <span class="tok-keyword">    leccion</span>:
-        Cada borde <span class="tok-keyword">y</span> la falta de evidencia deben quedar fijados por el corpus.</code></pre>
+        Cada borde <span class="tok-keyword">y</span> la falta de evidencia deben quedar fijados por el corpus.
+</code></pre>
 <pre class="archivo" data-lenguaje="ejemplo/primer-valor/colocador.py"><code>&quot;&quot;&quot;Lógica mínima de colocación de buques para Batalla Naval.
 
 Este script representa el producto bajo análisis: coloca buques en un tablero
@@ -318,7 +326,8 @@ def main(argv: list[str] | None = None) -&gt; int:
 
 
 if __name__ == &quot;__main__&quot;:
-    sys.exit(main())</code></pre>
+    sys.exit(main())
+</code></pre>
 <pre data-lenguaje="bash"><code>oracle test --proyecto ejemplo/primer-valor</code></pre>
 <h3 id="salida-real-registrada-de-oracle-test">Salida real registrada de <code>oracle test</code>:<a class="ancla" href="#salida-real-registrada-de-oracle-test" aria-label="Enlace a esta sección">#</a></h3>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
@@ -409,13 +418,13 @@ VEREDICTO: verde en 1 medidas. SIN MIRAR:
 <script src="./assets/pixel-sitio.js" defer></script>
 <script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
-document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+document.querySelectorAll(".prosa pre:not(.salida):not(.arbol)").forEach((pre) => {
   const b = document.createElement("button");
   b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
   b.addEventListener("click", () => {
-    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+    navigator.clipboard.writeText(pre.querySelector("code").textContent)
       .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
-      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
   });
   pre.append(b);
 });

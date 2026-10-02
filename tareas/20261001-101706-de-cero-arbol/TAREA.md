@@ -18,4 +18,4 @@ Verificación final: python3 tools/guia.py --escribir (0 salidas actualizadas), 
 
 ## Próximo paso
 
-Revisar el diff de esta tarea para su eventual versionado; no queda implementación pendiente.
+Sin implementación pendiente. Árboles integrados y ronda parcial de tools/guia.py con 66/66 mutantes muertos. Evidencia en de-cero-novato/mutacion-guia.log.

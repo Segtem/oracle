@@ -179,6 +179,8 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.15; letter-spacing: -0.01em;
 .prosa pre { position: relative; }
 .prosa pre.archivo { border-top: 3px solid var(--acento); }
 .prosa pre.salida { background: var(--papel-2); color: var(--tinta); border: 1px solid var(--linea); }
+.prosa pre.arbol { background: var(--papel-2); color: var(--tinta); border: 1px dashed var(--linea); }
+.prosa pre.arbol::before { color: var(--gris); }
 .prosa pre.salida::before { color: var(--gris); }
 .copiar { position: absolute; top: 10px; right: 10px; font: 600 12px var(--sans); padding: 5px 10px; border-radius: 4px;
           border: 1px solid #3A4650; background: #26303A; color: #E3E9E5; cursor: pointer; }

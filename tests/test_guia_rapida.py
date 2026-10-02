@@ -37,6 +37,45 @@ class GuiaMinimaTests(unittest.TestCase):
         guia.verificar(escribir=True, guia=self.guia)
         self.assertEqual(self.guia.read_text(), original)
 
+    def test_arbol_desactualizado_reporta_linea_exacta(self):
+        guia_arbol = self.raiz / "arbol-viejo.md"
+        guia_arbol.write_text(
+            "# Preámbulo\n\n"
+            "Texto inicial.\n\n"
+            "```python archivo=saludar.py incluir=saludar.py\nignored\n```\n\n"
+            "```text arbol\n"
+            "arbol viejo\n"
+            "```\n",
+            encoding="utf-8")
+        with self.assertRaisesRegex(AssertionError, r"^Árbol viejo en línea 9; ejecutá python3 tools/guia\.py --escribir$"):
+            guia.verificar(guia=guia_arbol)
+
+    def test_escribir_regenera_arbol_preservando_fences_y_roundtrip(self):
+        guia_arbol = self.raiz / "arbol-regenerar.md"
+        guia_arbol.write_text(
+            "# Preámbulo\n\n"
+            "Texto previo al bloque.\n\n"
+            "```python archivo=saludar.py incluir=saludar.py\nignored\n```\n\n"
+            "```text arbol\n"
+            "arbol viejo linea 1\n"
+            "arbol viejo linea 2\n"
+            "```\n\n"
+            "Texto posterior que debe conservarse intacto.\n",
+            encoding="utf-8")
+        esperado = (
+            "# Preámbulo\n\n"
+            "Texto previo al bloque.\n\n"
+            "```python archivo=saludar.py incluir=saludar.py\nignored\n```\n\n"
+            "```text arbol\n"
+            "batalla-naval/\n"
+            "└── saludar.py\n"
+            "```\n\n"
+            "Texto posterior que debe conservarse intacto.\n"
+        )
+        guia.verificar(escribir=True, guia=guia_arbol)
+        self.assertEqual(guia_arbol.read_text(encoding="utf-8"), esperado)
+        guia.verificar(escribir=False, guia=guia_arbol)
+
     def test_reemplazo_puro_de_dos_bloques(self):
         lineas = ["inicio\n", "vieja a\n", "medio\n", "vieja b\n", "fin\n"]
         nueva = guia.reemplazar_salidas(lineas, [(1, 2, "a\n"), (3, 4, "b\n")])

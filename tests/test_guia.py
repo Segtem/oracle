@@ -16,9 +16,9 @@ class GuiaTests(unittest.TestCase):
     def test_arbol_desactualizado_falla(self):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".md", dir=guia.RAIZ,
                                          encoding="utf-8") as archivo:
-            archivo.write("```text arbol\narbol viejo\n```\n")
+            archivo.write("# Preámbulo\n\n```text arbol\narbol viejo\n```\n")
             archivo.flush()
-            with self.assertRaisesRegex(AssertionError, "Árbol viejo"):
+            with self.assertRaisesRegex(AssertionError, r"^Árbol viejo en línea 3; ejecutá python3 tools/guia\.py --escribir$"):
                 guia.verificar(guia=Path(archivo.name))
 
     def test_la_batalla_naval_entera_llega_por_incluir(self):

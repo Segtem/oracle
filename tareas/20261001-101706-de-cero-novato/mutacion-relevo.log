@@ -1,0 +1,11 @@
+tools/sitio.py 137-211: mutantes: 28 · murieron 28 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+mutantes: 28 · murieron 28 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+tools/sitio.py 411-411: mutantes: 4 · murieron 4 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+mutantes: 4 · murieron 4 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+tools/guia.py 84-172: mutantes: 66 · murieron 64 · sobrevivieron 2 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  VIVO  tools/guia.py:171:45:constante                       constante: 1 → 2
+  VIVO  tools/guia.py:169:80:constante                       constante: 1 → 2
+mutantes: 66 · murieron 64 · sobrevivieron 2 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+árbol sin cambios durante la mutación
+
+[exited with code 0]

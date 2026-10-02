@@ -501,14 +501,14 @@ VERSION_SINTAXIS       0.1   → 0.2       cómo se ESCRIBE</code></pre>
 <span class="tok-keyword">    de</span> mi_relacion r
 <span class="tok-keyword">    donde</span> <span class="tok-variable">r</span>.<span class="tok-property">estado</span> <span class="tok-operator">==</span> <span class="tok-string">&quot;invalido&quot;</span>
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;el estado debe ser valido&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;comprueba la validez de los estados registrados&quot;</span></code></pre>
 <p>Si la medida usa la macro <code>ninguno-requiere</code>:</p>
 <pre data-lenguaje="oracle"><code><span class="tok-storage">ninguno-requiere</span> <span class="tok-entity">mi_dominio.otra_politica</span>:
 <span class="tok-keyword">    de</span> mi_relacion r
 <span class="tok-keyword">    requiere</span> mi_precondicion p
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;...&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;...&quot;</span></code></pre>
 <h3 id="el-catálogo-existente-sigue-cargando-sin-tocar-nada">El catálogo existente sigue cargando sin tocar nada<a class="ancla" href="#el-catálogo-existente-sigue-cargando-sin-tocar-nada" aria-label="Enlace a esta sección">#</a></h3>
 <p>Para no invalidar el catálogo entero de un consumidor al actualizar la versión, el cargador y las macros conservan la ausencia de la cláusula como el estado transitorio <code>sin_declarar</code>. Es el mismo camino que se abrió cuando se incorporó <code>segun</code>: no se inventa un valor por omisión arbitrario, sino que se registra honestamente que el autor todavía no eligió.</p>
@@ -724,13 +724,13 @@ oracle init mi-proyecto</code></pre>
 <script src="../assets/pixel-sitio.js" defer></script>
 <script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
-document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+document.querySelectorAll(".prosa pre:not(.salida):not(.arbol)").forEach((pre) => {
   const b = document.createElement("button");
   b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
   b.addEventListener("click", () => {
-    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+    navigator.clipboard.writeText(pre.querySelector("code").textContent)
       .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
-      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
   });
   pre.append(b);
 });

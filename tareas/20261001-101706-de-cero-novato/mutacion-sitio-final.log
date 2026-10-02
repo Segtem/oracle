@@ -1,0 +1,49 @@
+*** RONDA PARCIAL DE MUTACIÓN (filtro: --lineas 137-215, 409-411) ***
+objetivos: tools/sitio.py
+
+     ·  tools/sitio.py:145:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:152:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:149:7:negacion                        negacion: se borra el `not`
+     ·  tools/sitio.py:154:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:156:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:157:36:constante                      constante: 0 → 1
+     ·  tools/sitio.py:158:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:158:24:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:164:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:173:10:constante                      constante: 0 → 1
+     ·  tools/sitio.py:176:25:comparador                     comparador: IsNot → Is
+     ·  tools/sitio.py:177:11:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:180:64:constante                      constante: 0 → 1
+     ·  tools/sitio.py:180:70:constante                      constante: 1 → 2
+     ·  tools/sitio.py:183:11:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:187:13:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:190:78:constante                      constante: 0 → 1
+     ·  tools/sitio.py:192:19:comparador                     comparador: Lt → LtE
+     ·  tools/sitio.py:192:23:constante                      constante: 0 → 1
+     ·  tools/sitio.py:202:31:constante                      constante: 1 → 2
+     ·  tools/sitio.py:203:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:206:84:constante                      constante: False → True
+     ·  tools/sitio.py:142:19:constante                      constante: 1 → 2
+     ·  tools/sitio.py:208:39:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:211:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:213:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:214:74:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:157:33:constante                      constante: 1 → 2
+     ·  tools/sitio.py:410:53:constante                      constante: 2 → 3
+     ·  tools/sitio.py:214:46:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:411:57:constante                      constante: 3 → 4
+     ·  tools/sitio.py:411:37:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:411:88:constante                      constante: 3 → 4
+     ·  tools/sitio.py:411:69:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:174:10:comparador                     comparador: Lt → LtE
+     ·  tools/sitio.py:207:28:constante                      constante: False → True
+
+mutantes: 36 · murieron 36 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+*** RESUMEN: RONDA PARCIAL (36 de 261 sitios del objetivo) ***
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✗ proceso.ronda_mutacion_concluyente           valor 1 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes probados murieron, pero la ronda fue PARCIAL: se probaron 36 de 261 sitios.
+Esto NO demuestra que los tests fijen el módulo completo.

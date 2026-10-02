@@ -1,0 +1,79 @@
+*** RONDA PARCIAL DE MUTACIÓN (filtro: --lineas 84-172) ***
+objetivos: tools/guia.py
+
+     ·  tools/guia.py:86:7:booleano                          booleano: and ↔ or
+     ·  tools/guia.py:86:7:comparador                        comparador: Eq → NotEq
+     ·  tools/guia.py:88:7:comparador                        comparador: Eq → NotEq
+     ·  tools/guia.py:88:18:constante                        constante: 0 → 1
+     ·  tools/guia.py:89:60:constante                        constante: 1 → 2
+     ·  tools/guia.py:86:34:comparador                       comparador: NotIn → In
+     ·  tools/guia.py:90:9:comparador                        comparador: Eq → NotEq
+     ·  tools/guia.py:90:20:constante                        constante: 0 → 1
+     ·  tools/guia.py:91:19:constante                        constante: 0 → 1
+     ·  tools/guia.py:86:18:constante                        constante: 0 → 1
+     ·  tools/guia.py:92:11:booleano                         booleano: and ↔ or
+     ·  tools/guia.py:92:11:comparador                       comparador: Gt → GtE
+     ·  tools/guia.py:92:29:constante                        constante: 1 → 2
+     ·  tools/guia.py:94:9:comparador                        comparador: NotEq → Eq
+     ·  tools/guia.py:94:20:constante                        constante: 0 → 1
+     ·  tools/guia.py:103:54:constante                       constante: True → False
+     ·  tools/guia.py:92:35:negacion                         negacion: se borra el `not`
+     ·  tools/guia.py:108:11:negacion                        negacion: se borra el `not`
+     ·  tools/guia.py:92:50:constante                        constante: 1 → 2
+     ·  tools/guia.py:111:7:booleano                         booleano: and ↔ or
+     ·  tools/guia.py:111:24:negacion                        negacion: se borra el `not`
+     ·  tools/guia.py:93:35:constante                        constante: 1 → 2
+     ·  tools/guia.py:110:8:retorno                          retorno: return <algo> → return None
+     ·  tools/guia.py:103:68:constante                       constante: 180 → 181
+     ·  tools/guia.py:111:29:booleano                        booleano: and ↔ or
+     ·  tools/guia.py:111:29:booleano                        booleano: and ↔ or
+     ·  tools/guia.py:111:29:comparador                      comparador: Gt → GtE
+     ·  tools/guia.py:111:64:constante                       constante: 2 → 3
+     ·  tools/guia.py:112:29:comparador                      comparador: In → NotIn
+     ·  tools/guia.py:111:53:comparador                      comparador: Eq → NotEq
+     ·  tools/guia.py:113:31:booleano                        booleano: and ↔ or
+     ·  tools/guia.py:111:47:constante                       constante: 2 → 3
+     ·  tools/guia.py:113:63:comparador                      comparador: In → NotIn
+     ·  tools/guia.py:112:60:comparador                      comparador: In → NotIn
+     ·  tools/guia.py:113:30:booleano                        booleano: and ↔ or
+     ·  tools/guia.py:114:58:comparador                      comparador: Eq → NotEq
+     ·  tools/guia.py:114:69:constante                       constante: 2 → 3
+     ·  tools/guia.py:113:31:comparador                      comparador: In → NotIn
+     ·  tools/guia.py:116:7:comparador                       comparador: Eq → NotEq
+     ·  tools/guia.py:116:18:constante                       constante: 0 → 1
+     ·  tools/guia.py:118:4:retorno                          retorno: return <algo> → return None
+     ·  tools/guia.py:117:8:retorno                          retorno: return <algo> → return None
+     ·  tools/guia.py:125:59:constante                       constante: True → False
+     ·  tools/guia.py:126:4:retorno                          retorno: return <algo> → return None
+     ·  tools/guia.py:134:51:comparador                      comparador: NotIn → In
+     ·  tools/guia.py:135:37:negacion                        negacion: se borra el `not`
+     ·  tools/guia.py:137:21:comparador                      comparador: Eq → NotEq
+     ·  tools/guia.py:137:47:constante                       constante: 1 → 2
+     ·  tools/guia.py:114:34:comparador                      comparador: Gt → GtE
+     ·  tools/guia.py:146:31:constante                       constante: False → True
+     ·  tools/guia.py:147:66:constante                       constante: True → False
+     ·  tools/guia.py:143:4:retorno                          retorno: return <algo> → return None
+     ·  tools/guia.py:155:15:comparador                      comparador: In → NotIn
+     ·  tools/guia.py:155:41:comparador                      comparador: In → NotIn
+     ·  tools/guia.py:157:76:constante                       constante: 1 → 2
+     ·  tools/guia.py:156:19:comparador                      comparador: NotEq → Eq
+     ·  tools/guia.py:160:60:constante                       constante: True → False
+     ·  tools/guia.py:162:67:constante                       constante: True → False
+     ·  tools/guia.py:165:15:comparador                      comparador: Eq → NotEq
+     ·  tools/guia.py:167:19:comparador                      comparador: NotEq → Eq
+     ·  tools/guia.py:168:23:negacion                        negacion: se borra el `not`
+     ·  tools/guia.py:169:80:constante                       constante: 1 → 2
+     ·  tools/guia.py:171:45:constante                       constante: 1 → 2
+     ·  tools/guia.py:114:52:constante                       constante: 2 → 3
+     ·  tools/guia.py:155:15:booleano                        booleano: and ↔ or
+     ·  tools/guia.py:160:45:constante                       constante: True → False
+
+mutantes: 66 · murieron 66 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+*** RESUMEN: RONDA PARCIAL (66 de 142 sitios del objetivo) ***
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✗ proceso.ronda_mutacion_concluyente           valor 1 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes probados murieron, pero la ronda fue PARCIAL: se probaron 66 de 142 sitios.
+Esto NO demuestra que los tests fijen el módulo completo.

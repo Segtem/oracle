@@ -1,0 +1,26 @@
+$ oracle test
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 1 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 0 medidas · 0 macros · 1 casos · 0 relaciones
+
+catálogo: 0 medidas · corpus: 1 casos
+
+
+defectos que se pusieron rojos: 0 · verdes correctos: 0 · sin evidencia esperada: 0 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+
+ACEPTACIÓN ✗ — 1 problema(s)
+  · 005-barco-fila-desbordada: reclama la medida «naval.barcos_dentro_del_tablero» y no está en el catálogo
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+MUTACIÓN: salteada (sin medidas todavía)
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: ROJO (falló: aceptación)

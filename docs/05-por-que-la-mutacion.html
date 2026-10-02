@@ -65,52 +65,57 @@ Próximos pasos:
   1. Creá un caso:     oracle caso &lt;grupo/id&gt;
   2. Creá una medida:  oracle nueva &lt;dominio.nombre&gt;
   3. Verificá todo:    oracle test</code></pre>
-<pre class="archivo" data-lenguaje="oracle.json"><code>{&quot;esquema&quot;:&quot;oracle.proyecto/v1&quot;,&quot;catalogo_base&quot;:true,&quot;perfiles&quot;:[]}</code></pre>
+<pre class="archivo" data-lenguaje="oracle.json"><code>{&quot;esquema&quot;:&quot;oracle.proyecto/v1&quot;,&quot;catalogo_base&quot;:true,&quot;perfiles&quot;:[]}
+</code></pre>
 <pre class="archivo" data-lenguaje="catalogos/documento/documento.nombre_sigue_la_convencion.oracle"><code><span class="tok-storage">ninguno</span> <span class="tok-entity">documento.nombre_sigue_la_convencion</span>:
 <span class="tok-keyword">    de</span> documento d
 <span class="tok-keyword">    donde</span> <span class="tok-variable">d</span>.<span class="tok-property">sigue_convencion</span> <span class="tok-operator">==</span> <span class="tok-keyword">false</span>
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;la convención de nombres es lo que hace que el índice se pueda generar solo; un archivo fuera de convención lo rompe&quot;</span>
-    ambito universal
-<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;no ve el contenido del documento, sólo su nombre; y no juzga si la convención en sí es buena&quot;</span></code></pre>
+<span class="tok-keyword">    ambito</span> universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;no ve el contenido del documento, sólo su nombre; y no juzga si la convención en sí es buena&quot;</span>
+</code></pre>
 <pre class="archivo" data-lenguaje="corpus/documento/001-un-nombre-fuera-de-convencion.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">001-un-nombre-fuera-de-convencion</span>:
-    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-09-25&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;aula/biblioteca&quot;</span>
-        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;aula/biblioteca&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sin-commit&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Un nombre fuera de convención&quot;</span>
-    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">falso_verde</span>
 <span class="tok-keyword">    sintoma</span>:
         Un documento tiene nombre fuera de convención.
-    como_se_detecto: <span class="tok-constant">persona</span>
-    medida: <span class="tok-variable">documento</span>.<span class="tok-property">nombre_sigue_la_convencion</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">persona</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">documento</span>.<span class="tok-property">nombre_sigue_la_convencion</span>
 <span class="tok-keyword">    evidencia</span>:
         documento: nombre, sigue_convencion
             <span class="tok-string">&quot;notas finales.md&quot;</span>, <span class="tok-keyword">false</span>
 <span class="tok-keyword">    leccion</span>:
-        El nombre fuera de convención debe ponerse rojo.</code></pre>
+        El nombre fuera de convención debe ponerse rojo.
+</code></pre>
 <pre class="archivo" data-lenguaje="corpus/documento/002-un-lote-en-convencion.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">002-un-lote-en-convencion</span>:
-    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-09-25&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;aula/biblioteca&quot;</span>
-        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;aula/biblioteca&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sin-commit&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Dos nombres en convención&quot;</span>
-    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">verde_correcto</span>
 <span class="tok-keyword">    sintoma</span>:
         Ambos nombres respetan la convención.
-    como_se_detecto: <span class="tok-constant">persona</span>
-    medida: <span class="tok-variable">documento</span>.<span class="tok-property">nombre_sigue_la_convencion</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">persona</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">documento</span>.<span class="tok-property">nombre_sigue_la_convencion</span>
 <span class="tok-keyword">    evidencia</span>:
         documento: nombre, sigue_convencion
             <span class="tok-string">&quot;2026-08-31-GUIA-Convencion-v1.0.md&quot;</span>, <span class="tok-keyword">true</span>
             <span class="tok-string">&quot;2026-09-01-INFORME-Primera-Medida-v1.0.md&quot;</span>, <span class="tok-keyword">true</span>
 <span class="tok-keyword">    leccion</span>:
-        Ninguno de estos nombres debe ponerse rojo.</code></pre>
+        Ninguno de estos nombres debe ponerse rojo.
+</code></pre>
 <pre class="archivo" data-lenguaje="relaciones/documento.relacion"><code><span class="tok-storage">relacion</span> <span class="tok-entity">documento</span>:
     nombre: texto
     sigue_convencion: booleano
-<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;el sensor lee el NOMBRE del archivo y nada más: no abre el documento, no mira su contenido ni su fecha de modificación&quot;</span></code></pre>
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;el sensor lee el NOMBRE del archivo y nada más: no abre el documento, no mira su contenido ni su fecha de modificación&quot;</span>
+</code></pre>
 <p>En el proyecto de juguete, tu medida tiene una estructura simple: una sola fuente, un filtro booleano, conteo y umbral <code>&lt;= 0</code>. De los 30 mutadores del motor, <strong>nueve</strong> aplican a esa sintaxis (los otros mutan uniones, agrupamientos, cotas o agregados que esa medida no usa):</p>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
@@ -258,8 +263,9 @@ VEREDICTO: ROJO (falló: aceptación, mutación)</code></pre>
 <span class="tok-keyword">    de</span> documento d
 <span class="tok-keyword">    donde</span> <span class="tok-variable">d</span>.<span class="tok-property">sigue_convencion</span> <span class="tok-operator">==</span> <span class="tok-keyword">false</span>
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">1</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;la convención de nombres es lo que hace que el índice se pueda generar solo; un archivo fuera de convención lo rompe&quot;</span>
-    ambito universal
-<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;no ve el contenido del documento, sólo su nombre; y no juzga si la convención en sí es buena&quot;</span></code></pre>
+<span class="tok-keyword">    ambito</span> universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;no ve el contenido del documento, sólo su nombre; y no juzga si la convención en sí es buena&quot;</span>
+</code></pre>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>CATÁLOGO INVÁLIDO — ./biblioteca/catalogos/documento/documento.nombre_sigue_la_convencion.oracle: línea 4, columna 5: la macro ninguno no coincide con su plantilla declarada: se esperaba 0; llegó 1
    4 |     umbral &lt;= 1 segun contrato porque &quot;la convención de nombres es lo que hace que el índice se pueda generar solo; un archivo fuera de convención lo rompe&quot;
@@ -295,13 +301,13 @@ VEREDICTO: ROJO (catálogo no pudo cargarse)</code></pre>
 <script src="./assets/pixel-sitio.js" defer></script>
 <script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
-document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+document.querySelectorAll(".prosa pre:not(.salida):not(.arbol)").forEach((pre) => {
   const b = document.createElement("button");
   b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
   b.addEventListener("click", () => {
-    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+    navigator.clipboard.writeText(pre.querySelector("code").textContent)
       .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
-      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
   });
   pre.append(b);
 });

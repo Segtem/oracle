@@ -18,4 +18,4 @@ Verificación final: python3 tools/guia.py --escribir (0 salidas actualizadas), 
 
 ## Próximo paso
 
-Revisar el diff de esta tarea para su eventual versionado; no queda implementación pendiente.
+Sin implementación pendiente. Pasos manuales integrados y reproducidos desde el HTML en de-cero-novato; su tarea conserva la evidencia del cierre conjunto.

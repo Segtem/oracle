@@ -13,7 +13,7 @@
             "2": { "name": "entity.name.function.oracle" } } },
 
         { "comment": "Los cinco operadores del álgebra, más las cláusulas obligatorias",
-          "match": "^\\s*(de|donde|unir|agrupar|resumen|umbral|requiere|alcance|clave|agregado|evidencia|leccion|sintoma|origen|titulo|texto|fuente|medido_por|sin_medir)\\b",
+          "match": "^\\s*(de|donde|unir|agrupar|resumen|umbral|requiere|alcance|clave|agregado|evidencia|leccion|sintoma|origen|titulo|texto|fuente|medido_por|sin_medir|sin|ambito|fecha|repo|commit|procedencia|etiqueta|como_se_detecto|medida|espera)\\b",
           "name": "keyword.control.oracle" },
 
         { "comment": "`porque` y `segun` viajan dentro de la línea del umbral",

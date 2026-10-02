@@ -1,0 +1,8 @@
+SINTAXIS ✗ — 1 archivo(s) fuera de la forma única
+  · corpus/naval/005-barco-fila-desbordada.caso
+    @@ salto de línea final @@
+    - sin salto final
+    + con salto final
+    oracle formatear corpus/naval/005-barco-fila-desbordada.caso --escribir
+
+VEREDICTO: ROJO (sintaxis: forma única)

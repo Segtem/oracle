@@ -1,0 +1,16 @@
+· naval.barcos_rectos   SIN MEDIR: todavía no hay una medida para comprobar la forma de cada barco
+✓ naval.disparos   naval.tiros_dentro_del_tablero, naval.tiros_sin_repeticion
+✓ naval.final   naval.fin_de_juego_sin_tiros_posteriores, naval.ganador_legitimo
+◐ naval.flota   naval.barcos_dentro_del_tablero, naval.barcos_sin_solapamiento, naval.flota_reglamentaria · SIN MEDIR: la forma recta y continua de cada barco
+✓ naval.impactos   naval.veracidad_impacto_negativo, naval.veracidad_impacto_positivo
+✓ naval.turnos   naval.alternancia_turnos, naval.turnos_sin_huecos
+
+6 requisitos: 4 medidos · 1 en parte · 1 sin medir · 0 con medidas inexistentes
+· naval.barcos_rectos   sin medir · SIN MEDIR: todavía no hay una medida para comprobar la forma de cada barco
+✓ naval.disparos   cumple · naval.tiros_dentro_del_tablero cumple, naval.tiros_sin_repeticion cumple
+✓ naval.final   cumple · naval.fin_de_juego_sin_tiros_posteriores cumple, naval.ganador_legitimo cumple
+◐ naval.flota   cumple · naval.barcos_dentro_del_tablero cumple, naval.barcos_sin_solapamiento cumple, naval.flota_reglamentaria cumple · SIN MEDIR: la forma recta y continua de cada barco
+✓ naval.impactos   cumple · naval.veracidad_impacto_negativo cumple, naval.veracidad_impacto_positivo cumple
+✓ naval.turnos   cumple · naval.alternancia_turnos cumple, naval.turnos_sin_huecos cumple
+
+6 requisitos: 5 se cumplen (1 sólo en lo medido) · 0 no se cumplen · 0 sin juicio · 1 sin medir · 0 con medidas inexistentes

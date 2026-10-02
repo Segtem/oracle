@@ -1,5 +1,7 @@
 """Las páginas de documentación del sitio se generan desde los `.md` y no pueden quedar atrás."""
 
+import html
+import re
 import unittest
 
 from tools import sitio
@@ -33,6 +35,32 @@ class ElConvertidorTests(unittest.TestCase):
     def test_el_codigo_se_escapa_y_no_se_interpreta(self) -> None:
         salida = self.convertir("```\n<b>**no**</b>\n```")
         self.assertIn("&lt;b&gt;**no**&lt;/b&gt;", salida)
+
+    def test_los_archivos_incluidos_se_pueden_copiar_sin_perder_texto(self) -> None:
+        texto = (sitio.DOCS / "de-cero.md").read_text(encoding="utf-8")
+        archivos = re.findall(r"^```\w+ archivo=(\S+) incluir=(\S+)$", texto, re.M)
+        self.assertGreater(len(archivos), 50)
+        for destino, fuente in archivos:
+            with self.subTest(archivo=destino, fuente=fuente):
+                bloque = self.convertir(f"```oracle archivo={destino} incluir={fuente}\n```\n")
+                codigo = re.search(r"<code>(.*?)</code>", bloque, re.S).group(1)
+                copiado = html.unescape(re.sub(r"</?span\b[^>]*>", "", codigo))
+                self.assertEqual(copiado, (sitio.RAIZ / fuente).read_text(encoding="utf-8"))
+
+    def test_toda_clave_de_un_caso_y_de_una_medida_se_colorea(self) -> None:
+        # Hasta el 2026-10-01 la gramática pintaba `origen` y `titulo` pero no `fecha` ni
+        # `procedencia`: en un mismo caso, la mitad de las claves salía sin color.
+        for clave in ("fecha", "repo", "commit", "procedencia", "etiqueta", "como_se_detecto", "medida",
+                      "espera", "ambito", "sin", "origen", "titulo"):
+            with self.subTest(clave=clave):
+                self.assertIn(f'<span class="tok-keyword">    {clave}</span>', sitio.colorear_oracle(f"    {clave}: x"))
+
+    def test_un_arbol_se_rotula_y_no_se_ofrece_para_copiar(self) -> None:
+        html = self.convertir("```text arbol\nbatalla-naval/\n└── oracle.json\n```")
+        self.assertIn('<pre class="arbol" data-lenguaje="así tiene que quedar tu carpeta">', html)
+        self.assertIn("└── oracle.json", html)
+        self.assertNotIn('class="salida"', html)
+        self.assertIn('.prosa pre:not(.salida):not(.arbol)', (sitio.RAIZ / "docs/de-cero.html").read_text(encoding="utf-8"))
 
     def test_medida_coloreada_con_la_gramatica_del_editor(self) -> None:
         entrada = 'medida naval.prueba:\n    donde t.fila < 2 y t.columna == "<x>" # nota'

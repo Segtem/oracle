@@ -1,0 +1,6 @@
+catalogos/naval/naval.barcos_dentro_del_tablero.oracle: requiere formato
+  @@ salto de línea final @@
+  - sin salto final
+  + con salto final
+catalogos/naval/naval.barcos_dentro_del_tablero.oracle: escrito
+corpus/naval/005-barco-fila-desbordada.caso: ya tiene forma única

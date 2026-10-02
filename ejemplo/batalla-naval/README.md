@@ -89,8 +89,12 @@ Para comprobar que el oráculo funciona y **no es complaciente** (es decir, que 
 python3 verificar_oraculo.py
 ```
 
+En Windows, si `python3` no se reconoce, usá `python verificar_oraculo.py`.
+El script busca `partida_real.json` (incluido en el ejemplo del repositorio). Si no lo encuentra,
+lee `hechos_partida.json`, el nombre que usa la guía y que descarga el juego. No hace falta renombrarlo.
+
 El script realiza:
-1. **Partida real guardada**: lee `partida_real.json` y ejecuta `oracle juzgar`, confirmando **VEREDICTO: verde en 11 medidas**.
+1. **Partida real guardada**: lee el archivo de partida y ejecuta `oracle juzgar`, confirmando **VEREDICTO: verde en 11 medidas**.
 2. **Inyección de infracciones (contraejemplos)**:
    - Inyecta un disparo duplicado $\rightarrow$ Atrapado por `naval.tiros_sin_repeticion` (ROJO).
    - Inyecta un disparo en fila 14 $\rightarrow$ Atrapado por `naval.tiros_dentro_del_tablero` (ROJO).

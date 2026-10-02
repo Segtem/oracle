@@ -56,7 +56,8 @@ Próximos pasos:
   &quot;esquema&quot;: &quot;oracle.proyecto/v1&quot;,
   &quot;catalogo_base&quot;: false,
   &quot;perfiles&quot;: []
-}</code></pre>
+}
+</code></pre>
 <hr class="divisor-pixel" aria-hidden="true">
 <h2 id="1-pares-no-orientados-la-clave-ordenable-lt"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>1. Pares no orientados: la clave ordenable <code>&lt;</code><a class="ancla" href="#1-pares-no-orientados-la-clave-ordenable-lt" aria-label="Enlace a esta sección">#</a></h2>
 <h3 id="el-problema--infla-el-conteo-y-deja-vivos-mutantes">El problema: <code>!=</code> infla el conteo y deja vivos mutantes<a class="ancla" href="#el-problema--infla-el-conteo-y-deja-vivos-mutantes" aria-label="Enlace a esta sección">#</a></h3>
@@ -79,47 +80,50 @@ Próximos pasos:
 <span class="tok-keyword">    donde</span> <span class="tok-variable">a</span>.<span class="tok-property">nombre</span> <span class="tok-operator">&lt;</span> <span class="tok-variable">b</span>.<span class="tok-property">nombre</span> <span class="tok-keyword">y</span> <span class="tok-variable">a</span>.<span class="tok-property">puerto</span> <span class="tok-operator">==</span> <span class="tok-variable">b</span>.<span class="tok-property">puerto</span>
 <span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;dos servicios no pueden compartir el mismo puerto de escucha&quot;</span>
-    ambito universal
-<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;compara servicios de a pares por puerto. NO ve si el puerto está fuera de rango&quot;</span></code></pre>
+<span class="tok-keyword">    ambito</span> universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;compara servicios de a pares por puerto. NO ve si el puerto está fuera de rango&quot;</span>
+</code></pre>
 <h3 id="los-casos-rojo-y-verde">Los casos: rojo y verde<a class="ancla" href="#los-casos-rojo-y-verde" aria-label="Enlace a esta sección">#</a></h3>
 <p>Un caso rojo que presenta dos servicios en colisión y espera que la regla lo atrape:</p>
 <pre class="archivo" data-lenguaje="corpus/red/001-puerto-duplicado.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">001-puerto-duplicado</span>:
-    fecha: <span class="tok-string">&quot;2026-09-26&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-09-26&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;ejemplo/recetas&quot;</span>
-        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;ejemplo/recetas&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sin-commit&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;dos servicios escuchan en el mismo puerto&quot;</span>
-    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">falso_verde</span>
 <span class="tok-keyword">    sintoma</span>:
         Tanto web como api intentan enlazar el puerto <span class="tok-number">8080</span>.
-    como_se_detecto: <span class="tok-constant">persona</span>
-    medida: <span class="tok-variable">red</span>.<span class="tok-property">puerto_exclusivo</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">persona</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">red</span>.<span class="tok-property">puerto_exclusivo</span>
 <span class="tok-keyword">    evidencia</span>:
         servicio: nombre, puerto
             <span class="tok-string">&quot;api&quot;</span>, <span class="tok-number">8080</span>
             <span class="tok-string">&quot;web&quot;</span>, <span class="tok-number">8080</span>
 <span class="tok-keyword">    leccion</span>:
-        Un solo par en colision genera exactamente un testigo gracias a <span class="tok-operator">&lt;</span>.</code></pre>
+        Un solo par en colision genera exactamente un testigo gracias a <span class="tok-operator">&lt;</span>.
+</code></pre>
 <p>Y un caso verde donde cada servicio tiene su propio puerto:</p>
 <pre class="archivo" data-lenguaje="corpus/red/002-puertos-distintos.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">002-puertos-distintos</span>:
-    fecha: <span class="tok-string">&quot;2026-09-26&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-09-26&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;ejemplo/recetas&quot;</span>
-        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;ejemplo/recetas&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sin-commit&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;servicios con puertos independientes&quot;</span>
-    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">verde_correcto</span>
 <span class="tok-keyword">    sintoma</span>:
         Cada servicio escucha en su propio puerto sin conflicto.
-    como_se_detecto: <span class="tok-constant">persona</span>
-    medida: <span class="tok-variable">red</span>.<span class="tok-property">puerto_exclusivo</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">persona</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">red</span>.<span class="tok-property">puerto_exclusivo</span>
 <span class="tok-keyword">    evidencia</span>:
         servicio: nombre, puerto
             <span class="tok-string">&quot;api&quot;</span>, <span class="tok-number">8080</span>
             <span class="tok-string">&quot;web&quot;</span>, <span class="tok-number">9090</span>
 <span class="tok-keyword">    leccion</span>:
-        Servicios bien configurados <span class="tok-keyword">no</span> disparan la infraccion.</code></pre>
+        Servicios bien configurados <span class="tok-keyword">no</span> disparan la infraccion.
+</code></pre>
 <hr class="divisor-pixel" aria-hidden="true">
 <h2 id="2-contar-distintos-por-grupo-doble-agrupar"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>2. Contar distintos por grupo: doble <code>agrupar</code><a class="ancla" href="#2-contar-distintos-por-grupo-doble-agrupar" aria-label="Enlace a esta sección">#</a></h2>
 <h3 id="el-problema-no-existe-contar_distintos">El problema: no existe <code>contar_distintos</code><a class="ancla" href="#el-problema-no-existe-contar_distintos" aria-label="Enlace a esta sección">#</a></h3>
@@ -141,22 +145,23 @@ Próximos pasos:
 <span class="tok-keyword">    donde</span> distintos <span class="tok-operator">&gt;</span> <span class="tok-number">2</span>
 <span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;ningún nodo puede alojar más de dos servicios distintos&quot;</span>
-    ambito universal
-<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;cuenta servicios distintos por nodo. NO ve el consumo de memoria ni CPU&quot;</span></code></pre>
+<span class="tok-keyword">    ambito</span> universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;cuenta servicios distintos por nodo. NO ve el consumo de memoria ni CPU&quot;</span>
+</code></pre>
 <h3 id="los-casos-rojo-y-verde-1">Los casos: rojo y verde<a class="ancla" href="#los-casos-rojo-y-verde-1" aria-label="Enlace a esta sección">#</a></h3>
 <p>Un caso rojo con filas repetidas donde un nodo aloja tres servicios distintos (<code>web</code>, <code>api</code>, <code>db</code>), violando el límite:</p>
 <pre class="archivo" data-lenguaje="corpus/red/003-nodo-con-tres-servicios.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">003-nodo-con-tres-servicios</span>:
-    fecha: <span class="tok-string">&quot;2026-09-26&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-09-26&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;ejemplo/recetas&quot;</span>
-        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;ejemplo/recetas&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sin-commit&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;un nodo supera el maximo de servicios distintos&quot;</span>
-    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">falso_verde</span>
 <span class="tok-keyword">    sintoma</span>:
         El nodo n1 aloja tres servicios distintos a pesar de tener filas duplicadas.
-    como_se_detecto: <span class="tok-constant">persona</span>
-    medida: <span class="tok-variable">red</span>.<span class="tok-property">servicios_por_nodo</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">persona</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">red</span>.<span class="tok-property">servicios_por_nodo</span>
 <span class="tok-keyword">    evidencia</span>:
         despliegue: nodo, servicio
             <span class="tok-string">&quot;n1&quot;</span>, <span class="tok-string">&quot;web&quot;</span>
@@ -164,20 +169,21 @@ Próximos pasos:
             <span class="tok-string">&quot;n1&quot;</span>, <span class="tok-string">&quot;api&quot;</span>
             <span class="tok-string">&quot;n1&quot;</span>, <span class="tok-string">&quot;db&quot;</span>
 <span class="tok-keyword">    leccion</span>:
-        Doble agrupar deduplica web <span class="tok-keyword">y</span> cuenta <span class="tok-number">3</span> servicios distintos, superando el limite.</code></pre>
+        Doble agrupar deduplica web <span class="tok-keyword">y</span> cuenta <span class="tok-number">3</span> servicios distintos, superando el limite.
+</code></pre>
 <p>Y un caso verde con réplicas duplicadas que confirman que las repeticiones no inflan la cuenta de distintos:</p>
 <pre class="archivo" data-lenguaje="corpus/red/004-nodo-dentro-del-limite.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">004-nodo-dentro-del-limite</span>:
-    fecha: <span class="tok-string">&quot;2026-09-26&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-09-26&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;ejemplo/recetas&quot;</span>
-        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;ejemplo/recetas&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sin-commit&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;nodo con dos servicios distintos y replicas repetidas&quot;</span>
-    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">verde_correcto</span>
 <span class="tok-keyword">    sintoma</span>:
         El nodo n1 aloja dos servicios con varias instancias cada uno.
-    como_se_detecto: <span class="tok-constant">persona</span>
-    medida: <span class="tok-variable">red</span>.<span class="tok-property">servicios_por_nodo</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">persona</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">red</span>.<span class="tok-property">servicios_por_nodo</span>
 <span class="tok-keyword">    evidencia</span>:
         despliegue: nodo, servicio
             <span class="tok-string">&quot;n1&quot;</span>, <span class="tok-string">&quot;web&quot;</span>
@@ -185,7 +191,8 @@ Próximos pasos:
             <span class="tok-string">&quot;n1&quot;</span>, <span class="tok-string">&quot;api&quot;</span>
             <span class="tok-string">&quot;n2&quot;</span>, <span class="tok-string">&quot;db&quot;</span>
 <span class="tok-keyword">    leccion</span>:
-        Las replicas duplicadas <span class="tok-keyword">no</span> inflan la cuenta de distintos.</code></pre>
+        Las replicas duplicadas <span class="tok-keyword">no</span> inflan la cuenta de distintos.
+</code></pre>
 <hr class="divisor-pixel" aria-hidden="true">
 <h2 id="3-verificación-con-oracle-test"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>3. Verificación con <code>oracle test</code><a class="ancla" href="#3-verificación-con-oracle-test" aria-label="Enlace a esta sección">#</a></h2>
 <p>Con ambas medidas y sus cuatro casos en el proyecto, ejecutamos la verificación completa:</p>
@@ -240,13 +247,13 @@ VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</code></pre>
 <script src="./assets/pixel-sitio.js" defer></script>
 <script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
-document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+document.querySelectorAll(".prosa pre:not(.salida):not(.arbol)").forEach((pre) => {
   const b = document.createElement("button");
   b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
   b.addEventListener("click", () => {
-    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+    navigator.clipboard.writeText(pre.querySelector("code").textContent)
       .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
-      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
   });
   pre.append(b);
 });

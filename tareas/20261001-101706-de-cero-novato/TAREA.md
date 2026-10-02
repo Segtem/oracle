@@ -47,7 +47,19 @@ Se reescribió la prosa de `docs/de-cero.md` manteniendo el tono rioplatense, fr
 ### Qué no se resolvió de la auditoría (y por qué):
 - Los puntos de la auditoría referidos al contenido interno de los archivos del ejemplo incluidos por referencia (como el `README.md` con fórmulas LaTeX y comandos `xdg-open`, o el shebang de Linux en `verificar_oraculo.py`) no se modificaron directamente en sus archivos fuente de `ejemplo/batalla-naval/` para cumplir estrictamente la regla de no alterar los bloques de código ni los archivos de los ejemplos que son validados por los tests automatizados y el trabajo de otros agentes en paralelo. En su lugar, se explicó su propósito y comandos equivalentes en la prosa de la guía.
 
+
+### Nota (2026-10-02 00:40:10 UTC)
+
+Revisión del relevo (2026-10-01, Codex): hay 8 tareas abiertas. main está 4 commits por delante de origin/main local y había 37 archivos modificados al empezar. Los pasos manuales, árboles y resaltado figuran CERRADOS; de-cero-novato sigue ABIERTA. Se recuperó el log de Claude bffm8jbo0.output: tools/sitio.py 137-211: 28/28 muertos; 411-411: 4/4 muertos; tools/guia.py 84-172: 64/66 muertos, vivos tools/guia.py:169:80:constante y tools/guia.py:171:45:constante (1 a 2). La tanda acabó con árbol sin cambios; el exit 0 del envoltorio no significa que no haya supervivientes. Evidencia preservada en mutacion-relevo.log dentro de esta tarea. No se repitieron la suite ni oracle test en esta revisión; git diff --check pasó. Falta revisar los supervivientes y ejecutar la validación independiente de la guía nueva desde una carpeta vacía antes del cierre y push.
+
+### Nota (2026-10-02 00:56:42 UTC)
+
+Continuación con ask-agy1 y ask-agy2 de ~/bin, autorizados por Brian. Cada agente trabaja en una copia separada bajo /tmp/oracle-cierre-novato. agy1 confirmó que los supervivientes no son equivalentes: L169 cambia la ubicación del diagnóstico y L171 conserva la primera línea del árbol viejo al reescribirlo. Tests integrados en test_guia.py y test_guia_rapida.py; 20 focalizados OK. Informe guardado como revision-mutantes-agy1.txt. Se corrigió la prosa de docs/de-cero.md: rótulos reales del HTML, árbol como referencia, alcance real del test automático, descripción de Git y recuperación si Oracle no está en PATH antes de crear la carpeta. Comando uv tool update-shell contrastado con uv local y https://docs.astral.sh/uv/concepts/tools/. Mutaciones de sitio y guía lanzadas sobre copias fijas; agy2 sigue la guía HTML desde una carpeta vacía con instalación aislada.
+
+### Nota (2026-10-02 09:45:13 UTC)
+
+Cierre técnico verificado: agy1 resolvió la cobertura de los dos supervivientes; agy2 recorrió las nueve misiones con Oracle 0.38.0 aislado. Dos hallazgos reales corregidos y registrados en script-naval-guia y copiar-forma-unica. Su informe crudo y logs se preservan, con revisión-hallazgos.txt que descarta dos afirmaciones incorrectas al contrastar la página original. Reproducción independiente del HTML corregido: 14 bloques de comandos, 63 escrituras, todas las salidas comparadas y script complementario OK. Verificación final: oracle test código 0, 2256 unitarios OK, 1026/1026 mutantes de medida, VERDE con mutación de código completa omitida. Mutación focalizada: guía 66/66 y sitio final 36/36 muertos, 0 supervivientes/timeouts/errores; ambas rondas parciales (código 2 esperado). Sitio generado al día y git diff --check OK. El primer intento de suite descubrió caché dejada por el test nuevo en el ejemplo; se aisló la importación en temporal, pasaron 4 tests focalizados y luego la suite completa. No se validaron clics del juego ni Windows/macOS ni una persona real; pilotos-externos conserva esa validación humana pendiente.
+
 ## Próximo paso
 
-Hacer una lectura de validación de la guía con un usuario sin conocimientos de programación para comprobar que pueda seguir el flujo completo desde una máquina limpia sin trabarse en ningún paso.
-
+Registrar los commits de cierre de script-naval-guia, copiar-forma-unica y esta tarea; empujar main. La implementación y las verificaciones ya terminaron. La validación humana sigue en pilotos-externos.

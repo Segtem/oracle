@@ -1,0 +1,98 @@
+INFORME DE ANÁLISIS Y MATANZA DE MUTANTES EN TOOLS/GUIA.PY
+Agente: agy1
+Fecha: 2026-10-01
+Tarea: Oracle de-cero-novato (copia aislada)
+
+1. REVISIÓN DE MUTANTES VIVOS
+=============================
+Los mutantes reportados como supervivientes en `tools/guia.py 84-172` son:
+- `tools/guia.py:169:80:constante` (constante: 1 → 2)
+- `tools/guia.py:171:45:constante` (constante: 1 → 2)
+
+Líneas afectadas en `tools/guia.py`:
+165:             if cabecera == ["text", "arbol"]:
+166:                 real = arbol(cwd)
+167:                 if real != cuerpo:
+168:                     if not escribir:
+169:                         raise AssertionError(f"Árbol viejo en línea {inicio + 1}; ejecutá "
+170:                                              "python3 tools/guia.py --escribir")
+171:                     cambios.append((inicio + 1, fin, real))
+172:                 continue
+
+2. DETERMINACIÓN DE EQUIVALENCIA
+================================
+¿Son mutantes equivalentes al código original o entre sí?
+NO son equivalentes. Ambos son DEFECTOS DISTINGUIBLES y no equivalentes:
+
+- `tools/guia.py:169:80:constante` (1 → 2):
+  El mutante sustituye `inicio + 1` por `inicio + 2` en el mensaje de error:
+  `f"Árbol viejo en línea {inicio + 2}; ejecutá python3 tools/guia.py --escribir"`.
+  Diagnóstico: Esto produce un reporte incorrecto del número de línea (off-by-one). La ubicación exacta del error es parte del contrato de interfaz y diagnóstico para el usuario. El test preexistente (`test_arbol_desactualizado_falla` en `tests/test_guia.py`) tenía una aserción laxa `assertRaisesRegex(AssertionError, "Árbol viejo")` que no validaba la línea informada, permitiendo que el mutante sobreviviera. Al exigir la ubicación exacta, el defecto queda expuesto y se distingue del comportamiento esperado.
+
+- `tools/guia.py:171:45:constante` (1 → 2):
+  El mutante sustituye `inicio + 1` por `inicio + 2` en:
+  `cambios.append((inicio + 2, fin, real))`.
+  Diagnóstico: En `reemplazar_salidas(lineas, cambios)`, el reemplazo opera con `resultado[inicio + 2 : fin] = real.splitlines(...)`. Como `inicio` es el índice del fence de apertura ```text arbol, `inicio + 1` corresponde a la primera línea del cuerpo del árbol. Con la mutación a `inicio + 2`, la primera línea vieja del árbol NO se elimina y se conserva antes del nuevo árbol. Esto provoca:
+  1) Corrupción del archivo Markdown, dejando una línea residual espuria del árbol viejo.
+  2) En una verificación posterior inmediata (roundtrip `verificar(escribir=False)`), el documento falla con `AssertionError: Árbol viejo en línea ...` porque `real != cuerpo`.
+  Ningún test anterior ejecutaba `verificar(escribir=True)` sobre un bloque `text arbol`. Al verificar la regeneración completa, la preservación de fences/contenido contiguo y el roundtrip escritura-verificación, el mutante queda completamente distinguido y eliminado.
+
+- Distinción entre ambos mutantes:
+  Son ortogonales: L169 opera en modo de solo lectura/verificación (`escribir=False`), mientras que L171 opera en modo de reescritura (`escribir=True`).
+
+3. CAMBIOS IMPLEMENTADOS
+========================
+Para evitar duplicación y respetar la arquitectura del proyecto (donde `tools/mutar_codigo.py` mapea `tools/guia.py` a `tests.test_guia_rapida` primero y luego a `tests.test_guia`):
+
+A) En `tests/test_guia.py`:
+   Se actualizó el test existente `test_arbol_desactualizado_falla` para que verifique la ubicación exacta del error (con preámbulo en línea 3) mediante regex estricta:
+   `r"^Árbol viejo en línea 3; ejecutá python3 tools/guia\.py --escribir$"`
+
+B) En `tests/test_guia_rapida.py`:
+   En la clase `GuiaMinimaTests`, se incorporaron dos tests rápidos y aislados:
+   1. `test_arbol_desactualizado_reporta_linea_exacta`:
+      Crea un archivo con preámbulo, bloque Python previo y bloque `text arbol` desactualizado en línea 9. Comprueba que `guia.verificar` lance `AssertionError` reportando exactamente `línea 9`:
+      `r"^Árbol viejo en línea 9; ejecutá python3 tools/guia\.py --escribir$"`
+      (Mata de forma directa a `tools/guia.py:169:80:constante`).
+
+   2. `test_escribir_regenera_arbol_preservando_fences_y_roundtrip`:
+      Verifica que con `escribir=True`:
+      - El cuerpo multilínea del árbol viejo sea sustituido completamente por el árbol real (la primera línea vieja NO sobrevive).
+      - El fence de apertura (````text arbol\n````) y el fence de cierre (```` ```\n````) se conserven intactos.
+      - El contenido posterior al bloque de árbol se conserve íntegro.
+      - Roundtrip: una llamada subsiguiente a `guia.verificar(escribir=False, guia=guia_arbol)` se complete exitosamente sin excepciones.
+      (Mata de forma directa a `tools/guia.py:171:45:constante (1 a 2)`).
+
+4. COMANDOS EJECUTADOS Y RESULTADOS
+===================================
+A) Tests relevantes en código original (sin mutación):
+   $ python3 -m unittest tests/test_guia_rapida.py
+   Ran 19 tests in 0.095s
+   OK
+
+   $ python3 -m unittest tests.test_guia.GuiaTests.test_arbol_desactualizado_falla
+   Ran 1 test in 0.000s
+   OK
+
+B) Verificación de muerte de mutantes (simulación aislada en memoria):
+   - Mutante L169 (1 → 2):
+     * `test_arbol_desactualizado_reporta_linea_exacta` falla:
+       AssertionError: "^Árbol viejo en línea 9; ejecutá python3 tools/guia\.py --escribir$" does not match "Árbol viejo en línea 10; ejecutá python3 tools/guia.py --escribir"
+     * `test_arbol_desactualizado_falla` falla:
+       AssertionError: "^Árbol viejo en línea 3; ejecutá python3 tools/guia\.py --escribir$" does not match "Árbol viejo en línea 4; ejecutá python3 tools/guia.py --escribir"
+     -> MUTANTE L169 MUERTO.
+
+   - Mutante L171 (1 → 2):
+     * `test_escribir_regenera_arbol_preservando_fences_y_roundtrip` falla:
+       AssertionError en assertEqual (el archivo contiene `- arbol viejo linea 1` residual antes del árbol generado).
+       Además, el roundtrip falla con:
+       AssertionError: Árbol viejo en línea 9; ejecutá python3 tools/guia.py --escribir
+     -> MUTANTE L171 MUERTO.
+
+5. POLÍTICA DE MODIFICACIÓN Y REPOSITORIO
+=========================================
+- Sólo se modificaron `tests/test_guia.py` y `tests/test_guia_rapida.py`.
+- No se editaron archivos de producción (`tools/`), documentación (`docs/`), tareas (`tareas/`) ni `equivalentes.json`.
+- No se realizaron commits ni push.
+- No se alteró ningún archivo fuera de `/tmp/oracle-cierre-novato/agy1`.
+- El relevo queda listo para ser registrado por el coordinador.

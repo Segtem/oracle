@@ -1,0 +1,15 @@
+✓ naval.barcos_dentro_del_tablero                     0 (<= 0)
+✓ naval.barcos_sin_solapamiento                       0 (<= 0)
+✓ naval.flota_reglamentaria                           0 (<= 0)
+✓ naval.ganador_legitimo                              0 (<= 0)
+
+NO SE APLICARON (7) — su relación no vino en la evidencia:
+  · naval.alternancia_turnos: falta tiro
+  · naval.fin_de_juego_sin_tiros_posteriores: falta tiro
+  · naval.tiros_dentro_del_tablero: falta tiro
+  · naval.tiros_sin_repeticion: falta tiro
+  · naval.turnos_sin_huecos: falta tiro
+  · naval.veracidad_impacto_negativo: falta tiro
+  · naval.veracidad_impacto_positivo: falta tiro
+
+VEREDICTO: 7 medidas propias sin aplicar (usá --parcial para una corrida deliberadamente parcial)

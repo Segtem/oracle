@@ -1,0 +1,12 @@
+$ uv tool install oracle-metalenguaje
+Resolved 1 package in 456ms
+Prepared 1 package in 214ms
+Installed 1 package in 6ms
+ + oracle-metalenguaje==0.38.0
+Installed 9 executables: oracle, oracle-aceptacion, oracle-corpus, oracle-diferencial, oracle-estudio, oracle-lsp, oracle-medida, oracle-mutar, oracle-mutar-codigo
+
+$ oracle --version
+oracle 0.38.0
+  álgebra:  1.0   (qué SIGNIFICA una medida)
+  sintaxis: 1.1   (cómo se ESCRIBE)
+  corriendo desde: /tmp/oracle-cierre-novato/agy2/uv-isolated/tools/oracle-metalenguaje/lib/python3.13/site-packages/oracle_metalenguaje

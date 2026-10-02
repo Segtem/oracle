@@ -91,7 +91,7 @@ oracle convertir &lt;directorio&gt; --a-superficie --escribir  # convierte y ret
 <span class="tok-keyword">    donde</span> <span class="tok-variable">m</span>.<span class="tok-property">detecciones_conductuales</span> <span class="tok-operator">==</span> <span class="tok-number">0</span> <span class="tok-keyword">y</span> <span class="tok-variable">m</span>.<span class="tok-property">rechazos_del_algebra</span> <span class="tok-operator">==</span> <span class="tok-number">0</span>
 <span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;un mutante que sobrevive es un test que no discrimina: pasa igual con el código roto&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;cuenta mutantes DECLARADOS que sobrevivieron. NO ve los mutadores que nadie escribió&quot;</span></code></pre>
 <p>Leélo en voz alta y ya sabés leer una medida de conteo: <strong>«de la relación <code>mutante</code>, alias <code>m</code>, quedate con los que sobrevivieron (<code>detecciones == 0</code> y <code>rechazos == 0</code>); contá cuántos quedaron; si son más de 0, rojo — porque un mutante vivo es un test que no discrimina; y esto no ve los mutantes que nadie llegó a escribir».</strong></p>
 <p>Un detalle que sorprende la primera vez: <strong>los testigos no se declaran aparte.</strong> Los testigos —las filas que se muestran cuando la medida da rojo, para que alguien pueda mirar el defecto— son exactamente las filas que sobrevivieron al último <code>donde</code>. No hay una segunda función que las calcule, porque escribir la misma condición dos veces es exactamente cómo se desincroniza (fue un defecto real del proyecto — ver §7).</p>
@@ -150,7 +150,7 @@ donde reales == 0</code></pre>
 <span class="tok-keyword">    de</span> mutante m
 <span class="tok-keyword">    donde</span> <span class="tok-variable">m</span>.<span class="tok-property">detecciones_conductuales</span> <span class="tok-operator">==</span> <span class="tok-number">0</span> <span class="tok-keyword">y</span> <span class="tok-variable">m</span>.<span class="tok-property">rechazos_del_algebra</span> <span class="tok-operator">==</span> <span class="tok-number">0</span>
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;un mutante que sobrevive es un test que no discrimina&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;cuenta mutantes DECLARADOS. NO ve los que nadie escribió&quot;</span></code></pre>
 <p>Expande EXACTO a la forma canónica de §2. <code>ninguno</code> cubre todo lo que se reduce a «filtrás lo que ofende, contás, cero es el único número aceptable».</p>
 <h3 id="peor--cuando-el-número-importa-no-la-cuenta"><code>peor</code> — cuando el número importa, no la cuenta<a class="ancla" href="#peor--cuando-el-número-importa-no-la-cuenta" aria-label="Enlace a esta sección">#</a></h3>
@@ -159,7 +159,7 @@ donde reales == 0</code></pre>
 <span class="tok-keyword">    donde</span> desvio_de_grilla(hecho(a), <span class="tok-number">100.0</span>) <span class="tok-operator">&gt;</span> <span class="tok-number">1.0</span>
 <span class="tok-keyword">    resumen</span> <span class="tok-support">max</span>(desvio_de_grilla(hecho(a), <span class="tok-number">100.0</span>))
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">1.0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">convencion</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;por debajo de 1 cm el desvío no se ve y no produce juntas visibles en una pieza de 4 m&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;desvío del PIVOTE respecto de la grilla. NO ve si el pivote está donde debería dentro de la malla&quot;</span></code></pre>
 <p>Ejemplo del catálogo de geometría de Jam. La tolerancia (<code>1.0</code>) aparece en <code>donde</code> y en <code>umbral</code>. La macro exige que ambos valores coincidan; si alguien cambia uno solo, la invocación falla. El desajuste fue un defecto real del proyecto (caso <code>012</code> del corpus).</p>
 <p>Expande a:</p>
@@ -168,7 +168,7 @@ donde reales == 0</code></pre>
 <span class="tok-keyword">    donde</span> desvio_de_grilla(hecho(a), <span class="tok-number">100.0</span>) <span class="tok-operator">&gt;</span> <span class="tok-number">1.0</span>
 <span class="tok-keyword">    resumen</span> <span class="tok-support">max</span>(desvio_de_grilla(hecho(a), <span class="tok-number">100.0</span>))
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">1.0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">convencion</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;por debajo de 1 cm el desvío no se ve y no produce juntas visibles en una pieza de 4 m&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;desvío del PIVOTE respecto de la grilla. NO ve si el pivote está donde debería dentro de la malla&quot;</span></code></pre>
 <h3 id="ninguno-par"><code>ninguno-par</code><a class="ancla" href="#ninguno-par" aria-label="Enlace a esta sección">#</a></h3>
 <pre data-lenguaje="oracle"><code><span class="tok-storage">ninguno-par</span> <span class="tok-entity">tareas.misma_persona_sobrecargada_el_mismo_dia</span>:
@@ -176,7 +176,7 @@ donde reales == 0</code></pre>
 <span class="tok-keyword">    unir</span> tarea b
 <span class="tok-keyword">    donde</span> <span class="tok-variable">a</span>.<span class="tok-property">dueno</span> <span class="tok-operator">==</span> <span class="tok-variable">b</span>.<span class="tok-property">dueno</span> <span class="tok-keyword">y</span> <span class="tok-variable">a</span>.<span class="tok-property">vence</span> <span class="tok-operator">==</span> <span class="tok-variable">b</span>.<span class="tok-property">vence</span> <span class="tok-keyword">y</span> <span class="tok-variable">a</span>.<span class="tok-property">id</span> <span class="tok-operator">!=</span> <span class="tok-variable">b</span>.<span class="tok-property">id</span>
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;dos tareas del mismo día para la misma persona compiten por las mismas horas&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;ve coincidencia de fecha y dueño. NO ve cuánto dura cada tarea ni si el día alcanza igual&quot;</span></code></pre>
 <p>(Ejemplo ilustrativo, con la misma forma que <code>vault.nombre_unico_en_el_vault</code> del catálogo real de Jam.) El patrón general de <code>ninguno-par</code>: <strong>igualar el campo que define el conflicto</strong> (<code>dueno</code> + <code>vence</code>) <strong>y exigir que difieran en la identidad</strong> (<code>id</code>) — si no, cada tarea se empareja consigo misma y el predicado da siempre verdadero.</p>
 <h3 id="las-macros-no-son-un-embudo">Las macros no son un embudo<a class="ancla" href="#las-macros-no-son-un-embudo" aria-label="Enlace a esta sección">#</a></h3>
@@ -192,7 +192,7 @@ donde reales == 0</code></pre>
 <span class="tok-keyword">    donde</span> desvio_de_paso(<span class="tok-variable">a</span>.<span class="tok-property">yaw</span>, <span class="tok-number">90.0</span>) <span class="tok-operator">&gt;</span> <span class="tok-number">0.5</span>
 <span class="tok-keyword">    resumen</span> <span class="tok-support">max</span>(desvio_de_paso(<span class="tok-variable">a</span>.<span class="tok-property">yaw</span>, <span class="tok-number">90.0</span>))
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0.5</span> <span class="tok-keyword">segun</span> <span class="tok-constant">convencion</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;medio grado en una pieza de 4 m da ~3 cm en la punta: el límite donde una junta se abre a la vista&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;sólo el YAW contra su paso. NO ve pitch ni roll, ni si la pieza mira al lado correcto&quot;</span></code></pre>
 <p><code>desvio_de_paso</code> no es parte del álgebra: es una <strong>función escalar</strong> (UDF) que el proyecto Jam declaró — ver §6. El álgebra no sabe nada de grados ni de grillas; sólo sabe llamar funciones declaradas y comparar sus resultados.</p>
 <h3 id="53-comparar-filas-entre-sí-con-unir-forma-canónica-sin-macro">5.3 Comparar filas entre sí con <code>unir</code> (forma canónica, sin macro)<a class="ancla" href="#53-comparar-filas-entre-sí-con-unir-forma-canónica-sin-macro" aria-label="Enlace a esta sección">#</a></h3>
@@ -202,7 +202,7 @@ donde reales == 0</code></pre>
 <span class="tok-keyword">    donde</span> <span class="tok-keyword">no</span> es_fondo(hecho(b)) <span class="tok-keyword">y</span> penetracion(hecho(a), hecho(b)) <span class="tok-operator">&gt;</span> <span class="tok-number">0</span>
 <span class="tok-keyword">    resumen</span> <span class="tok-support">max</span>(penetracion(hecho(a), hecho(b)))
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;`penetracion` ya descuenta la tolerancia de contacto: tocarse da 0 y clavarse da &gt;0&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;solape de AABB entre piezas de escala comparable. NO ve la malla real, oclusión visual, ni si la pieza quedó flotando&quot;</span></code></pre>
 <p>Por qué NO es una macro: <code>unir</code> combina DOS relaciones distintas (<code>pieza</code> y <code>vecina</code>), no la misma consigo misma. <code>ninguno-par</code> no encaja, así que se escribe la forma canónica.</p>
 <p>Fijate también <code>es_fondo</code>: sin ese filtro, cualquier pieza chica "interpenetraría" el fondo de escenografía (un SkySphere gigante) y la medida daría rojo siempre — un caso real de por qué el <code>alcance</code> y el filtro tienen que decir la verdad completa sobre qué se está comparando.</p>
@@ -212,7 +212,7 @@ donde reales == 0</code></pre>
 <span class="tok-keyword">    unir</span> objetivo b
 <span class="tok-keyword">    resumen</span> <span class="tok-support">min</span>(solape_lateral_minimo(hecho(a), hecho(b)))
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&gt;</span> <span class="tok-number">1.0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">convencion</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;el solape lateral debe superar la tolerancia de 1 cm: tocar una arista o estar en diagonal no cuenta&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;solape de AABB en los dos ejes laterales. NO ve cuánto de la cara real de la malla coincide&quot;</span></code></pre>
 <p>No todos los <code>desde</code> tienen <code>donde</code>: acá no hace falta filtrar, sólo unir y resumir directo con <code>min</code>. Fijate también el umbral <code>&gt;</code> en vez de <code>&lt;=</code> — el comparador lo elige la medida, no está fijo a <code>&lt;= 0</code>.</p>
 <h3 id="55-agrupar-en-un-caso-real-que-la-traza-de-una-simulación-no-tenga-huecos">5.5 <code>agrupar</code> en un caso real: que la traza de una simulación no tenga huecos<a class="ancla" href="#55-agrupar-en-un-caso-real-que-la-traza-de-una-simulación-no-tenga-huecos" aria-label="Enlace a esta sección">#</a></h3>
@@ -226,7 +226,7 @@ donde reales == 0</code></pre>
 <span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">convencion</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó&quot;</span>
 <span class="tok-keyword">    requiere</span> evento
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;compara cuántos eventos hay contra el instante final, asumiendo que el tiempo arranca en cero y avanza de a uno. NO ve trazas donde varios eventos comparten instante, ni sabe si el que falta es importante. Si evento viene vacío la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—.&quot;</span></code></pre>
 <p><code>+</code> es el operador de aritmética — así se expresa aritmética sobre un campo ordinal (<code>t</code>), porque una relación es una bolsa sin orden: «consecutivo» se vuelve aritmética sobre el campo, no una propiedad implícita del almacenamiento.</p>
 <h3 id="56-l2-una-medida-sobre-medidas">5.6 L2: una medida sobre medidas<a class="ancla" href="#56-l2-una-medida-sobre-medidas" aria-label="Enlace a esta sección">#</a></h3>
@@ -234,7 +234,7 @@ donde reales == 0</code></pre>
 <span class="tok-keyword">    de</span> medida_en_uso m
 <span class="tok-keyword">    donde</span> <span class="tok-variable">m</span>.<span class="tok-property">debe_tener_mutantes</span> <span class="tok-operator">==</span> <span class="tok-keyword">true</span> <span class="tok-keyword">y</span> (<span class="tok-variable">m</span>.<span class="tok-property">mutantes</span> <span class="tok-operator">==</span> <span class="tok-number">0</span> <span class="tok-keyword">o</span> <span class="tok-variable">m</span>.<span class="tok-property">mutantes_vivos</span> <span class="tok-operator">!=</span> <span class="tok-number">0</span>)
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;exige al menos un mutante y ninguno vivo sólo cuando `debe_tener_mutantes` es verdadero. NO vuelve a exigirlos a medidas heredadas —responde su corpus de origen— ni a las evaluadas aparte, y NO ve los mutadores que nadie escribió. Si medida_en_uso viene vacía no hay medidas sin fijar y verde es correcto; además contiene una fila por medida cargada por construcción&quot;</span></code></pre>
 <p>Ninguna sintaxis nueva: <code>medida_en_uso</code> es una relación como cualquier otra (la produce <code>nucleo/marco.py</code> a partir del catálogo real), y esta medida la mide con el mismo <code>ninguno</code> de siempre. Así es como el marco se verifica con sus propias herramientas.</p>
 <hr class="divisor-pixel" aria-hidden="true">
@@ -271,17 +271,17 @@ def penetracion(a: dict, b: dict, tol: float = 1.0) -&gt; float:
 <p>Toda la regla de las medidas aplica acá: <strong>la superficie (<code>.caso</code>) es cómo se escribe; el JSON es cómo se guarda</strong> — y el corpus carga ambos formatos por igual, sin paso de traducción.</p>
 <p>Un caso en superficie tiene esta forma (ejemplo real, un <code>falso_verde</code>):</p>
 <pre data-lenguaje="caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">001-verde-acumulativo</span>:
-    fecha: <span class="tok-string">&quot;2026-07-29&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-07-29&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;Brianholl/jam&quot;</span>
-        commit: <span class="tok-string">&quot;todos&quot;</span>
-    procedencia: <span class="tok-constant">observada</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;Brianholl/jam&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;todos&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">observada</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;«489 tests OK» reportado cada turno: un número que sube y nunca significa más&quot;</span>
-    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">falso_verde</span>
 <span class="tok-keyword">    sintoma</span>:
         El agente cerró cada entrega con un conteo de tests en verde. El conteo crece monótonamente <span class="tok-keyword">y</span> <span class="tok-keyword">no</span> distingue haber cubierto algo nuevo de haber agregado tests a lo ya cubierto. Se lee como «está bien» <span class="tok-keyword">y</span> sólo dice «<span class="tok-keyword">no</span> se rompió lo de antes».
-    como_se_detecto: <span class="tok-constant">persona</span>
-    medida: <span class="tok-variable">proceso</span>.<span class="tok-property">afirmacion_declara_alcance</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">persona</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">proceso</span>.<span class="tok-property">afirmacion_declara_alcance</span>
 <span class="tok-keyword">    evidencia</span>:
         afirmacion: id, texto, comando, alcance
             <span class="tok-string">&quot;a1&quot;</span>, <span class="tok-string">&quot;459 tests OK&quot;</span>, <span class="tok-string">&quot;unittest discover&quot;</span>, <span class="tok-string">&quot;&quot;</span>
@@ -291,17 +291,17 @@ def penetracion(a: dict, b: dict, tol: float = 1.0) -&gt; float:
         Una afirmación de verde sin alcance declarado <span class="tok-keyword">no</span> es una afirmación verificable: es una cifra. El alcance es lo que la vuelve discutible.</code></pre>
 <p>Y uno <strong><code>verde_correcto</code></strong> — la otra polaridad, igual de necesaria:</p>
 <pre data-lenguaje="caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">102-verificacion-vigente</span>:
-    fecha: <span class="tok-string">&quot;2026-07-29&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-07-29&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;Brianholl/jam&quot;</span>
-        commit: <span class="tok-string">&quot;sesión 2026-07-29&quot;</span>
-    procedencia: <span class="tok-constant">observada</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;Brianholl/jam&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;sesión 2026-07-29&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">observada</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Después de recorrer el motor, los commits siguientes fueron sólo de documentación&quot;</span>
-    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">verde_correcto</span>
 <span class="tok-keyword">    sintoma</span>:
         Se volvió a correr la verificación con motor <span class="tok-keyword">y</span> a partir de ahí sólo cambiaron documentos. `<span class="tok-variable">relevo</span>.<span class="tok-property">py</span>` declaró la verificación vigente, <span class="tok-keyword">y</span> era cierto.
-    como_se_detecto: <span class="tok-constant">observacion</span>
-    medida: <span class="tok-variable">proceso</span>.<span class="tok-property">verificacion_vigente</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">observacion</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">proceso</span>.<span class="tok-property">verificacion_vigente</span>
 <span class="tok-keyword">    evidencia</span>:
         verificacion: que, commit, camino
             <span class="tok-string">&quot;motor&quot;</span>, <span class="tok-string">&quot;80373ea&quot;</span>, <span class="tok-string">&quot;editor headless&quot;</span>
@@ -318,17 +318,17 @@ def penetracion(a: dict, b: dict, tol: float = 1.0) -&gt; float:
 <p>Un caso puede no tener una medida todavía (<code>&quot;medida&quot;: null</code> o <code>medida: null</code>). Entonces declara <code>estado_sin_medida</code>:</p>
 <ul><li><strong><code>abierto</code></strong> — es deuda real: el marco todavía no puede atrapar ese defecto. Es la lista de lo que falta, y ese número tiene que bajar.</li><li><strong><code>resuelto</code></strong> — el defecto se resolvió, pero no con una medida puntual sino cambiando el lenguaje (ver el ejemplo de <code>004-testigos-duplicados</code> más abajo: se resolvió eliminando la posibilidad misma de declarar testigos aparte).</li><li><strong><code>limite_humano</code></strong> — no es automatizable: requiere juicio (por ejemplo, una atribución causal). Se documenta para no perderlo, y no cuenta como deuda pendiente.</li></ul>
 <pre data-lenguaje="caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">004-testigos-duplicados</span>:
-    fecha: <span class="tok-string">&quot;2026-07-29&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-07-29&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;Brianholl/jam&quot;</span>
-        commit: <span class="tok-string">&quot;535d476&quot;</span>
-    procedencia: <span class="tok-constant">observada</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;Brianholl/jam&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;535d476&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">observada</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;La medición y sus testigos recorrían los datos dos veces, con dos definiciones&quot;</span>
-    etiqueta: <span class="tok-constant">deuda_de_diseño</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">deuda_de_diseño</span>
 <span class="tok-keyword">    sintoma</span>:
         `INTERPENETRACION` declaraba `mide=penetracion_maxima` <span class="tok-keyword">y</span> `testigos=piezas_clavadas`: dos funciones que recorren lo mismo con la misma condición escrita dos veces. Nada garantiza que <span class="tok-keyword">no</span> se separen.
-    como_se_detecto: <span class="tok-constant">persona</span>
-    medida: <span class="tok-keyword">null</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">persona</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-keyword">null</span>
     estado_sin_medida: resuelto
     resuelto:
         <span class="tok-number">2026</span>-<span class="tok-number">07</span>-<span class="tok-number">29</span>, por construcción: los testigos son las filas que sobrevivieron a la única tubería de la medida; ya <span class="tok-keyword">no</span> existe una segunda función donde repetir la condición.
@@ -370,40 +370,40 @@ def dias_de_atraso(tarea: dict) -&gt; int:
 <span class="tok-keyword">    de</span> tarea t
 <span class="tok-keyword">    donde</span> <span class="tok-variable">t</span>.<span class="tok-property">vencida</span> <span class="tok-operator">==</span> <span class="tok-keyword">true</span> <span class="tok-keyword">y</span> <span class="tok-variable">t</span>.<span class="tok-property">asignada</span> <span class="tok-operator">==</span> <span class="tok-keyword">false</span>
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;una tarea vencida sin dueño no la va a hacer nadie: el atraso queda invisible hasta que alguien la busca a mano&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;ve sólo el par vencida+sin-dueño. NO ve si la persona asignada realmente puede resolverla, ni cuán vencida está&quot;</span></code></pre>
 <p>Guardá la medida en <code>.oracle</code>, con la forma que produce <code>oracle formatear</code>. JSON queda para intercambio y migración de fuentes anteriores.</p>
 <pre data-lenguaje="bash"><code>mv tareas.vencida_sin_dueno.oracle catalogos/tareas/</code></pre>
 <h3 id="85-el-corpus--las-dos-polaridades">8.5 El corpus — las dos polaridades<a class="ancla" href="#85-el-corpus--las-dos-polaridades" aria-label="Enlace a esta sección">#</a></h3>
 <pre data-lenguaje="caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">001-vencida-sin-nadie</span>:
-    fecha: <span class="tok-string">&quot;2026-07-31&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-07-31&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;mi-proyecto&quot;</span>
-        commit: <span class="tok-string">&quot;ejemplo&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;mi-proyecto&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;ejemplo&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Una tarea vencida hace tres días y sin asignar&quot;</span>
-    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">falso_verde</span>
 <span class="tok-keyword">    sintoma</span>:
         El tablero mostraba todo en orden <span class="tok-keyword">porque</span> nadie miraba las tareas sin dueño.
-    como_se_detecto: <span class="tok-constant">persona</span>
-    medida: <span class="tok-variable">tareas</span>.<span class="tok-property">vencida_sin_dueno</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">persona</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">tareas</span>.<span class="tok-property">vencida_sin_dueno</span>
 <span class="tok-keyword">    evidencia</span>:
         tarea: id, vencida, asignada, dias_vencida
             <span class="tok-string">&quot;t1&quot;</span>, <span class="tok-keyword">true</span>, <span class="tok-keyword">false</span>, <span class="tok-number">3</span>
 <span class="tok-keyword">    leccion</span>:
         Una tarea vencida sin dueño <span class="tok-keyword">no</span> aparece en ningún filtro habitual del tablero.</code></pre>
 <pre data-lenguaje="caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">002-vencida-con-dueno</span>:
-    fecha: <span class="tok-string">&quot;2026-07-31&quot;</span>
+<span class="tok-keyword">    fecha</span>: <span class="tok-string">&quot;2026-07-31&quot;</span>
 <span class="tok-keyword">    origen</span>:
-        repo: <span class="tok-string">&quot;mi-proyecto&quot;</span>
-        commit: <span class="tok-string">&quot;ejemplo&quot;</span>
-    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">        repo</span>: <span class="tok-string">&quot;mi-proyecto&quot;</span>
+<span class="tok-keyword">        commit</span>: <span class="tok-string">&quot;ejemplo&quot;</span>
+<span class="tok-keyword">    procedencia</span>: <span class="tok-constant">construida</span>
 <span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Vencida pero con alguien encima — no debe dar rojo&quot;</span>
-    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    etiqueta</span>: <span class="tok-constant">verde_correcto</span>
 <span class="tok-keyword">    sintoma</span>:
         Una tarea vencida CON dueño asignado <span class="tok-keyword">no</span> es el defecto que esta medida busca.
-    como_se_detecto: <span class="tok-constant">observacion</span>
-    medida: <span class="tok-variable">tareas</span>.<span class="tok-property">vencida_sin_dueno</span>
+<span class="tok-keyword">    como_se_detecto</span>: <span class="tok-constant">observacion</span>
+<span class="tok-keyword">    medida</span>: <span class="tok-variable">tareas</span>.<span class="tok-property">vencida_sin_dueno</span>
 <span class="tok-keyword">    evidencia</span>:
         tarea: id, vencida, asignada, dias_vencida
             <span class="tok-string">&quot;t2&quot;</span>, <span class="tok-keyword">true</span>, <span class="tok-keyword">true</span>, <span class="tok-number">1</span>
@@ -480,13 +480,13 @@ motor_mem = Motor.desde_texto([medida])</code></pre>
 <script src="./assets/pixel-sitio.js" defer></script>
 <script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
-document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+document.querySelectorAll(".prosa pre:not(.salida):not(.arbol)").forEach((pre) => {
   const b = document.createElement("button");
   b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
   b.addEventListener("click", () => {
-    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+    navigator.clipboard.writeText(pre.querySelector("code").textContent)
       .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
-      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
   });
   pre.append(b);
 });

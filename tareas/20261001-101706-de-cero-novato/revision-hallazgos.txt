@@ -1,0 +1,25 @@
+Revisión del coordinador sobre INFORME-AGY2.md (2026-10-02 UTC)
+
+El informe original se conserva como evidencia de la revisión del agente; no todas sus afirmaciones quedaron confirmadas.
+
+Confirmados y corregidos:
+- El generador usaba read_text(...).rstrip("\n") y quitaba el salto final de todos los archivos incluidos. El log paso5_oracle_test_rojo.log muestra el bloqueo por forma única. Se conserva ahora el contenido completo, el botón copia textContent y la selección alternativa sólo abarca code.
+- verificar_oraculo.py buscaba partida_real.json aunque el HTML indicaba hechos_partida.json. Se acepta el nombre de la guía si no está el del ejemplo. La nueva reproducción HTML ejecuta el script con éxito sin crear partida_real.json.
+- La salida de oracle init muestra una ruta absoluta y uv produce mensajes de instalación que no están en el bloque esperado. Se explica esta diferencia en el Paso 1 y se precisa el alcance del test automático.
+
+Descartados al contrastarlos con la misma copia de HTML leída por agy2:
+- La supuesta falta de instrucciones para crear corpus/naval y catalogos/naval: el párrafo inmediatamente anterior ya decía que no existían y daba mkdir -p y la alternativa gráfica. Se simplificó de todos modos para usar dos mkdir sin -p, también válidos en PowerShell con los padres ya creados.
+- La salida supuestamente vieja del Paso 5 no aparece en la página auditada. Tanto la copia original como docs/de-cero.md contienen CORPUS OK, SINTAXIS OK y ACEPTACIÓN con el error actual. La cita alternativa de la sección 5/hallazgo 4 de agy2 es incorrecta. La reproducción del HTML corregido compara y confirma la salida actual completa.
+
+Otras correcciones del coordinador:
+- Los rótulos explicados ahora son los visibles en HTML, no los atributos internos del Markdown.
+- Si Oracle no está en PATH, se explica uv tool update-shell y se diferencia si la carpeta del proyecto llegó a crearse.
+- El Paso 9 conservaba prosa de git init -q y una línea de Python, aunque los bloques ya usaban Git simple y archivos enteros; se alineó el texto.
+- Git se describe como historial local, sin prometer copias externas de respaldo.
+
+Verificación independiente final:
+- reproducir_html.py extrajo exclusivamente el texto de los bloques code de docs/de-cero.html y lo escribió en una carpeta vacía.
+- Usó la instalación aislada oracle-metalenguaje 0.38.0 de agy2; la descarga de instalación no se repitió.
+- Creó las subcarpetas de destino y proporcionó identidad de Git por variables de entorno; no prueba esa preparación manual ni la interacción de un usuario con el portapapeles.
+- 14 bloques de comandos, 63 escrituras de archivos, salidas exactas salvo normalización declarada de rutas/tiempos y mensajes variables de Git, y script complementario exitoso.
+- Límites: Linux/CLI, herramientas ya disponibles, copia programática del contenido HTML; no prueba visual del juego ni persona principiante real. La validación con personas sigue en pilotos-externos.

@@ -1,0 +1,91 @@
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 33 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 11 medidas · 0 macros · 33 casos · 0 relaciones
+
+catálogo: 52 medidas · corpus: 33 casos
+
+  ROJO  001-tiro-fuera-de-tablero              naval.tiros_dentro_del_tablero  (valor 1)
+  verde 002-tiro-valido                        naval.tiros_dentro_del_tablero  (valor 0)
+  ROJO  003-mismo-tirador-seguido              naval.alternancia_turnos  (valor 1)
+  verde 004-tiradores-alternos                 naval.alternancia_turnos  (valor 0)
+  ROJO  005-barco-fila-desbordada              naval.barcos_dentro_del_tablero  (valor 1)
+  verde 006-barco-en-borde                     naval.barcos_dentro_del_tablero  (valor 0)
+  ROJO  007-barcos-superpuestos                naval.barcos_sin_solapamiento  (valor 1)
+  verde 008-barcos-separados                   naval.barcos_sin_solapamiento  (valor 0)
+  ROJO  009-tiro-despues-del-final             naval.fin_de_juego_sin_tiros_posteriores  (valor 1)
+  verde 010-tiro-en-turno-final                naval.fin_de_juego_sin_tiros_posteriores  (valor 0)
+  ROJO  011-flota-de-dieciseis                 naval.flota_reglamentaria  (valor 1)
+  verde 012-flota-de-diecisiete                naval.flota_reglamentaria  (valor 0)
+  ROJO  013-ganador-con-dieciseis-impactos     naval.ganador_legitimo  (valor 1)
+  verde 014-ganador-con-diecisiete-impactos    naval.ganador_legitimo  (valor 0)
+  ROJO  015-tiro-repetido                      naval.tiros_sin_repeticion  (valor 1)
+  verde 016-tiros-distintos                    naval.tiros_sin_repeticion  (valor 0)
+  ROJO  017-turno-saltado                      naval.turnos_sin_huecos  (valor 1)
+  verde 018-turnos-contiguos                   naval.turnos_sin_huecos  (valor 0)
+  ROJO  019-barco-reportado-como-agua          naval.veracidad_impacto_negativo  (valor 1)
+  verde 020-agua-reportada-como-agua           naval.veracidad_impacto_negativo  (valor 0)
+  ROJO  021-impacto-fantasma                   naval.veracidad_impacto_positivo  (valor 1)
+  verde 022-impacto-real                       naval.veracidad_impacto_positivo  (valor 0)
+  ROJO  023-columna-desbordada                 naval.tiros_dentro_del_tablero  (valor 1)
+  ROJO  024-fila-negativa                      naval.tiros_dentro_del_tablero  (valor 1)
+  ROJO  025-columna-negativa                   naval.tiros_dentro_del_tablero  (valor 1)
+  ROJO  026-barco-columna-desbordada           naval.barcos_dentro_del_tablero  (valor 1)
+  ROJO  027-barco-fila-negativa                naval.barcos_dentro_del_tablero  (valor 1)
+  ROJO  028-barco-columna-negativa             naval.barcos_dentro_del_tablero  (valor 1)
+  SIN EVIDENCIA 029-flota-sin-celdas          naval.flota_reglamentaria  («celda_barco» vacía)
+  SIN EVIDENCIA 030-sin-tiros-registrados     naval.turnos_sin_huecos  («tiro» vacía)
+  verde 031-distinta-fila-igual-turno-ajeno    naval.tiros_sin_repeticion  (valor 0)
+  verde 032-agua-declarada-agua                naval.veracidad_impacto_positivo  (valor 0)
+  verde 033-fila-confundida-con-turno          naval.tiros_sin_repeticion  (valor 0)
+
+defectos que se pusieron rojos: 17 · verdes correctos: 14 · sin evidencia esperada: 2 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+  ✓ meta.el_caso_reclama_una_medida_que_existe          0 (<= 0)
+  ✓ meta.el_caso_se_pone_como_debe                      0 (<= 0)
+  ✓ meta.el_hueco_declarado_explica_por_que             0 (<= 0)
+  ✓ meta.el_nivel_no_se_confunde_con_el_dominio         0 (<= 0)
+  ✓ meta.el_requisito_nombra_medidas_que_existen        0 (<= 0)
+  ✗ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada       11 (<= 0)
+      → _={'medida': 'naval.tiros_dentro_del_tablero', 'casos': 5, 'no_observados': 5}; _={'medida': 'naval.alternancia_turnos', 'casos': 2, 'no_observados': 2}; _={'medida': 'naval.barcos_dentro_del_tablero', 'casos': 5, 'no_observados': 5} +8
+  ✓ meta.ningun_campo_sin_unidad_declarada              0 (<= 0)
+  ✓ meta.ningun_flotante_comparado_por_igualdad_en_un_filtro        0 (<= 0)
+  ✓ meta.ningun_umbral_de_igualdad                      0 (<= 0)
+  ✓ meta.ningun_umbral_flotante_de_igualdad             0 (<= 0)
+  ✓ meta.ninguna_medida_sin_alcance                     0 (<= 0)
+  ✓ meta.se_escribe_en_superficie                       0 (<= 0)
+  ✗ meta.toda_cantidad_comparada_tiene_unidad_derivable       28 (<= 0)
+      → c={'medida': 'naval.alternancia_turnos', 'unidad': 'sin_declarar', 'es_derivable': False}; c={'medida': 'naval.alternancia_turnos', 'unidad': 'sin_declarar', 'es_derivable': False}; c={'medida': 'naval.barcos_dentro_del_tablero', 'unidad': 'sin_declarar', 'es_derivable': False} +25
+  ✓ meta.toda_medida_de_ausencia_declara_requiere        0 (<= 0)
+  ✓ meta.toda_medida_declara_su_ambito                  0 (<= 0)
+  ✓ meta.toda_medida_filtra_o_agrupa                    0 (<= 0)
+  ✓ meta.toda_medida_lee_campos_que_existen             0 (<= 0)
+  ✓ meta.todo_caso_observado_declara_de_donde_salio        0 (<= 0)
+  ✓ meta.todo_tanteo_explica_por_que                    0 (<= 0)
+  ✓ meta.todo_umbral_declara_de_donde_sale              0 (<= 0)
+
+ACEPTACIÓN ✗ — 2 problema(s)
+  · meta.la_medida_no_se_fija_solo_con_evidencia_fabricada: el marco no cumple su propia regla
+  · meta.toda_cantidad_comparada_tiene_unidad_derivable: el marco no cumple su propia regla
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+mutantes de medida (medida × mutador): 209 · murieron 209 · sobrevivieron 0
+  con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
+  de los muertos: 158 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 51 rechazados por el álgebra sin evaluar
+  respaldo real: 0 de 209 muertos los mata al menos un caso observado; 209 sólo los sostiene evidencia construida, generada, sin procedencia o diferencial
+detecciones evaluadas (mutante × caso): 634
+
+juzgado por las medidas del catálogo:
+  ✓ meta.toda_medida_esta_ejercitada                    0 (<= 0)
+  ✓ meta.toda_medida_esta_fijada                        0 (<= 0)
+  ⊘ proceso.codigo_con_mutante_que_lo_mata       SIN EVIDENCIA («mutante con m.tipo == "codigo"» vacía; no se midió)
+  ✓ proceso.test_con_mutante_que_lo_mata                0 (<= 0)
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: ROJO (falló: aceptación)

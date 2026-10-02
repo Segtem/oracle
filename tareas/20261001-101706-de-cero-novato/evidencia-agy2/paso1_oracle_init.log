@@ -1,0 +1,11 @@
+Proyecto Oracle inicializado en /tmp/oracle-cierre-novato/agy2/recorrido/batalla-naval:
+  · catalogos/
+  · corpus/
+  · diferencial/
+  · relaciones/
+  · oracle.json
+
+Próximos pasos:
+  1. Creá un caso:     oracle caso <grupo/id>
+  2. Creá una medida:  oracle nueva <dominio.nombre>
+  3. Verificá todo:    oracle test

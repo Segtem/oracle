@@ -203,8 +203,12 @@ def colorear_oracle(texto: str) -> str:
     return "".join(salida)
 
 
-def codigo(texto: str, lenguaje: str, archivo: str | None = None, es_salida: bool = False) -> str:
+def codigo(texto: str, lenguaje: str, archivo: str | None = None, es_salida: bool = False,
+           es_arbol: bool = False) -> str:
     cuerpo = colorear_oracle(texto) if lenguaje in _LENGUAJES_ORACLE else html.escape(texto)
+    if es_arbol:
+        # Un árbol se compara con la carpeta propia, no se copia: va sin botón de copiar.
+        return f'<pre class="arbol" data-lenguaje="así tiene que quedar tu carpeta"><code>{cuerpo}</code></pre>'
     if es_salida:
         return f'<pre class="salida" data-lenguaje="lo que tenés que ver"><code>{cuerpo}</code></pre>'
     etiqueta = f' data-lenguaje="{html.escape(archivo or lenguaje)}"' if (archivo or lenguaje) else ""
@@ -402,9 +406,9 @@ class Convertidor:
                                    for l in lineas[i + 1:j])
                 attrs = dict(re.findall(r"(\w+)=(\S+)", m.group(3)))
                 if "incluir" in attrs:
-                    cuerpo = (RAIZ / attrs["incluir"]).read_text(encoding="utf-8").rstrip("\n")
+                    cuerpo = (RAIZ / attrs["incluir"]).read_text(encoding="utf-8")
                 salida.append(codigo(cuerpo, m.group(2), attrs.get("archivo"),
-                                     "salida" in m.group(3).split()))
+                                     "salida" in m.group(3).split(), "arbol" in m.group(3).split()))
                 i = j + 1
                 continue
             m = re.match(r"^(#{1,6}) +(.*?)\s*#*\s*$", linea)
@@ -597,13 +601,13 @@ def pagina(p: Pagina) -> str:
 {f'<script src="{raiz}assets/guia.js" defer></script>{chr(10)}' if 'class="juego ' in cuerpo else ""}<script src="{raiz}assets/pixel-sitio.js" defer></script>
 <script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
-document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {{
+document.querySelectorAll(".prosa pre:not(.salida):not(.arbol)").forEach((pre) => {{
   const b = document.createElement("button");
   b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
   b.addEventListener("click", () => {{
-    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+    navigator.clipboard.writeText(pre.querySelector("code").textContent)
       .then(() => {{ b.textContent = "Copiado"; setTimeout(() => {{ b.textContent = "Copiar"; }}, 1500); }})
-      .catch(() => {{ const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }});
+      .catch(() => {{ const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }});
   }});
   pre.append(b);
 }});

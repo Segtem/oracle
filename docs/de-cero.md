@@ -23,8 +23,9 @@ En el sitio, además, se juega: antes de cada salida **predecís** qué va a dec
 cosa suma experiencia y algunas dan logros; la bitácora, abajo a la derecha, lleva la cuenta. Todo queda
 en tu navegador: no se manda a ningún lado.
 
-> Probamos cada paso de esta guía de forma automática en una computadora limpia: si seguís las instrucciones
-> al pie de la letra, en tu pantalla vas a ver exactamente lo mismo que figura en cada salida.
+> El test de esta guía reconstruye los archivos en una carpeta temporal vacía y comprueba los comandos de
+> Oracle y sus salidas. No instala las herramientas ni prueba los clics en tu navegador. Los tiempos de
+> ejecución y algunos mensajes de instalación o de Git pueden variar en tu computadora.
 
 ## Antes de empezar
 
@@ -70,7 +71,8 @@ Necesitás tener instalados estos cuatro programas gratuitos:
    - En macOS y Linux: `curl -LsSf https://astral.sh/uv/install.sh | sh`
    - En Windows (PowerShell): `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
    - Si preferís ver la guía oficial, consultá [docs.astral.sh/uv](https://docs.astral.sh/uv).
-3. **Git:** es un programa que guarda el historial de tu proyecto y saca copias de respaldo de tus archivos.
+3. **Git:** es un programa que guarda versiones de los archivos de tu proyecto para poder comparar cambios
+   y volver a una versión anterior. Ese historial queda en tu computadora.
    Descargalo e instalalo desde [git-scm.com](https://git-scm.com/downloads) manteniendo todas las opciones
    recomendadas por defecto.
 4. **Un editor de texto para código:** para crear y guardar los archivos del juego necesitás un editor de texto
@@ -109,14 +111,16 @@ reconocerlo, reinstalá ese programa asegurándote de marcar la opción de agreg
 
 ### Cómo se leen los bloques de esta guía
 
-En cada misión vas a ver tres tipos de bloques:
+En cada misión vas a ver estos tipos de bloques:
 
-- **Bloque para copiar en la terminal (`paso`):** son comandos de computadora. Copiás el texto del recuadro, lo
+- **Bloque rotulado `bash`:** son comandos para la terminal. Copiás el texto del recuadro, lo
   pegás adentro de tu terminal y presionás Enter. Si el bloque tiene varias líneas, podés pegarlas juntas o escribirlas
   de a una.
-- **Bloque para guardar en un archivo (`archivo=...`):** indica código que tenés que guardar. Abrís tu editor de
+- **Bloque rotulado con una ruta, como `css/style.css`:** indica código que tenés que guardar. Abrís tu editor de
   texto, copiás todo el contenido del bloque, lo pegás y lo guardás con el nombre y la ruta que figuran en el encabezado.
-- **Bloque de salida (`salida`):** te muestra exactamente lo que tiene que aparecer en tu terminal tras ejecutar los comandos.
+- **Bloque «lo que tenés que ver»:** muestra la salida esperada de la terminal; no lo copies como comando.
+- **Bloque «así tiene que quedar tu carpeta»:** muestra dónde va cada archivo. Comparalo con tus carpetas;
+  las líneas y ramificaciones son un dibujo, no texto para pegar en un archivo.
 - **«Si ves otra cosa»:** si en tu pantalla aparece un mensaje de error o algo distinto a la salida esperada, este
   apartado te explica qué pasó y cómo destrabarlo.
 
@@ -180,11 +184,14 @@ batalla-naval/
 **Lo que tenés que ver.** En la terminal vas a ver varias líneas técnicas que terminan en `VEREDICTO: SIN MEDICIÓN`.
 No te asustes por las líneas que dicen «salteado» ni por la «advertencia: proyecto vacío»: como el proyecto recién
 empieza y todavía no tiene ninguna regla, es exactamente lo que tiene que pasar.
+Antes pueden aparecer mensajes de instalación de `uv`. En «Proyecto Oracle inicializado», tu terminal
+muestra la ruta completa de tu carpeta; acá la abreviamos como `batalla-naval`.
 
-**Si ves otra cosa.** Si dice `oracle: command not found` (orden no encontrada), cerrá la terminal y volvé a
-abrirla: `uv` agregó `oracle` al `PATH` (la lista de carpetas donde el sistema busca programas ejecutables), pero
-la terminal que ya tenías abierta no se enteró del cambio. Al volver a abrir la terminal, acordate de escribir
-`cd batalla-naval` y presionar Enter para entrar a la carpeta del juego antes de volver a correr `oracle test`.
+**Si ves otra cosa.** Si dice `oracle: command not found` (orden no encontrada), ejecutá
+`uv tool update-shell` para agregar la carpeta de herramientas al `PATH` (la lista de carpetas donde el sistema
+busca programas ejecutables). Cerrá la terminal y abrí una nueva. Si todavía no se creó `batalla-naval`,
+volvé a ejecutar `oracle init batalla-naval`; después ejecutá `cd batalla-naval` y `oracle test`.
+Si la carpeta ya existe, entrá con `cd batalla-naval` y ejecutá `oracle test` sin repetir la creación.
 
 <details>
 <summary>¿Por qué dice «sin medición» y no «verde»?</summary>
@@ -395,9 +402,9 @@ Escribir primero ese ejemplo te obliga a decir qué es un defecto antes de escri
 En Oracle, una partida de prueba armada para comprobar si las reglas detectan defectos se llama **caso**. La colección
 de casos se guarda en una carpeta llamada **corpus** (del latín: cuerpo o conjunto de documentos de prueba). Guardalo
 en `corpus/naval/`. Como `oracle init` todavía no creó esa carpeta ni `catalogos/naval/` (donde van a ir las reglas),
-crealas ahora. En la terminal podés crearlas de un solo tiro con `mkdir -p corpus/naval catalogos/naval` (el comando
-`mkdir` crea carpetas y `-p` crea las subcarpetas necesarias a la vez), o podés crearlas a mano en tu explorador de
-archivos creando la carpeta `corpus` y adentro de ella `naval`, y lo mismo con `catalogos`.
+crealas ahora: en tu explorador de archivos, abrí `corpus` y creá adentro una carpeta `naval`; después abrí
+`catalogos` y creá allí otra carpeta `naval`. También podés ejecutar `mkdir corpus/naval` y luego
+`mkdir catalogos/naval` en la terminal; las dos carpetas padre ya existen.
 
 Adentro de `corpus/naval/`, creá un archivo nuevo, pegá el contenido de este bloque y guardalo con el nombre exacto
 `005-barco-fila-desbordada.caso` (en el Bloc de Notas seleccioná Tipo: «Todos los archivos (*.*)» para que no le sume
@@ -745,7 +752,7 @@ por letra.
 
 El juego tiene más reglas para ser una batalla naval completa. Adentro de la carpeta `catalogos/naval/`, vas a crear diez
 archivos de texto por separado. Abrí el desplegable que sigue, copiá el contenido de cada bloque y guardalo con el nombre
-exacto que figura en el encabezado de cada uno (`archivo=catalogos/naval/...`):
+exacto que figura en el encabezado de cada uno (`catalogos/naval/...`):
 
 <details>
 <summary>Ver las diez medidas</summary>
@@ -1378,8 +1385,8 @@ Git guarda el antes; `oracle cambios` revisa el después. Un límite más permis
 
 </details>
 
-Copiá y pegá estas líneas en la terminal para inicializar Git (`git init -q`), registrar los archivos (`git add .`),
-guardar el commit base (`git commit ...`), y luego modificar intencionalmente la regla con una línea de Python:
+Copiá y pegá estas líneas en la terminal para inicializar Git (`git init`), registrar los archivos (`git add .`)
+y guardar el commit base (`git commit -m base`). Después vas a cambiar la regla con tu editor:
 
 ```bash paso
 git init

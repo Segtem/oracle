@@ -116,7 +116,7 @@ catalogos/naval/naval.dentro.oracle: requiere formato
 <span class="tok-keyword">    de</span> mutante m
 <span class="tok-keyword">    donde</span> <span class="tok-variable">m</span>.<span class="tok-property">detecciones_conductuales</span> <span class="tok-operator">==</span> <span class="tok-number">0</span> <span class="tok-keyword">y</span> <span class="tok-variable">m</span>.<span class="tok-property">rechazos_del_algebra</span> <span class="tok-operator">==</span> <span class="tok-number">0</span>
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;un mutante que sobrevive es un test que no discrimina&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;cuenta mutantes DECLARADOS. NO ve los que nadie escribió&quot;</span></code></pre>
 <div class="tabla"><table><thead><tr><th>Macro</th><th>Para qué</th></tr></thead><tbody><tr><td><code>ninguno</code></td><td>ninguna fila debe cumplir el predicado</td></tr><tr><td><code>ninguno-requiere</code></td><td>lo mismo, declarando evidencia indispensable</td></tr><tr><td><code>ninguno-par</code></td><td>lo mismo sobre PARES de la misma relación</td></tr><tr><td><code>peor</code></td><td>el peor caso de una expresión no pasa de una tolerancia</td></tr></tbody></table></div>
 <p><strong><code>peor</code> exige la misma tolerancia en el filtro y en el umbral</strong>; la plantilla valida que coincidan:</p>
@@ -125,7 +125,7 @@ catalogos/naval/naval.dentro.oracle: requiere formato
 <span class="tok-keyword">    donde</span> desvio_de_grilla(hecho(a), <span class="tok-number">100.0</span>) <span class="tok-operator">&gt;</span> <span class="tok-number">1.0</span>
 <span class="tok-keyword">    resumen</span> <span class="tok-support">max</span>(desvio_de_grilla(hecho(a), <span class="tok-number">100.0</span>))
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">1.0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">convencion</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;por debajo de 1 cm el desvío no se ve&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;desvío del PIVOTE. NO ve si el pivote está bien puesto dentro de la malla&quot;</span></code></pre>
 <p>La invocación repite la tolerancia, y el lector rechaza valores distintos. Ese desajuste era el caso <code>012</code> del corpus.</p>
 <p>Las macros no son un embudo: si tu caso no encaja, la forma canónica sigue siendo válida. <code>colocacion.interpenetracion</code> está escrita así porque une dos relaciones DISTINTAS.</p>
@@ -161,7 +161,7 @@ catalogos/naval/naval.dentro.oracle: requiere formato
 <span class="tok-keyword">    donde</span> <span class="tok-variable">m</span>.<span class="tok-property">detecciones_conductuales</span> <span class="tok-operator">==</span> <span class="tok-number">0</span> <span class="tok-keyword">y</span> <span class="tok-variable">m</span>.<span class="tok-property">rechazos_del_algebra</span> <span class="tok-operator">==</span> <span class="tok-number">0</span>
 <span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;un mutante que sobrevive es un test que no discrimina: pasa con el código roto&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;cuenta mutantes DECLARADOS que sobrevivieron. NO ve los que nadie escribió&quot;</span></code></pre>
 <p>Muchas medidas son así: filtrás lo malo, contás, y el umbral es <code>&lt;= 0</code> (un umbral <code>==</code> queda en rojo por <code>meta.ningun_umbral_de_igualdad</code>).</p>
 <h3 id="2-medir-una-magnitud-no-contar">2. Medir una magnitud, no contar<a class="ancla" href="#2-medir-una-magnitud-no-contar" aria-label="Enlace a esta sección">#</a></h3>
@@ -170,7 +170,7 @@ catalogos/naval/naval.dentro.oracle: requiere formato
 <span class="tok-keyword">    donde</span> desvio_de_grilla(hecho(a), <span class="tok-number">100.0</span>) <span class="tok-operator">&gt;</span> <span class="tok-number">1.0</span>
 <span class="tok-keyword">    resumen</span> <span class="tok-support">max</span>(desvio_de_grilla(hecho(a), <span class="tok-number">100.0</span>))
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">1.0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">convencion</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;por debajo de 1 cm el desvío no se ve&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;desvío del PIVOTE. NO ve si el pivote está bien puesto dentro de la malla&quot;</span></code></pre>
 <p>Acá el valor es centímetros y no una cuenta, y eso dice más en el informe. <strong>Escrita a mano en forma canónica, la tolerancia aparece dos veces</strong> —en el <code>donde</code> y en el <code>umbral</code>— y nada las mantiene juntas: era el caso <code>012</code> del corpus. La macro <code>peor</code> exige que ambas apariciones coincidan.</p>
 <h3 id="3-comparar-filas-entre-sí">3. Comparar filas entre sí<a class="ancla" href="#3-comparar-filas-entre-sí" aria-label="Enlace a esta sección">#</a></h3>
@@ -180,7 +180,7 @@ catalogos/naval/naval.dentro.oracle: requiere formato
 <span class="tok-keyword">    donde</span> <span class="tok-variable">a</span>.<span class="tok-property">nombre</span> <span class="tok-operator">==</span> <span class="tok-variable">b</span>.<span class="tok-property">nombre</span> <span class="tok-keyword">y</span> <span class="tok-variable">a</span>.<span class="tok-property">carpeta</span> <span class="tok-operator">!=</span> <span class="tok-variable">b</span>.<span class="tok-property">carpeta</span>
 <span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
 <span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;un wikilink apunta por NOMBRE y no por ruta: dos homónimos dejan el enlace a cara o cruz&quot;</span>
-    ambito universal
+<span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;NO ve nombres parecidos pero distintos, que confunden aunque no rompan un enlace&quot;</span></code></pre>
 <p><code>unir</code> hace el producto de una relación consigo misma. Es como se comparan cosas de a pares: piezas que se clavan, documentos homónimos, las dos puntas de un relevo.</p>
 <h2 id="los-errores-que-la-herramienta-sí-te-dice"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>Los errores que la herramienta sí te dice<a class="ancla" href="#los-errores-que-la-herramienta-sí-te-dice" aria-label="Enlace a esta sección">#</a></h2>
@@ -212,13 +212,13 @@ catalogos/naval/naval.dentro.oracle: requiere formato
 <script src="./assets/pixel-sitio.js" defer></script>
 <script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
-document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+document.querySelectorAll(".prosa pre:not(.salida):not(.arbol)").forEach((pre) => {
   const b = document.createElement("button");
   b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
   b.addEventListener("click", () => {
-    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+    navigator.clipboard.writeText(pre.querySelector("code").textContent)
       .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
-      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
   });
   pre.append(b);
 });

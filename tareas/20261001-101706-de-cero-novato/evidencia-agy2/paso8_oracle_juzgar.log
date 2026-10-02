@@ -1,0 +1,24 @@
+✓ naval.alternancia_turnos                            0 (<= 0)
+✓ naval.barcos_dentro_del_tablero                     0 (<= 0)
+✓ naval.barcos_sin_solapamiento                       0 (<= 0)
+✓ naval.fin_de_juego_sin_tiros_posteriores            0 (<= 0)
+✓ naval.flota_reglamentaria                           0 (<= 0)
+✓ naval.ganador_legitimo                              0 (<= 0)
+✓ naval.tiros_dentro_del_tablero                      0 (<= 0)
+✓ naval.tiros_sin_repeticion                          0 (<= 0)
+✓ naval.turnos_sin_huecos                             0 (<= 0)
+✓ naval.veracidad_impacto_negativo                    0 (<= 0)
+✓ naval.veracidad_impacto_positivo                    0 (<= 0)
+
+VEREDICTO: verde en 11 medidas. SIN MIRAR:
+  · naval.alternancia_turnos: compara el tirador del turno k con el tirador del turno k+1. No valida la ausencia de saltos si falta un turno completo.
+  · naval.barcos_dentro_del_tablero: revisa los límites de cada celda de barco reportada. No verifica solapamientos ni continuidad.
+  · naval.barcos_sin_solapamiento: detecta pares de celdas distintas del mismo jugador con id1 < id2 que colisionan en la misma coordenada. No comprueba barcos de jugadores opuestos.
+  · naval.fin_de_juego_sin_tiros_posteriores: compara el turno de cada tiro contra el turno final registrado en el estado de la partida. No valida si la partida debió terminar antes.
+  · naval.flota_reglamentaria: agrupa las casillas de barco por jugador y exige exactamente 17 casillas por flota. No comprueba la orientación lineal de los barcos.
+  · naval.ganador_legitimo: comprueba que los impactos acumulados por el ganador sean exactamente 17. No valida si los tiros fueron asignados al tirador correcto.
+  · naval.tiros_dentro_del_tablero: comprueba que las coordenadas de cada disparo estén en el rango [0, 9]. No comprueba si el casillero ya fue disparado previamente ni la validez del turno.
+  · naval.tiros_sin_repeticion: detecta disparos repetidos del mismo jugador a la misma celda con diferente número de turno. No evalúa si el tiro fue agua o impacto.
+  · naval.turnos_sin_huecos: compara la cantidad total de tiros registrados contra el turno máximo reportado más uno. No valida la alternancia de tiradores.
+  · naval.veracidad_impacto_negativo: cruza cada disparo contra las celdas de la flota rival y detecta impactos omitidos registrados falsamente como agua. No verifica la secuencia de turnos.
+  · naval.veracidad_impacto_positivo: detecta disparos registrados como impacto que no corresponden a ninguna celda ocupada por la flota del receptor. No verifica si el barco ya estaba completamente hundido.

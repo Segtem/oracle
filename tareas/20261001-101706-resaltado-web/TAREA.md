@@ -18,4 +18,4 @@ Verificación final: python3 tools/guia.py --escribir (0 salidas actualizadas), 
 
 ## Próximo paso
 
-Revisar el diff de esta tarea para su eventual versionado; no queda implementación pendiente.
+Sin implementación pendiente. Resaltado integrado y ronda parcial del sitio final con 36/36 mutantes muertos. Evidencia en de-cero-novato/mutacion-sitio-final.log.
