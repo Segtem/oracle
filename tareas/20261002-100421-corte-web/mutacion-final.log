@@ -1,0 +1,468 @@
+objetivos: nucleo/version.py, tools/guia.py, tools/sitio.py
+
+     ·  nucleo/version.py:56:7:negacion                      negacion: se borra el `not`
+     ·  nucleo/version.py:62:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/version.py:62:31:constante                    constante: 1 → 2
+     ·  nucleo/version.py:59:7:comparador                    comparador: Is → IsNot
+     ·  nucleo/version.py:51:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/version.py:62:48:constante                    constante: 2 → 3
+     ·  nucleo/version.py:67:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/version.py:72:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/version.py:78:7:comparador                    comparador: Is → IsNot
+     ·  nucleo/version.py:95:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/version.py:95:11:comparador                   comparador: Eq → NotEq
+     ·  nucleo/version.py:95:52:comparador                   comparador: LtE → Lt
+     ·  nucleo/version.py:95:11:booleano                     booleano: and ↔ or
+     ·  tools/guia.py:33:10:comparador                       comparador: Lt → LtE
+     ·  tools/guia.py:35:11:negacion                         negacion: se borra el `not`
+     ·  tools/guia.py:36:17:constante                        constante: 1 → 2
+     ·  tools/guia.py:38:16:constante                        constante: 1 → 2
+     ·  tools/guia.py:39:14:booleano                         booleano: and ↔ or
+     ·  nucleo/version.py:43:18:constante                    constante: True → False
+     ·  tools/guia.py:39:34:comparador                       comparador: NotEq → Eq
+     ·  tools/guia.py:40:17:constante                        constante: 1 → 2
+     ·  tools/guia.py:41:11:comparador                       comparador: Eq → NotEq
+     ·  tools/guia.py:42:64:constante                        constante: 1 → 2
+     ·  tools/guia.py:43:28:constante                        constante: 1 → 2
+     ·  tools/guia.py:43:59:constante                        constante: 1 → 2
+     ·  tools/guia.py:23:13:constante                        constante: 0 → 1
+     ·  tools/guia.py:19:40:constante                        constante: 1 → 2
+     ·  tools/guia.py:49:7:negacion                          negacion: se borra el `not`
+     ·  tools/guia.py:49:53:comparador                       comparador: Eq → NotEq
+     ·  tools/guia.py:51:4:retorno                           retorno: return <algo> → return None
+     ·  tools/guia.py:59:4:retorno                           retorno: return <algo> → return None
+     ·  tools/guia.py:32:8:constante                         constante: 0 → 1
+     ·  tools/guia.py:39:14:comparador                       comparador: Lt → LtE
+     ·  tools/guia.py:70:7:negacion                          negacion: se borra el `not`
+     ·  tools/guia.py:71:8:retorno                           retorno: return <algo> → return None
+     ·  tools/guia.py:72:7:comparador                        comparador: Eq → NotEq
+     ·  tools/guia.py:72:19:constante                        constante: 3 → 4
+     ·  tools/guia.py:73:8:retorno                           retorno: return <algo> → return None
+     ·  tools/guia.py:74:7:comparador                        comparador: Eq → NotEq
+     ·  tools/guia.py:74:18:constante                        constante: 0 → 1
+     ·  tools/guia.py:75:11:comparador                       comparador: NotEq → Eq
+     ·  tools/guia.py:62:66:constante                        constante: False → True
+     ·  tools/guia.py:75:30:constante                        constante: 2 → 3
+     ·  tools/guia.py:77:57:constante                        constante: 1 → 2
+     ·  tools/guia.py:78:11:negacion                         negacion: se borra el `not`
+     ·  tools/guia.py:79:67:constante                        constante: 1 → 2
+     ·  tools/guia.py:81:7:booleano                          booleano: and ↔ or
+     ·  tools/guia.py:80:8:retorno                           retorno: return <algo> → return None
+     ·  tools/guia.py:44:16:constante                        constante: 1 → 2
+     ·  tools/guia.py:49:7:booleano                          booleano: and ↔ or
+     ·  tools/guia.py:81:7:comparador                        comparador: Eq → NotEq
+     ·  tools/guia.py:81:18:constante                        constante: 0 → 1
+     ·  tools/guia.py:81:33:comparador                       comparador: Eq → NotEq
+     ·  tools/guia.py:67:52:constante                        constante: 1 → 2
+     ·  tools/guia.py:81:44:constante                        constante: 1 → 2
+     ·  tools/guia.py:81:46:constante                        constante: 2 → 3
+     ·  tools/guia.py:81:63:comparador                       comparador: Eq → NotEq
+     ·  tools/guia.py:86:7:booleano                          booleano: and ↔ or
+     ·  tools/guia.py:86:7:comparador                        comparador: Eq → NotEq
+     ·  tools/guia.py:81:82:constante                        constante: 3 → 4
+     ·  tools/guia.py:82:31:constante                        constante: 2 → 3
+     ·  tools/guia.py:88:7:comparador                        comparador: Eq → NotEq
+     ·  tools/guia.py:88:18:constante                        constante: 0 → 1
+     ·  tools/guia.py:89:60:constante                        constante: 1 → 2
+     ·  tools/guia.py:86:34:comparador                       comparador: NotIn → In
+     ·  tools/guia.py:83:8:retorno                           retorno: return <algo> → return None
+     ·  tools/guia.py:90:9:comparador                        comparador: Eq → NotEq
+     ·  tools/guia.py:90:20:constante                        constante: 0 → 1
+     ·  tools/guia.py:91:19:constante                        constante: 0 → 1
+     ·  tools/guia.py:82:53:constante                        constante: True → False
+     ·  tools/guia.py:86:18:constante                        constante: 0 → 1
+     ·  tools/guia.py:92:11:booleano                         booleano: and ↔ or
+     ·  tools/guia.py:92:11:comparador                       comparador: Gt → GtE
+  TIEMPO  nucleo/version.py:82:7:negacion                      negacion: se borra el `not`
+     ·  tools/guia.py:92:29:constante                        constante: 1 → 2
+     ·  tools/guia.py:103:54:constante                       constante: True → False
+     ·  tools/guia.py:94:9:comparador                        comparador: NotEq → Eq
+     ·  tools/guia.py:94:20:constante                        constante: 0 → 1
+     ·  tools/guia.py:92:35:negacion                         negacion: se borra el `not`
+     ·  tools/guia.py:111:7:booleano                         booleano: and ↔ or
+     ·  tools/guia.py:92:50:constante                        constante: 1 → 2
+     ·  tools/guia.py:111:24:negacion                        negacion: se borra el `not`
+     ·  tools/guia.py:108:11:negacion                        negacion: se borra el `not`
+     ·  tools/guia.py:110:8:retorno                          retorno: return <algo> → return None
+     ·  tools/guia.py:93:35:constante                        constante: 1 → 2
+     ·  tools/guia.py:103:68:constante                       constante: 180 → 181
+     ·  tools/guia.py:111:64:constante                       constante: 2 → 3
+     ·  tools/guia.py:112:29:comparador                      comparador: In → NotIn
+     ·  tools/guia.py:111:53:comparador                      comparador: Eq → NotEq
+     ·  tools/guia.py:111:29:booleano                        booleano: and ↔ or
+     ·  tools/guia.py:111:29:booleano                        booleano: and ↔ or
+     ·  tools/guia.py:111:29:comparador                      comparador: Gt → GtE
+     ·  tools/guia.py:111:47:constante                       constante: 2 → 3
+     ·  tools/guia.py:113:31:booleano                        booleano: and ↔ or
+     ·  tools/guia.py:113:63:comparador                      comparador: In → NotIn
+     ·  tools/guia.py:114:58:comparador                      comparador: Eq → NotEq
+     ·  tools/guia.py:114:69:constante                       constante: 2 → 3
+     ·  tools/guia.py:116:7:comparador                       comparador: Eq → NotEq
+     ·  tools/guia.py:112:60:comparador                      comparador: In → NotIn
+     ·  tools/guia.py:113:30:booleano                        booleano: and ↔ or
+     ·  tools/guia.py:118:4:retorno                          retorno: return <algo> → return None
+     ·  tools/guia.py:125:59:constante                       constante: True → False
+     ·  tools/guia.py:116:18:constante                       constante: 0 → 1
+     ·  tools/guia.py:126:4:retorno                          retorno: return <algo> → return None
+     ·  tools/guia.py:134:51:comparador                      comparador: NotIn → In
+     ·  tools/guia.py:135:37:negacion                        negacion: se borra el `not`
+     ·  tools/guia.py:137:21:comparador                      comparador: Eq → NotEq
+     ·  tools/guia.py:137:47:constante                       constante: 1 → 2
+     ·  tools/guia.py:113:31:comparador                      comparador: In → NotIn
+     ·  tools/guia.py:147:66:constante                       constante: True → False
+     ·  tools/guia.py:143:4:retorno                          retorno: return <algo> → return None
+     ·  tools/guia.py:117:8:retorno                          retorno: return <algo> → return None
+     ·  tools/guia.py:155:15:comparador                      comparador: In → NotIn
+     ·  tools/guia.py:155:41:comparador                      comparador: In → NotIn
+     ·  tools/guia.py:157:76:constante                       constante: 1 → 2
+     ·  tools/guia.py:156:19:comparador                      comparador: NotEq → Eq
+     ·  tools/guia.py:160:60:constante                       constante: True → False
+     ·  tools/guia.py:114:34:comparador                      comparador: Gt → GtE
+     ·  tools/guia.py:162:67:constante                       constante: True → False
+     ·  tools/guia.py:165:15:comparador                      comparador: Eq → NotEq
+     ·  tools/guia.py:167:19:comparador                      comparador: NotEq → Eq
+     ·  tools/guia.py:168:23:negacion                        negacion: se borra el `not`
+     ·  tools/guia.py:169:80:constante                       constante: 1 → 2
+     ·  tools/guia.py:171:45:constante                       constante: 1 → 2
+     ·  tools/guia.py:173:15:comparador                      comparador: NotIn → In
+     ·  tools/guia.py:175:20:comparador                      comparador: Eq → NotEq
+     ·  tools/guia.py:179:19:booleano                        booleano: and ↔ or
+     ·  tools/guia.py:114:52:constante                       constante: 2 → 3
+     ·  tools/guia.py:181:21:booleano                        booleano: and ↔ or
+     ·  tools/guia.py:182:30:constante                       constante: 1 → 2
+     ·  tools/guia.py:175:29:constante                       constante: 2 → 3
+     ·  tools/guia.py:186:39:negacion                        negacion: se borra el `not`
+     ·  tools/guia.py:146:31:constante                       constante: False → True
+     ·  tools/guia.py:180:30:constante                       constante: 1 → 2
+     ·  tools/guia.py:189:19:constante                       constante: 1 → 2
+     ·  tools/guia.py:155:15:booleano                        booleano: and ↔ or
+     ·  tools/guia.py:189:44:comparador                      comparador: NotEq → Eq
+     ·  tools/guia.py:189:60:constante                       constante: 1 → 2
+     ·  tools/guia.py:190:93:constante                       constante: 1 → 2
+     ·  tools/guia.py:160:45:constante                       constante: True → False
+     ·  tools/guia.py:189:63:constante                       constante: 2 → 3
+     ·  tools/guia.py:193:19:negacion                        negacion: se borra el `not`
+     ·  tools/guia.py:191:50:constante                       constante: 1 → 2
+     ·  tools/guia.py:192:15:comparador                      comparador: NotEq → Eq
+     ·  tools/guia.py:194:72:constante                       constante: 1 → 2
+     ·  tools/guia.py:196:37:constante                       constante: 1 → 2
+     ·  tools/guia.py:186:19:booleano                        booleano: and ↔ or
+     ·  tools/guia.py:209:21:booleano                        booleano: and ↔ or
+     ·  tools/guia.py:213:8:retorno                          retorno: return <algo> → return None
+     ·  tools/guia.py:213:15:constante                       constante: 1 → 2
+     ·  tools/guia.py:214:4:retorno                          retorno: return <algo> → return None
+     ·  tools/guia.py:214:11:constante                       constante: 0 → 1
+     ·  tools/guia.py:189:15:booleano                        booleano: and ↔ or
+     ·  tools/sitio.py:27:40:constante                       constante: 1 → 2
+     ·  tools/sitio.py:32:18:constante                       constante: True → False
+     ·  tools/sitio.py:61:56:constante                       constante: 1 → 2
+     ·  tools/guia.py:189:15:comparador                      comparador: GtE → Gt
+     ·  tools/sitio.py:78:7:booleano                         booleano: and ↔ or
+     ·  tools/sitio.py:74:4:retorno                          retorno: return <algo> → return None
+     ·  tools/sitio.py:79:8:retorno                          retorno: return <algo> → return None
+     ·  tools/sitio.py:81:7:negacion                         negacion: se borra el `not`
+     ·  tools/sitio.py:85:7:comparador                       comparador: In → NotIn
+     ·  tools/sitio.py:87:8:retorno                          retorno: return <algo> → return None
+     ·  tools/sitio.py:90:7:booleano                         booleano: and ↔ or
+     ·  tools/sitio.py:90:7:comparador                       comparador: Eq → NotEq
+     ·  tools/sitio.py:91:8:retorno                          retorno: return <algo> → return None
+     ·  tools/sitio.py:95:8:retorno                          retorno: return <algo> → return None
+     ·  tools/sitio.py:96:21:booleano                        booleano: and ↔ or
+     ·  tools/sitio.py:61:59:constante                       constante: 0 → 1
+     ·  tools/sitio.py:97:4:retorno                          retorno: return <algo> → return None
+     ·  tools/sitio.py:82:8:retorno                          retorno: return <algo> → return None
+     ·  tools/sitio.py:103:10:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:103:10:comparador                     comparador: Lt → LtE
+     ·  tools/sitio.py:103:56:comparador                     comparador: Eq → NotEq
+     ·  tools/sitio.py:105:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:102:12:constante                      constante: 0 → 1
+     ·  tools/sitio.py:104:17:constante                      constante: 1 → 2
+     ·  tools/sitio.py:113:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:113:39:constante                      constante: 1 → 2
+     ·  tools/sitio.py:116:66:constante                      constante: 2 → 3
+     ·  tools/sitio.py:120:41:constante                      constante: 1 → 2
+     ·  tools/sitio.py:117:37:constante                      constante: False → True
+     ·  tools/sitio.py:120:53:constante                      constante: 2 → 3
+     ·  tools/sitio.py:120:79:constante                      constante: 3 → 4
+     ·  tools/sitio.py:123:12:retorno                        retorno: return <algo> → return None
+     ·  tools/sitio.py:125:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:132:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:132:68:constante                      constante: 1 → 2
+     ·  tools/sitio.py:145:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:149:7:negacion                        negacion: se borra el `not`
+     ·  tools/sitio.py:152:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:142:19:constante                      constante: 1 → 2
+     ·  tools/sitio.py:154:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:156:8:retorno                         retorno: return <algo> → return None
+     ·  tools/guia.py:199:43:comparador                      comparador: Eq → NotEq
+     ·  tools/guia.py:199:45:constante                       constante: 2 → 3
+     ·  tools/guia.py:199:49:constante                       constante: 2 → 3
+     ·  tools/sitio.py:164:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:173:10:constante                      constante: 0 → 1
+     ·  tools/sitio.py:176:25:comparador                     comparador: IsNot → Is
+     ·  tools/sitio.py:157:33:constante                      constante: 1 → 2
+     ·  tools/sitio.py:157:36:constante                      constante: 0 → 1
+     ·  tools/sitio.py:158:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:177:11:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:183:11:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:187:13:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:190:78:constante                      constante: 0 → 1
+     ·  tools/sitio.py:180:70:constante                      constante: 1 → 2
+     ·  tools/sitio.py:202:31:constante                      constante: 1 → 2
+     ·  tools/sitio.py:203:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:180:64:constante                      constante: 0 → 1
+     ·  tools/sitio.py:158:24:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:208:39:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:211:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:213:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:192:19:comparador                     comparador: Lt → LtE
+     ·  tools/sitio.py:192:23:constante                      constante: 0 → 1
+     ·  tools/sitio.py:216:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:226:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:207:28:constante                      constante: False → True
+     ·  tools/sitio.py:232:22:constante                      constante: 1 → 2
+     ·  tools/sitio.py:233:31:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:234:24:constante                      constante: 1 → 2
+     ·  tools/sitio.py:206:84:constante                      constante: False → True
+     ·  tools/sitio.py:174:10:comparador                     comparador: Lt → LtE
+     ·  tools/sitio.py:235:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:250:7:comparador                      comparador: NotIn → In
+     ·  tools/sitio.py:252:7:comparador                      comparador: Eq → NotEq
+     ·  tools/sitio.py:254:7:comparador                      comparador: Eq → NotEq
+     ·  tools/sitio.py:256:55:constante                      constante: False → True
+     ·  tools/sitio.py:256:72:constante                      constante: True → False
+     ·  tools/sitio.py:256:85:constante                      constante: True → False
+     ·  tools/sitio.py:264:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:214:74:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:257:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:214:46:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:270:20:constante                      constante: 2 → 3
+     ·  tools/sitio.py:271:15:constante                      constante: 1 → 2
+     ·  tools/sitio.py:271:35:constante                      constante: 2 → 3
+     ·  tools/sitio.py:271:42:comparador                     comparador: Eq → NotEq
+     ·  tools/sitio.py:233:7:booleano                        booleano: and ↔ or
+     ·  tools/sitio.py:271:44:constante                      constante: 0 → 1
+     ·  tools/sitio.py:272:7:comparador                      comparador: NotEq → Eq
+     ·  tools/sitio.py:272:21:constante                      constante: 1 → 2
+     ·  tools/sitio.py:272:26:comparador                     comparador: NotEq → Eq
+     ·  tools/sitio.py:272:34:constante                      constante: 1 → 2
+     ·  tools/sitio.py:272:37:constante                      constante: 0 → 1
+     ·  tools/sitio.py:272:7:booleano                        booleano: and ↔ or
+     ·  tools/sitio.py:274:45:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:275:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:274:69:comparador                     comparador: Eq → NotEq
+     ·  tools/sitio.py:274:23:constante                      constante: 1 → 2
+     ·  tools/sitio.py:275:32:constante                      constante: 1 → 2
+     ·  tools/sitio.py:275:56:constante                      constante: 1 → 2
+     ·  tools/sitio.py:274:72:constante                      constante: 1 → 2
+     ·  tools/sitio.py:275:35:constante                      constante: 1 → 2
+     ·  tools/sitio.py:275:59:constante                      constante: 2 → 3
+     ·  tools/sitio.py:275:78:constante                      constante: 0 → 1
+     ·  tools/sitio.py:276:28:constante                      constante: 4 → 5
+     ·  tools/sitio.py:276:31:constante                      constante: 1 → 2
+     ·  tools/sitio.py:276:33:constante                      constante: 3 → 4
+     ·  tools/sitio.py:293:51:constante                      constante: 1 → 2
+     ·  tools/sitio.py:294:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:295:19:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:298:64:comparador                     comparador: Eq → NotEq
+     ·  tools/sitio.py:261:20:constante                      constante: 0 → 1
+     ·  tools/sitio.py:303:12:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:305:56:constante                      constante: 1 → 2
+     ·  tools/sitio.py:306:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:310:71:comparador                     comparador: NotIn → In
+     ·  tools/sitio.py:311:55:comparador                     comparador: NotIn → In
+     ·  tools/sitio.py:366:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:369:15:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:370:32:constante                      constante: 0 → 1
+     ·  tools/sitio.py:372:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:372:23:comparador                     comparador: Eq → NotEq
+     ·  tools/sitio.py:372:28:constante                      constante: 0 → 1
+     ·  tools/sitio.py:371:30:constante                      constante: 1 → 2
+     ·  tools/sitio.py:376:12:constante                      constante: 0 → 1
+     ·  tools/sitio.py:377:14:comparador                     comparador: Lt → LtE
+     ·  tools/sitio.py:379:15:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:380:21:constante                      constante: 1 → 2
+     ·  tools/sitio.py:385:50:constante                      constante: 1 → 2
+     ·  tools/sitio.py:389:21:constante                      constante: 1 → 2
+     ·  tools/sitio.py:386:21:constante                      constante: 1 → 2
+     ·  tools/sitio.py:392:70:constante                      constante: 20 → 21
+     ·  tools/sitio.py:392:74:constante                      constante: 4 → 5
+     ·  tools/sitio.py:393:21:constante                      constante: 1 → 2
+     ·  tools/sitio.py:395:15:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:281:20:constante                      constante: 0 → 1
+     ·  tools/sitio.py:397:57:constante                      constante: 9 → 10
+     ·  tools/sitio.py:397:60:constante                      constante: 10 → 11
+     ·  tools/sitio.py:403:32:constante                      constante: 1 → 2
+     ·  tools/sitio.py:399:21:constante                      constante: 1 → 2
+     ·  tools/sitio.py:405:22:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:305:53:constante                      constante: 1 → 2
+     ·  tools/sitio.py:405:42:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:406:25:constante                      constante: 1 → 2
+     ·  tools/sitio.py:409:55:constante                      constante: 1 → 2
+     ·  tools/sitio.py:410:64:constante                      constante: 3 → 4
+     ·  tools/sitio.py:411:19:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:413:53:constante                      constante: 2 → 3
+     ·  tools/sitio.py:395:15:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:391:15:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:414:57:constante                      constante: 3 → 4
+     ·  tools/sitio.py:414:88:constante                      constante: 3 → 4
+     ·  tools/sitio.py:404:24:constante                      constante: 1 → 2
+     ·  tools/sitio.py:419:36:constante                      constante: 1 → 2
+     ·  tools/sitio.py:420:47:constante                      constante: 2 → 3
+     ·  tools/sitio.py:405:22:comparador                     comparador: Lt → LtE
+     ·  tools/sitio.py:422:19:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:422:29:constante                      constante: 2 → 3
+     ·  tools/sitio.py:422:32:constante                      constante: 3 → 4
+     ·  tools/sitio.py:424:19:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:424:19:comparador                     comparador: Eq → NotEq
+     ·  tools/sitio.py:414:37:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:424:28:constante                      constante: 1 → 2
+     ·  tools/sitio.py:426:21:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:426:21:comparador                     comparador: Eq → NotEq
+     ·  tools/sitio.py:426:30:constante                      constante: 2 → 3
+     ·  tools/sitio.py:439:15:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:433:21:constante                      constante: 1 → 2
+     ·  tools/sitio.py:414:69:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:437:21:constante                      constante: 1 → 2
+     ·  tools/sitio.py:439:15:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:439:32:comparador                     comparador: Lt → LtE
+     ·  tools/sitio.py:439:87:constante                      constante: 1 → 2
+     ·  tools/sitio.py:441:24:constante                      constante: 2 → 3
+     ·  tools/sitio.py:443:22:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:443:22:comparador                     comparador: Lt → LtE
+     ·  tools/sitio.py:443:42:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:456:22:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:415:24:constante                      constante: 1 → 2
+     ·  tools/sitio.py:439:36:constante                      constante: 1 → 2
+     ·  tools/sitio.py:445:25:constante                      constante: 1 → 2
+     ·  tools/sitio.py:408:50:comparador                     comparador: Eq → NotEq
+     ·  tools/sitio.py:468:19:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:468:19:comparador                     comparador: Lt → LtE
+     ·  tools/sitio.py:468:61:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:458:25:constante                      constante: 1 → 2
+     ·  tools/sitio.py:469:23:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:456:22:comparador                     comparador: Lt → LtE
+     ·  tools/sitio.py:469:64:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:470:23:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:471:23:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:472:23:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:472:28:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:471:28:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:472:49:comparador                     comparador: Lt → LtE
+     ·  tools/sitio.py:474:21:constante                      constante: 1 → 2
+     ·  tools/sitio.py:476:27:constante                      constante: 1 → 2
+     ·  tools/sitio.py:472:104:constante                     constante: 1 → 2
+     ·  tools/sitio.py:477:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:472:28:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:472:53:constante                      constante: 1 → 2
+     ·  tools/sitio.py:482:36:constante                      constante: 0 → 1
+     ·  tools/sitio.py:484:17:constante                      constante: False → True
+     ·  tools/sitio.py:485:14:comparador                     comparador: Lt → LtE
+     ·  tools/sitio.py:488:15:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:471:28:comparador                     comparador: Gt → GtE
+     ·  tools/sitio.py:488:21:comparador                     comparador: Eq → NotEq
+     ·  tools/sitio.py:488:33:constante                      constante: 1 → 2
+     ·  tools/sitio.py:488:60:constante                      constante: 0 → 1
+     ·  tools/sitio.py:489:38:constante                      constante: 1 → 2
+     ·  tools/sitio.py:489:56:constante                      constante: 2 → 3
+     ·  tools/sitio.py:488:49:comparador                     comparador: Eq → NotEq
+     ·  tools/sitio.py:489:62:constante                      constante: 1 → 2
+     ·  tools/sitio.py:490:64:constante                      constante: 3 → 4
+     ·  tools/sitio.py:491:17:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:482:33:constante                      constante: 2 → 3
+     ·  tools/sitio.py:495:19:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:492:56:constante                      constante: 1 → 2
+     ·  tools/sitio.py:495:19:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:481:33:constante                      constante: 1 → 2
+     ·  tools/sitio.py:495:37:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:495:37:comparador                     comparador: LtE → Lt
+     ·  tools/sitio.py:495:56:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:495:61:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:495:70:comparador                     comparador: Eq → NotEq
+     ·  tools/sitio.py:495:85:constante                      constante: 1 → 2
+     ·  tools/sitio.py:497:25:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:498:26:constante                      constante: 1 → 2
+     ·  tools/sitio.py:497:54:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:497:36:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:498:23:constante                      constante: 1 → 2
+     ·  tools/sitio.py:499:17:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:502:23:constante                      constante: 1 → 2
+     ·  tools/sitio.py:499:60:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:502:26:constante                      constante: 1 → 2
+     ·  tools/sitio.py:505:17:constante                      constante: 1 → 2
+     ·  tools/sitio.py:508:40:comparador                     comparador: Eq → NotEq
+     ·  tools/sitio.py:510:15:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:510:15:negacion                       negacion: se borra el `not`
+     ·  tools/sitio.py:510:59:comparador                     comparador: Eq → NotEq
+     ·  tools/sitio.py:488:57:constante                      constante: 2 → 3
+     ·  tools/sitio.py:510:82:constante                      constante: 1 → 2
+     ·  tools/sitio.py:515:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:522:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:522:39:constante                      constante: 1 → 2
+     ·  tools/sitio.py:497:36:comparador                     comparador: Gt → GtE
+     ·  tools/sitio.py:528:11:comparador                     comparador: NotEq → Eq
+     ·  tools/sitio.py:534:39:comparador                     comparador: Is → IsNot
+     ·  tools/sitio.py:537:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:499:17:comparador                     comparador: Gt → GtE
+     ·  tools/sitio.py:556:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:549:11:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:500:20:booleano                       booleano: and ↔ or
+     ·  tools/sitio.py:605:67:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:605:58:constante                      constante: 10 → 11
+     ·  tools/sitio.py:644:41:constante                      constante: True → False
+     ·  tools/sitio.py:635:15:comparador                     comparador: In → NotIn
+     ·  tools/sitio.py:641:11:comparador                     comparador: Eq → NotEq
+     ·  tools/sitio.py:644:56:constante                      constante: True → False
+     ·  tools/sitio.py:652:8:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:652:15:constante                      constante: 1 → 2
+     ·  tools/sitio.py:653:4:retorno                         retorno: return <algo> → return None
+     ·  tools/sitio.py:653:11:constante                      constante: 0 → 1
+     ·  tools/sitio.py:511:51:constante                      constante: 1 → 2
+     ·  tools/sitio.py:511:74:constante                      constante: 1 → 2
+     ·  tools/sitio.py:660:47:constante                      constante: 1 → 2
+
+mutantes: 412 · murieron 411 · sobrevivieron 0 · timeout 1 · errores de arnés 0 · equivalentes declarados: 8
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✗ proceso.ronda_mutacion_concluyente           valor 1 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+RONDA INCONCLUSA: un timeout o error del arnés no mata un mutante.
+  nucleo/version.py:82:7:negacion · timeout
+.............................................................................................................................................................
+----------------------------------------------------------------------
+Ran 157 tests in 12.197s
+
+OK
+...........error
+........
+----------------------------------------------------------------------
+Ran 19 tests in 0.149s
+
+OK
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 24.376s
+
+OK
+...................
+----------------------------------------------------------------------
+Ran 19 tests in 0.155s
+
+OK
+...........
+----------------------------------------------------------------------
+Ran 11 tests in 3.085s
+
+OK
+.....................................................................................................................................................................................................................................................................usage: ejecutar_suite_mutacion.py [-h] --proyecto RUTA [--hechos]
+                                  [--html RUTA] [--confiar-escalares]
+ejecutar_suite_mutacion.py: error: the following arguments are required: --proyecto
+...........................................BIBLIOTECA INVÁLIDA — id inválido: 'SinPunto'. Va como `publicador.nombre`, en minúsculas ASCII
+...............................................................................aviso: `oracle tarea` se mudó al paquete trackertast; usá `tasks <verbo>`.
+.aviso: `oracle tarea` se mudó al paquete trackertast; usá `tasks <verbo>`.
+trackertast no está instalado. Instalalo con `uv tool install trackertast` (o `pip install trackertast`) y usá `tasks <verbo>`.
+......................................................................................................................................................................................................................error del arnés durante descubrimiento: SystemExit: 0
+error del arnés durante descubrimiento: RuntimeError: previsto
+....error del arnés: falló la importación durante el descubrimiento
+.
