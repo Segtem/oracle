@@ -64,7 +64,7 @@ oracle --version          # comprobá la versión instalada
 corren con el Python del sistema:
 
 ```bash
-uv venv && uv pip install "oracle-metalenguaje==0.38.0"
+uv venv && uv pip install "oracle-metalenguaje==0.38.1"
 .venv/bin/python tools/mi_script.py
 ```
 
@@ -74,7 +74,7 @@ directorio en el repo, pero es un artefacto con versión, no una copia de un rep
 acordarse de traer y que se puede editar a mano sin que nadie se entere.
 
 ```bash
-python3 -m pip install --target <destino> --no-deps "oracle-metalenguaje==0.38.0"
+python3 -m pip install --target <destino> --no-deps "oracle-metalenguaje==0.38.1"
 ```
 
 Medido el 2026-09-01 contra el subtree de Jam: **2,3 MB y 183 archivos**, contra 3,5 MB y 284. Y el
@@ -195,7 +195,7 @@ contemplado: leelo, no lo agregues a la sombra sin entenderlo.
 - **No poner en sombra una medida sin leer qué encontró.** La sombra existe para posponer un
   arreglo, no para no mirarlo.
 - **No fijar la versión con `>=`.** Un consumidor que se actualiza solo se pone rojo un martes por
-  algo que no cambió de su lado. Fijá `oracle-metalenguaje==0.38.0` para esta revisión y subí a
+  algo que no cambió de su lado. Fijá `oracle-metalenguaje==0.38.1` para esta revisión y subí a
   propósito después de probar el consumidor.
 
 Los ejemplos de instalación apuntan a 0.38.0; las cifras y sombras del 2026-09-01 en las guías de

@@ -37,8 +37,8 @@ oracle juzgar --proyecto ejemplo/seguimiento-tareas --con /tmp/hechos-tareas.jso
   --medida seguimiento.referencias_locales_presentes --medida seguimiento.lectura_sin_omisiones
 ```
 
-Sin instalar los comandos, los mismos verbos corren con `python3 -m trackertast.cli` y
-`python3 -m oracle_metalenguaje.tools.cli`.
+Para ejecutar el tracker desde el código fuente, se puede usar `python3 -m trackertast.cli`.
+Oracle se instala desde PyPI y se invoca con `oracle` (o `uvx --from oracle-metalenguaje oracle`).
 
 Para adoptar estas políticas, copiar sólo las medidas y declaraciones de relaciones deseadas a
 `catalogos/` y `relaciones/` del proyecto, revisando antes sus alcances. No se activan por importar

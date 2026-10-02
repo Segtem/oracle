@@ -1,6 +1,6 @@
 # Publicar Oracle 0.38.1 en PyPI desde los paquetes verificados
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 80
 - ETIQUETAS: release
 
@@ -33,4 +33,4 @@ Corte publicado en GitHub: main y tag anotado v0.38.1 apuntaron a 790a95e7c32d41
 
 ## Próximo paso
 
-Brian: comprobar la CI de v0.38.1 en GitHub Actions, subir los dos archivos verificados con el comando anterior y comprobar la instalación desde PyPI. La portada y el tag ya están publicados.
+Tarea cerrada: PyPI y consumidores verificados; no queda acción pendiente.
