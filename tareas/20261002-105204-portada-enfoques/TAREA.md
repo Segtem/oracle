@@ -14,4 +14,4 @@ Integrado el diagrama en portada, con siete sprites SVG reutilizados del sitio, 
 
 ## Próximo paso
 
-Diagrama terminado. Incluir este commit al reconstruir y publicar el tag del corte 0.38.1 en corte-web.
+Diagrama incluido en el corte v0.38.1. Sin pendientes de esta implementación; mejoras generales de navegación en web-navegacion.

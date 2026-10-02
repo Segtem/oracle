@@ -28,6 +28,10 @@ Brian amplió el alcance antes del push: diagrama pixel art de vibe coding, SDLC
 
 Diagrama terminado en 068f4e8, revisado por agy1 y agy2. Tras sumarlo: 31 tests focalizados y 2155 enlaces locales OK; no cambió ningún Python, test ni pyproject desde afad7f8. Paquetes reconstruidos desde git archive de 068f4e8; Twine strict PASSED y wheel final reinstalado fuera del checkout con oracle test VERDE. SHA256SUMS e instrucciones PyPI actualizadas al origen definitivo.
 
+### Nota (2026-10-02 15:35:11 UTC)
+
+Retomado tras corte de luz: árbol de trabajo limpio, nueve commits locales conservados, git fsck --connectivity-only sin errores, SHA256SUMS de wheel y sdist correctos y 2155 enlaces locales válidos. El tag local todavía apuntaba al cierre previo a la normalización de referencias del informe; se alinea al cierre definitivo antes de publicar. No hace falta reconstruir los paquetes: sus hashes coinciden con los verificados.
+
 ## Próximo paso
 
 Corte v0.38.1 preparado, incluido el diagrama de portada. Brian publica los paquetes de dist/0.38.1 siguiendo pypi-0-38-1; los hashes y comprobaciones están en VERIFICACION.md.
