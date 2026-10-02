@@ -20,6 +20,14 @@ Paquetes finales construidos desde git archive del commit afad7f8. Twine strict 
 
 Chequeo del tracker detectó tres cierres históricos recientes sin commit exacto: de-cero-a-mano, de-cero-arbol y resaltado-web. Se registraron sus cierres sin tocar implementación. Tracker vuelve a VERDE dentro de la sombra histórica ya declarada (4, sin subir cota); evidencia tracker-final.log. El tag del corte incluye estos cierres; desde el commit fuente sólo cambió tareas/.
 
+### Nota (2026-10-02 10:58:03 UTC)
+
+Brian amplió el alcance antes del push: diagrama pixel art de vibe coding, SDLC, SDD y Oracle en portada, tarea portada-enfoques. El tag v0.38.1 sigue sólo local y aún apunta al primer cierre; se actualizará al terminar. Los paquetes se regenerarán desde el commit final antes de entregar el comando de publicación.
+
+### Nota (2026-10-02 11:05:27 UTC)
+
+Diagrama terminado en 068f4e8, revisado por agy1 y agy2. Tras sumarlo: 31 tests focalizados y 2155 enlaces locales OK; no cambió ningún Python, test ni pyproject desde afad7f8. Paquetes reconstruidos desde git archive de 068f4e8; Twine strict PASSED y wheel final reinstalado fuera del checkout con oracle test VERDE. SHA256SUMS e instrucciones PyPI actualizadas al origen definitivo.
+
 ## Próximo paso
 
-Preparación terminada: corte v0.38.1 con paquetes y comprobaciones en VERIFICACION.md. Brian continúa la publicación en pypi-0-38-1.
+Corte v0.38.1 preparado, incluido el diagrama de portada. Brian publica los paquetes de dist/0.38.1 siguiendo pypi-0-38-1; los hashes y comprobaciones están en VERIFICACION.md.

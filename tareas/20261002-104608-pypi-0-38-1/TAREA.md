@@ -5,7 +5,7 @@
 - ETIQUETAS: release
 
 Brian pidió preparar el corte para subirlo personalmente. No se ejecutó ningún upload.
-Paquetes construidos desde el commit fuente `afad7f8a6c8fc45ba92cada497d29e3635fdb2ce`;
+Paquetes construidos desde el commit fuente `068f4e8308c1a9a4365c241382a8c696f5229a63`;
 el tag del corte es `v0.38.1`. La última versión consultada en PyPI fue 0.38.0.
 Validación y hashes: [corte-web](../20261002-100421-corte-web/VERIFICACION.md).
 
