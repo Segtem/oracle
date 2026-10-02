@@ -1,7 +1,7 @@
 # Informe de Revisión Estática: Sección `t-enfoques`
 
 ## 1. Alcance y límite metodológico
-- **Objetivo**: Auditoría estática exclusiva de la nueva comparación `t-enfoques` en [docs/index.html](file:///tmp/oracle-enfoques/agy2/docs/index.html#L67-L133) y su CSS final en [docs/assets/portada.css](file:///tmp/oracle-enfoques/agy2/docs/assets/portada.css#L140-L196).
+- **Objetivo**: Auditoría estática exclusiva de la nueva comparación `t-enfoques` en [docs/index.html](../../docs/index.html) y su CSS final en [docs/assets/portada.css](../../docs/assets/portada.css).
 - **Límite metodológico explícito**: Revisión estrictamente estática sobre el código fuente. Conforme a las instrucciones, no se utilizó navegador web, no se capturaron pantallas ni se ejecutaron suites de prueba, mutación o instalación de paquetes.
 
 ## 2. Veredicto general
