@@ -1,6 +1,6 @@
 # de-cero lo sigue alguien que no sabe programar
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 82
 - ETIQUETAS: 
 
@@ -60,6 +60,10 @@ Continuación con ask-agy1 y ask-agy2 de ~/bin, autorizados por Brian. Cada agen
 
 Cierre técnico verificado: agy1 resolvió la cobertura de los dos supervivientes; agy2 recorrió las nueve misiones con Oracle 0.38.0 aislado. Dos hallazgos reales corregidos y registrados en script-naval-guia y copiar-forma-unica. Su informe crudo y logs se preservan, con revisión-hallazgos.txt que descarta dos afirmaciones incorrectas al contrastar la página original. Reproducción independiente del HTML corregido: 14 bloques de comandos, 63 escrituras, todas las salidas comparadas y script complementario OK. Verificación final: oracle test código 0, 2256 unitarios OK, 1026/1026 mutantes de medida, VERDE con mutación de código completa omitida. Mutación focalizada: guía 66/66 y sitio final 36/36 muertos, 0 supervivientes/timeouts/errores; ambas rondas parciales (código 2 esperado). Sitio generado al día y git diff --check OK. El primer intento de suite descubrió caché dejada por el test nuevo en el ejemplo; se aisló la importación en temporal, pasaron 4 tests focalizados y luego la suite completa. No se validaron clics del juego ni Windows/macOS ni una persona real; pilotos-externos conserva esa validación humana pendiente.
 
+### Nota (2026-10-02 09:47:38 UTC)
+
+Implementación y evidencia commiteadas en 1d04031. Defectos derivados cerrados: script-naval-guia (a5d23ed) y copiar-forma-unica (465fe01). Cierre de la validación con agentes y reproducción automática desde HTML; no se presenta como prueba con una persona principiante. Todos los cambios de código y documentación ya están verificados; quedan los commits de cierre para publicar en main.
+
 ## Próximo paso
 
-Registrar los commits de cierre de script-naval-guia, copiar-forma-unica y esta tarea; empujar main. La implementación y las verificaciones ya terminaron. La validación humana sigue en pilotos-externos.
+Sin pendientes en esta tarea: recorrido con agentes y reproducción del HTML corregido completos. La validación con personas reales continúa en pilotos-externos; Windows/macOS y los clics del juego no se verificaron en esta corrida.

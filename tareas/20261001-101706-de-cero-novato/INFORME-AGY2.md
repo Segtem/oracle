@@ -1,10 +1,10 @@
 # Informe de Validación Independiente: Guía «De Cero a Novato» (Oracle Metalenguaje)
 
-**Agente evaluador:** `agy2`  
-**Fecha de evaluación:** 2026-10-01  
-**Documento evaluado:** `guia-publicada/de-cero.html` (copia estática publicada)  
-**Proyecto reconstruido en:** `/tmp/oracle-cierre-novato/agy2/recorrido/batalla-naval`  
-**Directorio de evidencias:** `/tmp/oracle-cierre-novato/agy2/evidencia/`  
+**Agente evaluador:** `agy2`
+**Fecha de evaluación:** 2026-10-01
+**Documento evaluado:** `guia-publicada/de-cero.html` (copia estática publicada)
+**Proyecto reconstruido en:** `/tmp/oracle-cierre-novato/agy2/recorrido/batalla-naval`
+**Directorio de evidencias:** `/tmp/oracle-cierre-novato/agy2/evidencia/`
 
 ---
 
