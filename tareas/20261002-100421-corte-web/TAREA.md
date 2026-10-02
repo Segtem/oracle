@@ -16,6 +16,10 @@ Mutación --alto sobre nucleo/version.py, tools/guia.py y tools/sitio.py complet
 
 Paquetes finales construidos desde git archive del commit afad7f8. Twine strict PASSED en wheel y sdist. Verificación de instalación WHEEL OK y prueba adicional del wheel exacto fuera del checkout: versión 0.38.1, plantilla y oracle test verdes. Artefactos en dist/0.38.1; hashes SHA256SUMS y evidencia VERIFICACION.md en esta tarea. Publicación de Brian registrada en pypi-0-38-1; no se ejecutó upload.
 
+### Nota (2026-10-02 10:51:43 UTC)
+
+Chequeo del tracker detectó tres cierres históricos recientes sin commit exacto: de-cero-a-mano, de-cero-arbol y resaltado-web. Se registraron sus cierres sin tocar implementación. Tracker vuelve a VERDE dentro de la sombra histórica ya declarada (4, sin subir cota); evidencia tracker-final.log. El tag del corte incluye estos cierres; desde el commit fuente sólo cambió tareas/.
+
 ## Próximo paso
 
 Preparación terminada: corte v0.38.1 con paquetes y comprobaciones en VERIFICACION.md. Brian continúa la publicación en pypi-0-38-1.
