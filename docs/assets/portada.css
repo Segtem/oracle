@@ -135,3 +135,59 @@
   .niveles li { grid-template-columns: 3.5em minmax(0, 1fr); margin-left: 0 !important; }
   .niveles li span:last-child { grid-column: 2; }
 }
+
+/* ---------------------------------------------------------------- cuatro enfoques de desarrollo */
+.mapa-enfoques { margin: 28px 0 0; }
+.simbolos-enfoques { position: absolute; width: 0; height: 0; overflow: hidden; }
+.enfoque { --ruta: var(--acento); display: grid; grid-template-columns: 210px minmax(0, 1fr);
+           gap: 24px; padding: 24px; margin-block: 18px; border: 1px solid var(--linea);
+           border-left: 4px solid var(--ruta); background: var(--papel-2); }
+.enfoque-oracle { background: var(--papel); border-color: var(--acento);
+                  box-shadow: 4px 4px 0 var(--acento-suave); }
+.enfoque-nombre .pixel { font-size: 11px; color: var(--ruta); margin: 0 0 10px; }
+.enfoque-nombre h3 { font-size: 22px; line-height: 1.15; margin: 0 0 10px; }
+.enfoque-nombre > p:last-child { color: var(--tinta-2); font-size: 14px; line-height: 1.5; margin: 0; }
+.enfoque-recorrido { min-width: 0; }
+.pasos-enfoque { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
+                 gap: 20px; padding: 0; margin: 0; list-style: none; }
+.pasos-enfoque li { position: relative; display: grid; align-content: start; justify-items: center;
+                    text-align: center; gap: 6px; min-width: 0; }
+.icono-enfoque { display: block; width: 60px; height: 60px; flex: none; shape-rendering: crispEdges; }
+.pasos-enfoque strong { font-size: 14px; line-height: 1.3; overflow-wrap: anywhere; }
+.pasos-enfoque li > span { overflow-wrap: anywhere; color: var(--tinta-2); font-size: 12px; line-height: 1.4; }
+.pasos-enfoque li:not(:last-child)::after { content: ""; position: absolute; top: 28px; right: -17px;
+  width: 14px; height: 10px; background: var(--ruta);
+  clip-path: polygon(0 40%, 57% 40%, 57% 0, 71% 0, 71% 20%, 85% 20%, 85% 40%, 100% 40%, 100% 60%, 85% 60%, 85% 80%, 71% 80%, 71% 100%, 57% 100%, 57% 60%, 0 60%); }
+.vuelta-enfoque { margin: 18px 0 12px; padding-top: 9px; border-top: 2px dashed var(--linea);
+                  font-size: 12px; color: var(--tinta-2); line-height: 1.5; }
+.vuelta-enfoque > span { color: var(--ruta); font-size: 18px; margin-right: 4px; }
+.criterio-enfoque { font-size: 14px; line-height: 1.5; margin: 0; }
+.entrada-reglas { padding: 12px 16px; border: 1px dashed var(--acento); margin: 0 0 16px;
+                 background: var(--acento-suave); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.entrada-reglas > div { display: flex; align-items: center; gap: 8px; }
+.entrada-reglas .icono-enfoque { width: 40px; height: 40px; }
+.entrada-reglas p { margin: 0; font-size: 13px; line-height: 1.4; }
+.entrada-reglas strong, .entrada-reglas p span { display: block; }
+.entrada-reglas p span { font-size: 12px; color: var(--tinta-2); margin-top: 3px; }
+.entrada-reglas .bajada-reglas { grid-column: 1 / -1; text-align: center; color: var(--acento); font-size: 12px; }
+.entrada-reglas .bajada-reglas span { display: inline; color: inherit; }
+.mapa-enfoques figcaption { color: var(--gris); font-size: 13px; line-height: 1.6; margin-top: 24px; }
+.aporte-oracle { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 40px;
+                padding-top: 32px; margin-top: 32px; border-top: 1px solid var(--linea); }
+.aporte-oracle h3 { font-size: 28px; line-height: 1.2; margin: 0; }
+.enlace-enfoques { font-family: var(--sans); font-size: 16px; font-weight: 600; }
+@media (max-width: 1000px) {
+  .enfoque { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .enfoque-nombre h3 { margin-bottom: 6px; }
+}
+@media (max-width: 600px) {
+  .enfoque { padding: 20px 16px; }
+  .pasos-enfoque { grid-auto-flow: row; grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  .pasos-enfoque li { grid-template-columns: 40px minmax(0, 1fr); justify-items: start; text-align: left;
+                      gap: 2px 12px; align-items: center; }
+  .pasos-enfoque .icono-enfoque { width: 40px; height: 40px; grid-row: 1 / 3; }
+  .pasos-enfoque li > span { grid-column: 2; }
+  .pasos-enfoque li:not(:last-child)::after { top: auto; right: auto; bottom: -17px; left: 13px; transform: rotate(90deg); }
+  .entrada-reglas { grid-template-columns: minmax(0, 1fr); padding: 12px; }
+  .aporte-oracle { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+}

@@ -61,6 +61,11 @@ VERSION_SINTAXIS       1.1    → 1.1
   ilustradas. Se completan operadores, macros y la estructura del tutorial práctico; los
   marcadores internos de generación dejan de mostrarse en las notas.
 
+- **Cuatro enfoques, un diagrama.** La portada compara vibe coding, el ciclo de vida del software,
+  spec-driven development y desarrollar con Oracle, con sprites pixel art y recorridos adaptables
+  al ancho de pantalla. Explica cómo las medidas, los testigos y la mutación complementan el
+  desarrollo con IA, con referencias al video de IBM y límites explícitos de la verificación.
+
 ## Para actualizar
 
 Nada que migrar. El lenguaje conserva el álgebra `1.0` y la sintaxis `1.1`. La reproducción
