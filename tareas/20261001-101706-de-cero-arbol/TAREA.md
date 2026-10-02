@@ -16,6 +16,10 @@ Agregué cinco bloques text arbol en docs/de-cero.md (tras init, juego, primera 
 
 Verificación final: python3 tools/guia.py --escribir (0 salidas actualizadas), python3 tools/sitio.py --escribir (sin páginas pendientes), python3 -m unittest discover -s tests (2250 tests, OK), python3 tools/oracle.py test (VEREDICTO: VERDE; mutación de código salteada). No se hizo commit.
 
+### Nota (2026-10-02 10:50:49 UTC)
+
+Cierre formal registrado durante corte-web: el cambio estaba integrado y la tarea CERRADA, pero faltaba el asunto exacto <ID>: done. Guía y árboles pasan en la suite final; tools/guia.py completo está cubierto por la mutación del corte. Este commit sólo completa el protocolo.
+
 ## Próximo paso
 
-Sin implementación pendiente. Árboles integrados y ronda parcial de tools/guia.py con 66/66 mutantes muertos. Evidencia en de-cero-novato/mutacion-guia.log.
+Trabajo integrado, verificado y con cierre formal. Sin pendientes; evidencia adicional en corte-web.
