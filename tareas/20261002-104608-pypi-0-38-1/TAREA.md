@@ -27,6 +27,10 @@ Después de subir, instalar `oracle-metalenguaje==0.38.1` en un entorno nuevo de
 comprobar `oracle --version`, anotar la URL publicada y cerrar esta tarea con commit
 `20261002-104608-pypi-0-38-1: done`.
 
+### Nota (2026-10-02 15:42:36 UTC)
+
+Corte publicado en GitHub: main y tag anotado v0.38.1 apuntaron a 790a95e7c32d41cd5ac12309005345b4c771b0df. Tras el reinicio, git fsck y hashes de ambos paquetes correctos. GitHub Pages no inició automáticamente: se solicitó la construcción; despliegue 37028523403 success y HTML público idéntico al commit, incluido #t-enfoques. CI verificar todavía en curso al entregar: runs 37028165102 y 37028163663. Consultar su resultado antes del upload; pruebas locales y paquetes ya verificados. No se publicó en PyPI.
+
 ## Próximo paso
 
-Brian: subir los dos archivos verificados con el comando anterior y comprobar la instalación desde PyPI.
+Brian: comprobar la CI de v0.38.1 en GitHub Actions, subir los dos archivos verificados con el comando anterior y comprobar la instalación desde PyPI. La portada y el tag ya están publicados.
