@@ -242,7 +242,7 @@ de políticas del ejemplo. Pasaron el wheel, el tutorial literal desde una insta
 del checkout, las sondas, la traza y la aceptación de Jam. Las tres tareas del uso propio quedaron
 cerradas con notas de evidencia. No se migró material personal; el tutorial usa ejemplos construidos.
 
-- [Contrato y tutorial](../../docs/12-tareas.md).
+- [Contrato y tutorial de esa versión](https://github.com/Segtem/oracle/blob/v0.33.0/docs/12-tareas.md).
 - [Roadmap completado](../../vault-kb/planes/PLAN-0.16.0-TAREAS.md).
 - [Cierre y evidencia de P4](../../vault-kb/estudios/0.16.0-tareas/CIERRE-P4.md).
 - [Verificación del corte 0.16.0](../../vault-kb/estudios/2026-09-13-corte-0.16.0/README.md).

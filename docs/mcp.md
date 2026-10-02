@@ -21,7 +21,7 @@ uv tool install oracle-mcp
 
 Trae la versión de Oracle con la que se probó, fijada con `==`: el servidor usa API interna de
 Oracle, y una versión distinta podría romperlo sin avisar. `oracle-mcp` 0.1.1 fija Oracle 0.35.0;
-instalarlo no actualiza automáticamente su motor a Oracle 0.38.0.
+instalarlo no actualiza automáticamente su motor a la versión actual de Oracle.
 
 ## Configurarlo en un cliente
 

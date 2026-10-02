@@ -1,0 +1,67 @@
+{
+  "hallazgos": [
+    {
+      "pagina": "de-cero.html",
+      "errores": [],
+      "avisos": [
+        {
+          "tipo": "botones copiar inconsistentes",
+          "texto": "Hay 82 bloques pre pero 78 botones"
+        },
+        {
+          "tipo": "botones copiar inconsistentes",
+          "texto": "Hay 82 bloques pre pero 78 botones"
+        }
+      ],
+      "red": []
+    },
+    {
+      "pagina": "notas.html",
+      "errores": [],
+      "avisos": [
+        {
+          "tipo": "desborde horizontal",
+          "texto": "Desktop light: scrollWidth=1235 > innerWidth=1200"
+        },
+        {
+          "tipo": "desborde horizontal",
+          "texto": "Desktop dark: scrollWidth=1235 > innerWidth=1200"
+        }
+      ],
+      "red": []
+    }
+  ],
+  "juegoInteraccion": [
+    {
+      "item": "boton_copiar",
+      "texto": "Copiar"
+    },
+    {
+      "total_botones_opciones": 28
+    },
+    {
+      "primer_opcion_clic": "opcion lampara verde errada"
+    },
+    {
+      "bitacora_toggle": true
+    },
+    {
+      "total_details": 20
+    },
+    {
+      "total_celdas_tablero": 0
+    },
+    {
+      "total_mutantes": 0
+    },
+    {
+      "localStorage_estado": {
+        "puntos": {},
+        "logros": {},
+        "predicciones": {
+          "p1": false
+        }
+      }
+    }
+  ]
+}

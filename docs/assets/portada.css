@@ -71,7 +71,7 @@
 .t-rojo { color: #FF8A7E; }
 
 /* ---------------------------------------------------------------- cifras */
-.cifras { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; padding-block: 44px; border-top: 1px solid var(--linea); }
+.cifras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; padding-block: 44px; border-top: 1px solid var(--linea); }
 .cifras div { padding: 8px 0; }
 .cifra { font-size: clamp(40px, 5vw, 60px); font-weight: 800; letter-spacing: -0.03em; margin: 0; line-height: 1; font-variant-numeric: tabular-nums; }
 .cifras p:last-child { color: var(--gris); margin: 8px 0 0; font-size: 15px; }

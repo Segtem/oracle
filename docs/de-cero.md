@@ -1576,8 +1576,8 @@ con partidas **observadas** (jugadas por personas reales), no sólo con casos co
 5. **Cuando algo salga rojo, pasale los testigos exactos** (los turnos o casillas que ofendieron), no una descripción vaga.
 6. **Si te dice «ya está todo verificado», preguntale qué mutantes sobrevivieron** y qué dice la lista `SIN MIRAR`.
 
-Después de esto, podés consultar la documentación en el sitio web de Oracle: [La primera medida real](13-primer-valor.html)
-muestra el mismo recorrido con menos explicación, y [Escribir una medida](03-escribir-una-medida.html) es la referencia
+Después de esto, podés consultar la documentación en el sitio web de Oracle: [La primera medida real](13-primer-valor.md)
+muestra el mismo recorrido con menos explicación, y [Escribir una medida](03-escribir-una-medida.md) es la referencia
 completa del lenguaje.
 
 <!-- juego {"tipo": "cierre"} -->

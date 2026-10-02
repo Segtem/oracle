@@ -40,7 +40,7 @@
 <p>Las seis herramientas son de <strong>sólo lectura</strong>. No es prudencia genérica: los falsos verdes que un agente comete ocurren al leer, y una escritura «aprobada» por dos evidencias que el mismo agente fabricó parece una aprobación sin serlo. El proyecto se fija al arrancar el servidor, y <code>--confiar-escalares</code> sólo se concede ahí: ninguna llamada puede ampliar esa autoridad.</p>
 <h2 id="instalación"><canvas class="sprite sprite-h2" data-sprite="martillo" width="14" height="14" aria-hidden="true"></canvas>Instalación<a class="ancla" href="#instalación" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="bash"><code>uv tool install oracle-mcp</code></pre>
-<p>Trae la versión de Oracle con la que se probó, fijada con <code>==</code>: el servidor usa API interna de Oracle, y una versión distinta podría romperlo sin avisar. <code>oracle-mcp</code> 0.1.1 fija Oracle 0.35.0; instalarlo no actualiza automáticamente su motor a Oracle 0.38.0.</p>
+<p>Trae la versión de Oracle con la que se probó, fijada con <code>==</code>: el servidor usa API interna de Oracle, y una versión distinta podría romperlo sin avisar. <code>oracle-mcp</code> 0.1.1 fija Oracle 0.35.0; instalarlo no actualiza automáticamente su motor a la versión actual de Oracle.</p>
 <h2 id="configurarlo-en-un-cliente"><canvas class="sprite sprite-h2" data-sprite="martillo" width="14" height="14" aria-hidden="true"></canvas>Configurarlo en un cliente<a class="ancla" href="#configurarlo-en-un-cliente" aria-label="Enlace a esta sección">#</a></h2>
 <p>El servidor habla por stdio. Se le dice qué proyecto mirar con <code>--proyecto &lt;ruta&gt;</code>.</p>
 <p><strong>Claude Code</strong>, desde la raíz del proyecto:</p>
@@ -67,14 +67,24 @@ args = [&quot;--proyecto&quot;, &quot;/ruta/al/proyecto&quot;]</code></pre>
 </div>
 <script src="./assets/pixel-sitio.js" defer></script>
 <script>
-if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+const menu = document.querySelector(".menu");
+const pantallaChica = matchMedia("(max-width: 760px)");
+const ajustarMenu = () => { menu.open = !pantallaChica.matches; };
+ajustarMenu();
+pantallaChica.addEventListener("change", ajustarMenu);
 document.querySelectorAll(".prosa pre:not(.salida):not(.arbol)").forEach((pre) => {
   const b = document.createElement("button");
   b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
-  b.addEventListener("click", () => {
-    navigator.clipboard.writeText(pre.querySelector("code").textContent)
-      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
-      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  b.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(pre.querySelector("code").textContent);
+      b.textContent = "Copiado";
+      setTimeout(() => { b.textContent = "Copiar"; }, 1500);
+    } catch (_) {
+      const r = document.createRange(); r.selectNodeContents(pre.querySelector("code"));
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      b.textContent = "Texto seleccionado: copialo";
+    }
   });
   pre.append(b);
 });

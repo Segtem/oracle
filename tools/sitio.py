@@ -385,6 +385,9 @@ class Convertidor:
                 salida.append(juego(m_juego.group(1)))
                 i += 1
                 continue
+            if re.fullmatch(r"<!--.*?-->", crudo):
+                i += 1
+                continue
             if crudo.startswith('<p class="pregunta">') and crudo.endswith("</p>"):
                 salida.append(f'<p class="pregunta">{self.linea(crudo[20:-4])}</p>')
                 i += 1
@@ -464,6 +467,7 @@ class Convertidor:
             parrafo = []
             while (j < len(lineas) and lineas[j].strip() and not _FENCE.match(lineas[j])
                    and not re.match(r"^#{1,6} ", lineas[j]) and not lineas[j].lstrip().startswith(">")
+                   and not re.fullmatch(r"<!--.*?-->", lineas[j].strip())
                    and not (j > i and _ITEM.match(lineas[j]))
                    and not ("|" in lineas[j] and j + 1 < len(lineas) and _es_separador_tabla(lineas[j + 1]))):
                 parrafo.append(lineas[j].strip())
@@ -600,14 +604,24 @@ def pagina(p: Pagina) -> str:
 </div>
 {f'<script src="{raiz}assets/guia.js" defer></script>{chr(10)}' if 'class="juego ' in cuerpo else ""}<script src="{raiz}assets/pixel-sitio.js" defer></script>
 <script>
-if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+const menu = document.querySelector(".menu");
+const pantallaChica = matchMedia("(max-width: 760px)");
+const ajustarMenu = () => {{ menu.open = !pantallaChica.matches; }};
+ajustarMenu();
+pantallaChica.addEventListener("change", ajustarMenu);
 document.querySelectorAll(".prosa pre:not(.salida):not(.arbol)").forEach((pre) => {{
   const b = document.createElement("button");
   b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
-  b.addEventListener("click", () => {{
-    navigator.clipboard.writeText(pre.querySelector("code").textContent)
-      .then(() => {{ b.textContent = "Copiado"; setTimeout(() => {{ b.textContent = "Copiar"; }}, 1500); }})
-      .catch(() => {{ const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }});
+  b.addEventListener("click", async () => {{
+    try {{
+      await navigator.clipboard.writeText(pre.querySelector("code").textContent);
+      b.textContent = "Copiado";
+      setTimeout(() => {{ b.textContent = "Copiar"; }}, 1500);
+    }} catch (_) {{
+      const r = document.createRange(); r.selectNodeContents(pre.querySelector("code"));
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      b.textContent = "Texto seleccionado: copialo";
+    }}
   }});
   pre.append(b);
 }});

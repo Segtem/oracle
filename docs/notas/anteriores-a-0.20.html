@@ -107,7 +107,7 @@ VERSION_SINTAXIS       0.4    → 0.4</code></pre>
 <p>Los cuatro módulos del tracker quedan declarados como custodias y en la matriz de CI. Sus rondas oficiales cerraron <strong>762/762</strong>: tareas 263/263, contexto 197/197, Git 44/44 y hechos 258/258, sin sobrevivientes, timeouts, errores de arnés ni equivalentes declarados.</p>
 <h2 id="verificación-y-documentación"><canvas class="sprite sprite-h2" data-sprite="pergamino_sello" width="14" height="14" aria-hidden="true"></canvas>Verificación y documentación<a class="ancla" href="#verificación-y-documentación" aria-label="Enlace a esta sección">#</a></h2>
 <p>La verificación de P4 cerró con <strong>1852 tests</strong>, corpus propio de <strong>203 casos</strong>, aceptación con <strong>115 defectos en rojo, 81 verdes correctos y 0 huecos</strong>, <strong>959/959 mutantes de medidas</strong> y <strong>52/52</strong> de políticas del ejemplo. Pasaron el wheel, el tutorial literal desde una instalación nueva fuera del checkout, las sondas, la traza y la aceptación de Jam. Las tres tareas del uso propio quedaron cerradas con notas de evidencia. No se migró material personal; el tutorial usa ejemplos construidos.</p>
-<ul><li><a href="https://github.com/Segtem/oracle/blob/main/docs/12-tareas.md" rel="noopener">Contrato y tutorial</a>.</li><li><a href="https://github.com/Segtem/oracle/blob/main/vault-kb/planes/PLAN-0.16.0-TAREAS.md" rel="noopener">Roadmap completado</a>.</li><li><a href="https://github.com/Segtem/oracle/blob/main/vault-kb/estudios/0.16.0-tareas/CIERRE-P4.md" rel="noopener">Cierre y evidencia de P4</a>.</li><li><a href="https://github.com/Segtem/oracle/blob/main/vault-kb/estudios/2026-09-13-corte-0.16.0/README.md" rel="noopener">Verificación del corte 0.16.0</a>.</li></ul>
+<ul><li><a href="https://github.com/Segtem/oracle/blob/v0.33.0/docs/12-tareas.md" rel="noopener">Contrato y tutorial de esa versión</a>.</li><li><a href="https://github.com/Segtem/oracle/blob/main/vault-kb/planes/PLAN-0.16.0-TAREAS.md" rel="noopener">Roadmap completado</a>.</li><li><a href="https://github.com/Segtem/oracle/blob/main/vault-kb/estudios/0.16.0-tareas/CIERRE-P4.md" rel="noopener">Cierre y evidencia de P4</a>.</li><li><a href="https://github.com/Segtem/oracle/blob/main/vault-kb/estudios/2026-09-13-corte-0.16.0/README.md" rel="noopener">Verificación del corte 0.16.0</a>.</li></ul>
 <p>La menor de distribución incorpora esta superficie y su formato persistente. Álgebra y sintaxis conservan significado, nodos y gramática. La publicación en PyPI la realiza el dueño.</p>
 <hr class="divisor-pixel" aria-hidden="true">
 <h1 id="0150--las-sondas-tienen-custodia-y-el-cli-entra-en-ci"><canvas class="sprite sprite-titulo" data-sprite="ancla_antigua" width="14" height="14" aria-hidden="true"></canvas>0.15.0 — las sondas tienen custodia y el CLI entra en CI<a class="ancla" href="#0150--las-sondas-tienen-custodia-y-el-cli-entra-en-ci" aria-label="Enlace a esta sección">#</a></h1>
@@ -723,14 +723,24 @@ oracle init mi-proyecto</code></pre>
 </div>
 <script src="../assets/pixel-sitio.js" defer></script>
 <script>
-if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+const menu = document.querySelector(".menu");
+const pantallaChica = matchMedia("(max-width: 760px)");
+const ajustarMenu = () => { menu.open = !pantallaChica.matches; };
+ajustarMenu();
+pantallaChica.addEventListener("change", ajustarMenu);
 document.querySelectorAll(".prosa pre:not(.salida):not(.arbol)").forEach((pre) => {
   const b = document.createElement("button");
   b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
-  b.addEventListener("click", () => {
-    navigator.clipboard.writeText(pre.querySelector("code").textContent)
-      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
-      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  b.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(pre.querySelector("code").textContent);
+      b.textContent = "Copiado";
+      setTimeout(() => { b.textContent = "Copiar"; }, 1500);
+    } catch (_) {
+      const r = document.createRange(); r.selectNodeContents(pre.querySelector("code"));
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      b.textContent = "Texto seleccionado: copialo";
+    }
   });
   pre.append(b);
 });

@@ -14,7 +14,7 @@ oracle --version
 ```
 
 ```text salida
-oracle 0.38.0
+oracle 0.38.1
   álgebra:  1.0   (qué SIGNIFICA una medida)
   sintaxis: 1.1   (cómo se ESCRIBE)
   corriendo desde: …/oracle
@@ -84,7 +84,7 @@ un proyecto real conviene dejarlo prendido, porque trae las **políticas** que v
 | `donde …` | qué fila cuenta como **infracción**. Tiene que dar `true` o `false`: un número o un texto es error | sin filtro, toda casilla sería una infracción |
 | `umbral <= 0 segun contrato porque "…"` | cuántas infracciones se toleran, **de dónde salió ese número** (`contrato`, `medicion`, `convencion` o `tanteo`) y por qué | es obligatorio: una regla sin umbral no decide nada |
 | `requiere casilla` | la relación que **tiene** que traer filas. Si viene vacía, el veredicto es SIN EVIDENCIA | con `ninguno` a secas, cero filas son cero infracciones: verde |
-| `ambito universal` | dónde obliga la regla: `universal` (siempre) o `del_origen` (sólo en el proyecto que la escribió) | se asume `sin_declarar` |
+| `ambito universal` | dónde obliga la regla: `universal` (siempre) o `del_origen` (sólo en el proyecto que la escribió) | error de sintaxis: esta macro exige declarar el ámbito |
 | `alcance "…"` | qué **no** ve la medida. Oracle lo repite al final de cada verde | es obligatorio: un verde sin alcance promete de más |
 
 Una macro como `ninguno-requiere` es sólo una forma corta. Oracle la expande a la forma canónica, que

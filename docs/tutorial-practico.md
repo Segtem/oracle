@@ -147,16 +147,17 @@ Tampoco hay composición de medidas (`DECISION-002`): una medida no puede invoca
 
 ---
 
-## 3. El álgebra: cinco operadores, y nada más
+## 3. El álgebra: fuentes, pasos y resumen
 
-Toda la sintaxis sale de combinar **cinco operadores**. Cada uno toma filas (o hace de fuente) y
-devuelve filas: esa clausura es lo que permite encadenarlos sin casos especiales.
+La medida combina una fuente con pasos que reciben y devuelven filas, y un resumen final que
+obtiene el número a juzgar. Los pasos se pueden encadenar porque trabajan sobre el mismo tipo de dato.
 
 | Operador | Superficie | Qué hace |
 |---|---|---|
 | `de` | `de <relacion> <alias>` | fuente: trae una relación y la etiqueta con un alias |
 | `donde` | `donde <predicado>` | filtra — **acá se definen los testigos** |
 | `unir` | `unir <relacion> <alias>` | producto cartesiano con otra fuente |
+| `sin` | `sin <relacion> <alias> donde <predicado>` | conserva las filas que no tienen una pareja que cumpla el predicado |
 | `agrupar` | `agrupar:\n    clave ...\n    agregado ...` | agrupa filas y las resume a una fila por grupo |
 | `resumen` | `resumen <agregado>(<expresion>)` | colapsa TODA la tubería a un único escalar |
 
@@ -241,6 +242,17 @@ fila consigo misma (`a == b`); normalmente hay que filtrar eso en el `donde` (po
 `a.carpeta != b.carpeta` o `a.id != b.id`).
 
 ### 3.7 `agrupar` — cómo se expresa la AUSENCIA sin usar `null`
+
+Para buscar directamente módulos sin importadores reales, hoy podés usar `sin`:
+
+```oracle-fragmento
+de modulo m
+sin importa i donde i.b == m.nombre y i.es_test == false
+```
+
+`sin` conserva el módulo aunque `importa` esté vacía. El patrón histórico con `agrupar` que sigue
+necesita filas en ambas fuentes: si `importa` está vacía, el producto de `unir` queda vacío.
+
 
 Este es el operador que más cuesta la primera vez, porque resuelve algo que en SQL pide un
 `LEFT JOIN` con nulos — y acá **no hay nulos**. La pregunta es «¿qué módulos no tienen NINGÚN
@@ -645,6 +657,7 @@ mi-proyecto/
     tareas/
       001-vencida-sin-nadie.caso
       002-vencida-con-dueno.caso
+  diferencial/
 ```
 
 ### 8.2 `oracle.json`

@@ -14,7 +14,7 @@
   --rojo-suave: #F7DEDA;
   --verde: #1E7F55;
   --verde-suave: #D8EFE3;
-  --ambar: #A86A00;
+  --ambar: #8B5800;
   --ambar-suave: #F6E8C8;
   --codigo-fondo: #1B2229;
   --codigo-tinta: #E3E9E5;
@@ -129,7 +129,7 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.15; letter-spacing: -0.01em;
 .prosa ul, .prosa ol { margin: 0 0 18px; padding-left: 26px; }
 .prosa li { margin: 4px 0; }
 .prosa li > ul, .prosa li > ol { margin: 6px 0; }
-.prosa code { font-size: 0.84em; background: var(--papel-2); padding: 1px 5px; border-radius: 3px; }
+.prosa code { overflow-wrap: anywhere; font-size: 0.84em; background: var(--papel-2); padding: 1px 5px; border-radius: 3px; }
 .prosa pre { background: var(--codigo-fondo); color: var(--codigo-tinta); padding: 18px 20px; border-radius: 6px;
              overflow-x: auto; font-size: 14px; line-height: 1.6; margin: 0 0 22px; }
 .prosa pre code { background: none; padding: 0; font-size: inherit; }
@@ -369,15 +369,9 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.15; letter-spacing: -0.01em;
   image-rendering: crisp-edges;
   flex: none;
 }
-.prosa h1 {
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-}
-.prosa h2 {
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
+/* El título fluye con sus fragmentos de código y el icono, incluso si es largo. */
+.prosa h1, .prosa h2 {
+  overflow-wrap: anywhere;
 }
 .cabecera-seccion {
   display: flex;

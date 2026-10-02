@@ -17,7 +17,7 @@
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <header class="barra">
   <a class="marca" href="./"><img src="assets/emblema.svg" alt="" width="28" height="28"> oracle <span class="version pixel"><!-- sitio_version:inicio -->
-0.38.0
+0.38.1
 <!-- sitio_version:fin --></span></a>
   <nav aria-label="Principal">
     <a href="por-que.html">Por qué</a>
@@ -38,7 +38,7 @@
     proyecto aparte, de forma que se puedan poner rojas: con un número, un umbral que dice de dónde
     sale y las filas exactas que ofendieron.</p>
     <div class="acciones">
-      <a class="boton" href="02-de-cero-a-un-rojo.html">Empezar en cinco minutos</a>
+      <a class="boton" href="de-cero.html">Empezar desde cero</a>
       <a class="boton secundario" href="por-que.html">Por qué hace falta</a>
     </div>
     <p class="instalar"><code>uv tool install oracle-metalenguaje</code> <span>Python 3.11 o posterior · cero dependencias · MIT</span></p>
@@ -56,8 +56,8 @@
   </div>
   <div class="dos-columnas lectura">
     <p>Cuando la misma persona, o el mismo modelo de lenguaje, escribe el código y en la misma pasada
-    escribe los tests, los tests confirman lo que ya se quería ver. Es la ley de Goodhart aplicada a la
-    programación: cuando una medida se vuelve el objetivo, deja de medir.</p>
+    escribe los tests, estos pueden repetir los mismos supuestos y pasar por alto el mismo defecto.
+    Separar la evaluación ayuda a detectar esos puntos ciegos.</p>
     <p>Oracle separa las dos cosas. Las reglas viven en un catálogo aparte, escritas en un lenguaje chico
     que al cargarse no ejecuta código. Cada regla dice qué no ve. Y el catálogo mismo se pone a
     prueba: se lo debilita a propósito para ver si sus casos lo notan.</p>
@@ -78,7 +78,7 @@
       <li class="final"><span class="paso pixel">5</span><strong>Veredicto</strong><span>valor, umbral, testigos y lo que no vio</span></li>
     </ol>
   </div>
-  <p class="nota lectura">Oracle nunca mira tu código ni corre tu producto: juzga lo que el sensor le cuenta.
+  <p class="nota lectura"><code>oracle juzgar</code> evalúa los hechos que le pasás; no ejecuta tu producto.
   Por eso el veredicto trae siempre su <em>alcance</em>, la frase que dice qué quedó sin mirar.</p>
 </section>
 
@@ -259,7 +259,7 @@ $ oracle formatear catalogos/naval/naval.cuenta.oracle
       <code>oracle requisito importar</code>, cada sección <code>### Requirement:</code> y cláusula
       <code>SHALL</code> de OpenSpec se convierte en un archivo <code>.requisito</code> con su texto y su fuente.</p>
       <p>Nace con sus escenarios pendientes en <code>sin_medir</code> para no fingir cobertura. Desde allí,
-      <code>oracle medida nueva --escenario-de</code> crea las medidas que cierran el circuito entre la spec
+      <code>oracle medida nueva &lt;dominio.nombre&gt; --escenario-de …</code> crea las medidas que cierran el circuito entre la spec
       y el código.</p>
       <p><a href="openspec.html">OpenSpec y Oracle</a></p>
     </div>
@@ -301,9 +301,11 @@ $ oracle formatear catalogos/naval/naval.cuenta.oracle
   <div><p class="cifra"><!-- sitio_casos:inicio -->
 221
 <!-- sitio_casos:fin --></p><p>casos que las ponen a prueba</p></div>
-  <div><p class="cifra">0</p><p>mutantes vivos en el núcleo</p></div>
   <div><p class="cifra">0</p><p>dependencias</p></div>
 </section>
+<p class="nota lectura envoltura">Oracle es experimental. Los resultados de mutación dependen de los archivos y
+las líneas que se probaron; una ronda parcial no demuestra que todo el núcleo esté fijado.
+Consultá el <a href="https://github.com/Segtem/oracle#estado" rel="noopener">alcance de la verificación</a>.</p>
 
 <section class="capitulo envoltura" aria-labelledby="t-recorridos">
   <div class="capitulo-cabeza">
@@ -313,7 +315,7 @@ $ oracle formatear catalogos/naval/naval.cuenta.oracle
   <div class="recorridos">
     <a class="recorrido" href="de-cero.html"><span class="pixel">desde cero · se juega</span><strong>Tu primer juego con un LLM</strong><span>Una batalla naval en nueve misiones: predecís cada salida, rompés la regla en un tablero y cazás sus mutantes.</span></a>
     <a class="recorrido" href="como-funciona.html"><span class="pixel">cómo funciona</span><strong>Cómo funciona Oracle</strong><span>Qué hace, en qué orden y qué contesta en cada caso, con cada salida ejecutada.</span></a>
-    <a class="recorrido" href="02-de-cero-a-un-rojo.html"><span class="pixel">5 minutos</span><strong>De cero a un rojo</strong><span>Instalar, escribir una medida y verla fallar con sus testigos.</span></a>
+    <a class="recorrido" href="02-de-cero-a-un-rojo.html"><span class="pixel">si ya programás</span><strong>De cero a un rojo</strong><span>Un recorrido corto: instalar, escribir una medida y verla fallar con sus testigos.</span></a>
     <a class="recorrido" href="13-primer-valor.html"><span class="pixel">tu producto</span><strong>La primera medida real</strong><span>De un producto nuevo a un hecho exportado, una medida y un veredicto.</span></a>
     <a class="recorrido" href="03-escribir-una-medida.html"><span class="pixel">el lenguaje</span><strong>Escribir una medida</strong><span>Anatomía, macros, la forma canónica y los errores que te dice.</span></a>
     <a class="recorrido" href="07-conectar-a-un-proyecto-propio.html"><span class="pixel">integrar</span><strong>Conectar un proyecto</strong><span>Sensor puro, adaptador, vigilar sensores con cambios, escalares propias y la sombra.</span></a>
@@ -341,7 +343,7 @@ oracle test</code></pre>
 <footer class="pie envoltura">
   <img src="assets/emblema.svg" alt="" width="32" height="32">
   <span>Oracle <!-- sitio_version:inicio -->
-0.38.0
+0.38.1
 <!-- sitio_version:fin --></span>
   <span>MIT · Python 3.11 o posterior · cero dependencias</span>
   <a href="https://pypi.org/project/oracle-metalenguaje/" rel="noopener">PyPI</a>

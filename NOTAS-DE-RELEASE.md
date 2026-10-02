@@ -6,6 +6,7 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 <!-- notas_indice:inicio -->
 | versión | qué trae |
 |---|---|
+| [0.38.1](#0381--la-guía-desde-cero-y-una-web-más-clara) | la guía desde cero y una web más clara |
 | [0.38.0](#0380--las-promesas-de-openspec-y-un-generador-que-busca) | las promesas de OpenSpec, y un generador que busca |
 | [0.37.0](#0370--lo-que-respalda-la-fijación-lo-que-alimenta-a-las-medidas-y-lo-que-se-cumple) | lo que respalda la fijación, lo que alimenta a las medidas y lo que se cumple |
 | [0.36.2](#0362--las-escalares-en-un-python-embebido) | las escalares en un Python embebido |
@@ -33,6 +34,38 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 | [0.20.0](#0200--motor-juzga-con-el-mismo-catálogo-y-las-mismas-sombras-que-oracle-test) | `Motor` juzga con el mismo catálogo y las mismas sombras que `oracle test` |
 | 0.19.0 y anteriores | en [docs/notas/anteriores-a-0.20.md](docs/notas/anteriores-a-0.20.md) |
 <!-- notas_indice:fin -->
+
+# 0.38.1 — la guía desde cero y una web más clara
+
+```
+VERSION_DISTRIBUCION   0.38.0 → 0.38.1   guía, ejemplos y sitio
+VERSION_ALGEBRA        1.0    → 1.0
+VERSION_SINTAXIS       1.1    → 1.1
+```
+
+- **Un recorrido completo desde una carpeta vacía.** La guía de batalla naval explica cómo abrir
+  la terminal, instalar y comprobar las herramientas, crear archivos y reconocer sus extensiones.
+  Incluye el juego entero, archivos para pegar y árboles de rutas comprobados contra una ejecución
+  real. Recorre medidas, requisitos, cobertura con veredicto y cambios de reglas.
+- **Código legible y copiable.** El sitio colorea Oracle con la gramática de VS Code, ampliada para
+  los metadatos que faltaban. Los bloques conservan el salto final al copiar; las salidas y los
+  árboles no ofrecen un botón de copiar. Si el navegador no permite usar el portapapeles, se
+  selecciona el código para copiarlo manualmente. El script del ejemplo naval acepta tanto los
+  hechos de una partida exportada como los construidos durante el tutorial.
+- **Navegación y afirmaciones más precisas.** El inicio principal lleva a «Desde cero». El menú
+  vuelve a abrirse al pasar de móvil a escritorio; los títulos y rutas largas se ajustan al ancho.
+  Las escenas actualizan sus colores al cambiar el tema, también con movimiento reducido, y el
+  texto ámbar tiene más contraste. La portada distingue una mutación parcial de
+  una verificación completa, y la explicación del MCP distingue consultas de sólo lectura de
+  permisos sobre archivos. Las páginas incorporan las herramientas de 0.38.0 y nuevas escenas
+  ilustradas. Se completan operadores, macros y la estructura del tutorial práctico; los
+  marcadores internos de generación dejan de mostrarse en las notas.
+
+## Para actualizar
+
+Nada que migrar. El lenguaje conserva el álgebra `1.0` y la sintaxis `1.1`. La reproducción
+automática de la guía comprueba sus comandos y archivos; el piloto con una persona que nunca
+programó sigue pendiente.
 
 # 0.38.0 — las promesas de OpenSpec, y un generador que busca
 

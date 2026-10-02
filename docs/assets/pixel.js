@@ -688,6 +688,10 @@
     let pal = paleta(), activo = false, t0 = performance.now(), cuadro = null;
     const pintar = (t) => escena.dibujar(ctx, pal, t);
     pintar(escena.duracion - 1);  // el cuadro final: la página se entiende en reposo
+    const repintar = () => { pal = paleta(); pintar(escena.duracion - 1); };
+    matchMedia("(prefers-color-scheme: dark)").addEventListener("change", repintar);
+    new MutationObserver(repintar)
+      .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
     if (reducido) return;
     const bucle = (ahora) => {
       pintar((ahora - t0) % escena.duracion);
@@ -697,9 +701,6 @@
       activo = e.isIntersecting;
       if (activo && !cuadro) { t0 = performance.now(); cuadro = requestAnimationFrame(bucle); }
     }).observe(canvas);
-    matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { pal = paleta(); });
-    new MutationObserver(() => { pal = paleta(); })
-      .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
   }
 
   const arrancar = () => document.querySelectorAll("canvas[data-escena]").forEach(montar);

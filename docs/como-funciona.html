@@ -38,7 +38,7 @@
 <p>Esta página cuenta qué hace Oracle, en qué orden y qué contesta en cada caso. No hay ninguna salida inventada: un test del repositorio arma el proyecto de esta página desde una carpeta vacía, corre cada comando y compara lo que sale con lo que ves acá. Si Oracle cambia y la página no, el test se pone rojo.</p>
 <p>El proyecto es chico a propósito: una sola regla de la batalla naval —<strong>ningún barco fuera del tablero de 10×10</strong>— para mirar de cerca cada pieza. La guía <a href="de-cero.html">Tu primer juego con un LLM</a> arma el juego completo; esta página explica la máquina.</p>
 <pre data-lenguaje="bash"><code>oracle --version</code></pre>
-<pre class="salida" data-lenguaje="lo que tenés que ver"><code>oracle 0.38.0
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>oracle 0.38.1
   álgebra:  1.0   (qué SIGNIFICA una medida)
   sintaxis: 1.1   (cómo se ESCRIBE)
   corriendo desde: …/oracle</code></pre>
@@ -78,7 +78,7 @@ Próximos pasos:
 <span class="tok-keyword">    ambito</span> universal
 <span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;mira cada casilla ocupada que el juego anotó. NO ve si los barcos se tocan ni si la flota está completa&quot;</span>
 </code></pre>
-<div class="tabla"><table><thead><tr><th>línea</th><th>qué dice</th><th>qué pasa si falta</th></tr></thead><tbody><tr><td><code>ninguno-requiere flota.casillas_dentro_del_tablero:</code></td><td>la <strong>forma</strong> de la regla y su id. <code>ninguno</code> = «no tiene que haber ninguna infracción»; <code>-requiere</code> = «y tiene que haber algo que mirar»</td><td>el id es obligatorio: <code>dominio.nombre</code>, en ASCII</td></tr><tr><td><code>de casilla c</code></td><td>de qué <strong>relación</strong> de la evidencia salen las filas, y con qué alias se nombran</td><td>sin fuente no hay medida</td></tr><tr><td><code>donde …</code></td><td>qué fila cuenta como <strong>infracción</strong>. Tiene que dar <code>true</code> o <code>false</code>: un número o un texto es error</td><td>sin filtro, toda casilla sería una infracción</td></tr><tr><td><code>umbral &lt;= 0 segun contrato porque &quot;…&quot;</code></td><td>cuántas infracciones se toleran, <strong>de dónde salió ese número</strong> (<code>contrato</code>, <code>medicion</code>, <code>convencion</code> o <code>tanteo</code>) y por qué</td><td>es obligatorio: una regla sin umbral no decide nada</td></tr><tr><td><code>requiere casilla</code></td><td>la relación que <strong>tiene</strong> que traer filas. Si viene vacía, el veredicto es SIN EVIDENCIA</td><td>con <code>ninguno</code> a secas, cero filas son cero infracciones: verde</td></tr><tr><td><code>ambito universal</code></td><td>dónde obliga la regla: <code>universal</code> (siempre) o <code>del_origen</code> (sólo en el proyecto que la escribió)</td><td>se asume <code>sin_declarar</code></td></tr><tr><td><code>alcance &quot;…&quot;</code></td><td>qué <strong>no</strong> ve la medida. Oracle lo repite al final de cada verde</td><td>es obligatorio: un verde sin alcance promete de más</td></tr></tbody></table></div>
+<div class="tabla"><table><thead><tr><th>línea</th><th>qué dice</th><th>qué pasa si falta</th></tr></thead><tbody><tr><td><code>ninguno-requiere flota.casillas_dentro_del_tablero:</code></td><td>la <strong>forma</strong> de la regla y su id. <code>ninguno</code> = «no tiene que haber ninguna infracción»; <code>-requiere</code> = «y tiene que haber algo que mirar»</td><td>el id es obligatorio: <code>dominio.nombre</code>, en ASCII</td></tr><tr><td><code>de casilla c</code></td><td>de qué <strong>relación</strong> de la evidencia salen las filas, y con qué alias se nombran</td><td>sin fuente no hay medida</td></tr><tr><td><code>donde …</code></td><td>qué fila cuenta como <strong>infracción</strong>. Tiene que dar <code>true</code> o <code>false</code>: un número o un texto es error</td><td>sin filtro, toda casilla sería una infracción</td></tr><tr><td><code>umbral &lt;= 0 segun contrato porque &quot;…&quot;</code></td><td>cuántas infracciones se toleran, <strong>de dónde salió ese número</strong> (<code>contrato</code>, <code>medicion</code>, <code>convencion</code> o <code>tanteo</code>) y por qué</td><td>es obligatorio: una regla sin umbral no decide nada</td></tr><tr><td><code>requiere casilla</code></td><td>la relación que <strong>tiene</strong> que traer filas. Si viene vacía, el veredicto es SIN EVIDENCIA</td><td>con <code>ninguno</code> a secas, cero filas son cero infracciones: verde</td></tr><tr><td><code>ambito universal</code></td><td>dónde obliga la regla: <code>universal</code> (siempre) o <code>del_origen</code> (sólo en el proyecto que la escribió)</td><td>error de sintaxis: esta macro exige declarar el ámbito</td></tr><tr><td><code>alcance &quot;…&quot;</code></td><td>qué <strong>no</strong> ve la medida. Oracle lo repite al final de cada verde</td><td>es obligatorio: un verde sin alcance promete de más</td></tr></tbody></table></div>
 <p>Una macro como <code>ninguno-requiere</code> es sólo una forma corta. Oracle la expande a la forma canónica, que es un dato JSON: así se guarda, se compara y se muta.</p>
 <details>
 <summary>Ver la forma canónica de esta medida</summary>
@@ -540,14 +540,24 @@ catalogos/flota/flota.casillas_dentro_del_tablero.oracle: escrito</code></pre>
 </div>
 <script src="./assets/pixel-sitio.js" defer></script>
 <script>
-if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+const menu = document.querySelector(".menu");
+const pantallaChica = matchMedia("(max-width: 760px)");
+const ajustarMenu = () => { menu.open = !pantallaChica.matches; };
+ajustarMenu();
+pantallaChica.addEventListener("change", ajustarMenu);
 document.querySelectorAll(".prosa pre:not(.salida):not(.arbol)").forEach((pre) => {
   const b = document.createElement("button");
   b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
-  b.addEventListener("click", () => {
-    navigator.clipboard.writeText(pre.querySelector("code").textContent)
-      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
-      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  b.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(pre.querySelector("code").textContent);
+      b.textContent = "Copiado";
+      setTimeout(() => { b.textContent = "Copiar"; }, 1500);
+    } catch (_) {
+      const r = document.createRange(); r.selectNodeContents(pre.querySelector("code"));
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      b.textContent = "Texto seleccionado: copialo";
+    }
   });
   pre.append(b);
 });

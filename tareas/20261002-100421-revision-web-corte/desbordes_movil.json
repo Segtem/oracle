@@ -1,0 +1,470 @@
+[
+  {
+    "page": "03-escribir-una-medida.html",
+    "maxW": 511,
+    "badElements": [
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 438,
+        "text": "meta.ninguna_sombra_envejece_s"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 412,
+        "text": "meta.toda_sombra_declara_una_f"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 506,
+        "text": "meta.ninguna_sombra_sobre_una_"
+      }
+    ]
+  },
+  {
+    "page": "05-por-que-la-mutacion.html",
+    "maxW": 489,
+    "badElements": [
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 489,
+        "text": "meta.toda_opcion_del_vocabular"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 412,
+        "text": "meta.ninguna_sombra_envejece_s"
+      }
+    ]
+  },
+  {
+    "page": "07-conectar-a-un-proyecto-propio.html",
+    "maxW": 463,
+    "badElements": [
+      {
+        "tag": "A",
+        "className": "ancla",
+        "id": "",
+        "rectRight": 379,
+        "text": "#"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 463,
+        "text": "meta.toda_cantidad_comparada_t"
+      },
+      {
+        "tag": "STRONG",
+        "className": "",
+        "id": "",
+        "rectRight": 412,
+        "text": "meta.ninguna_sombra_envejece_s"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 412,
+        "text": "meta.ninguna_sombra_envejece_s"
+      },
+      {
+        "tag": "STRONG",
+        "className": "",
+        "id": "",
+        "rectRight": 386,
+        "text": "meta.toda_sombra_declara_una_f"
+      }
+    ]
+  },
+  {
+    "page": "13-primer-valor.html",
+    "maxW": 638,
+    "badElements": [
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 617,
+        "text": "catalogos/colocacion/colocacio"
+      },
+      {
+        "tag": "A",
+        "className": "ancla",
+        "id": "",
+        "rectRight": 638,
+        "text": "#"
+      }
+    ]
+  },
+  {
+    "page": "de-cero.html",
+    "maxW": 451,
+    "badElements": [
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 445,
+        "text": "catalogos/naval/naval.tiros_si"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 445,
+        "text": "catalogos/naval/naval.tiros_si"
+      },
+      {
+        "tag": "ASIDE",
+        "className": "bitacora",
+        "id": "",
+        "rectRight": 435,
+        "text": "BitácoraGrumete150 XP para Mar"
+      },
+      {
+        "tag": "BUTTON",
+        "className": "bitacora-pastilla",
+        "id": "",
+        "rectRight": 435,
+        "text": "0 XP · Grumete · 0/9"
+      },
+      {
+        "tag": "SPAN",
+        "className": "pixel",
+        "id": "",
+        "rectRight": 421,
+        "text": "0 XP · Grumete · 0/9"
+      }
+    ]
+  },
+  {
+    "page": "decisiones/DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.html",
+    "maxW": 532,
+    "badElements": [
+      {
+        "tag": "A",
+        "className": "ancla",
+        "id": "",
+        "rectRight": 532,
+        "text": "#"
+      }
+    ]
+  },
+  {
+    "page": "decisiones/DECISION-004-DOS-MEDIDAS-QUEDAN-SOSTENIDAS-POR-EVIDENCIA-GENERADA.html",
+    "maxW": 514,
+    "badElements": [
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 488,
+        "text": "meta.la_medida_no_se_fija_solo"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 514,
+        "text": "meta.ninguna_evidencia_declara"
+      }
+    ]
+  },
+  {
+    "page": "decisiones/DECISION-006-DE-DONDE-SALE-EL-NUMERO.html",
+    "maxW": 637,
+    "badElements": [
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 608,
+        "text": "meta.ningun_umbral_sin_defensa"
+      },
+      {
+        "tag": "A",
+        "className": "ancla",
+        "id": "",
+        "rectRight": 636,
+        "text": "#"
+      },
+      {
+        "tag": "STRONG",
+        "className": "",
+        "id": "",
+        "rectRight": 377,
+        "text": "meta.todo_umbral_declara_de_do"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 377,
+        "text": "meta.todo_umbral_declara_de_do"
+      }
+    ]
+  },
+  {
+    "page": "decisiones/DECISION-007-BIBLIOTECAS-DE-POLITICAS.html",
+    "maxW": 488,
+    "badElements": [
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 488,
+        "text": "meta.la_medida_no_se_fija_solo"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 383,
+        "text": "meta.toda_sombra_declara_desde"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 477,
+        "text": "meta.ninguna_sombra_sobre_una_"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 445,
+        "text": "meta.publicador.todo_umbral_de"
+      }
+    ]
+  },
+  {
+    "page": "decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.html",
+    "maxW": 463,
+    "badElements": [
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 463,
+        "text": "meta.toda_opcion_del_vocabular"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 386,
+        "text": "meta.ninguna_sombra_envejece_s"
+      }
+    ]
+  },
+  {
+    "page": "decisiones/DECISION-012-CADA-MEDIDA-DECLARA-DONDE-OBLIGA.html",
+    "maxW": 617,
+    "badElements": [
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 503,
+        "text": "meta.ninguna_exclusion_de_muta"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 403,
+        "text": "meta.el_diagnostico_no_publica"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 523,
+        "text": "meta.ninguna_exclusion_de_muta"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 489,
+        "text": "meta.toda_opcion_del_vocabular"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 394,
+        "text": "meta.todo_verbo_del_cli_esta_e"
+      }
+    ]
+  },
+  {
+    "page": "especificacion.html",
+    "maxW": 486,
+    "badElements": [
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 403,
+        "text": "meta.el_requisito_nombra_medid"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 428,
+        "text": "meta.todo_caso_observado_decla"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 480,
+        "text": "meta.toda_relacion_del_lenguaj"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 428,
+        "text": "meta.todo_vocabulario_cerrado_"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 463,
+        "text": "meta.toda_opcion_del_vocabular"
+      }
+    ]
+  },
+  {
+    "page": "notas.html",
+    "maxW": 675,
+    "badElements": [
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 409,
+        "text": "meta.el_requisito_nombra_medid"
+      },
+      {
+        "tag": "A",
+        "className": "ancla",
+        "id": "",
+        "rectRight": 440,
+        "text": "#"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 523,
+        "text": "seguimiento.toda_tarea_cerrada"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 505,
+        "text": "seguimiento.toda_tarea_cerrada"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 463,
+        "text": "meta.toda_cantidad_comparada_t"
+      }
+    ]
+  },
+  {
+    "page": "notas/anteriores-a-0.20.html",
+    "maxW": 728,
+    "badElements": [
+      {
+        "tag": "A",
+        "className": "ancla",
+        "id": "",
+        "rectRight": 423,
+        "text": "#"
+      },
+      {
+        "tag": "A",
+        "className": "ancla",
+        "id": "",
+        "rectRight": 432,
+        "text": "#"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 411,
+        "text": "animacion.clip_de_linea_base_a"
+      },
+      {
+        "tag": "A",
+        "className": "ancla",
+        "id": "",
+        "rectRight": 458,
+        "text": "#"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 488,
+        "text": "meta.la_medida_no_se_fija_solo"
+      }
+    ]
+  },
+  {
+    "page": "tutorial-practico.html",
+    "maxW": 486,
+    "badElements": [
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 412,
+        "text": "meta.ninguna_sombra_envejece_s"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 386,
+        "text": "meta.toda_sombra_declara_una_f"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 480,
+        "text": "meta.ninguna_sombra_sobre_una_"
+      },
+      {
+        "tag": "CODE",
+        "className": "",
+        "id": "",
+        "rectRight": 446,
+        "text": "~/Dev/games/unreal/LyraGASP/me"
+      }
+    ]
+  }
+]

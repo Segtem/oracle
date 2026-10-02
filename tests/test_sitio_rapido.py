@@ -95,6 +95,17 @@ class ConversionTests(unittest.TestCase):
         html_code = sitio.codigo("print(1)", "python")
         self.assertNotIn('class="salida"', html_code)
 
+    def test_comentarios_de_generacion_no_se_muestran_pero_codigo_literal_si(self):
+        convertido = self.convertir(
+            "antes\n<!-- notas_indice:inicio -->\n# Notas\n"
+            "<!-- notas_indice:fin -->\ndespués\n\n"
+            "```html\n<!-- comentario de ejemplo -->\n```"
+        )
+        self.assertNotIn("notas_indice", convertido)
+        self.assertIn("<p>antes</p>", convertido)
+        self.assertIn("<p>después</p>", convertido)
+        self.assertIn("&lt;!-- comentario de ejemplo --&gt;", convertido)
+
     def test_celdas_con_barras_al_borde(self):
         self.assertEqual(sitio._celdas("|x|"), ["x"])
 

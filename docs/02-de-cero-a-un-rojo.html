@@ -36,12 +36,12 @@
     </div>
 <h1 id="de-cero-a-un-rojo-con-testigos"><canvas class="sprite sprite-titulo" data-sprite="bandera_roja" width="14" height="14" aria-hidden="true"></canvas>De cero a un rojo con testigos<a class="ancla" href="#de-cero-a-un-rojo-con-testigos" aria-label="Enlace a esta sección">#</a></h1>
 <p>Cinco minutos, sin abrir el código de Oracle. Al final vas a tener una regla que <strong>falla</strong> sobre un defecto de verdad y te dice <strong>qué filas</strong> lo causaron.</p>
-<p>Todo lo que sigue está copiado de una corrida real con Oracle 0.38.0. Si algo no te da igual, es un defecto de esta página: <a href="https://github.com/Segtem/oracle/issues" rel="noopener">abrí un issue</a>.</p>
+<p>Todo lo que sigue está copiado de una corrida real con Oracle 0.38.1. Si algo no te da igual, es un defecto de esta página: <a href="https://github.com/Segtem/oracle/issues" rel="noopener">abrí un issue</a>.</p>
 <hr class="divisor-pixel" aria-hidden="true">
 <h2 id="1-instalar"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>1. Instalar<a class="ancla" href="#1-instalar" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="bash"><code>uv tool install oracle-metalenguaje
 oracle --version</code></pre>
-<pre class="salida" data-lenguaje="lo que tenés que ver"><code>oracle 0.38.0
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>oracle 0.38.1
   álgebra:  1.0   (qué SIGNIFICA una medida)
   sintaxis: 1.1   (cómo se ESCRIBE)
   corriendo desde: …/oracle</code></pre>
@@ -257,7 +257,7 @@ VEREDICTO: ROJO (falló: aceptación)</code></pre>
 <pre><code>  ✗ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada   1 (&lt;= 0)</code></pre>
 <p>Ésa no es tu medida: es una universal que heredaste, juzgándote.</p>
 <h2 id="7-declarar-lo-que-entrega-el-sensor-l1"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>7. Declarar lo que entrega el sensor (L−1)<a class="ancla" href="#7-declarar-lo-que-entrega-el-sensor-l1" aria-label="Enlace a esta sección">#</a></h2>
-<p>Aunque ese rojo ya no aparece en esta corrida, declarás qué produce el sensor y el alcance de sus hechos:</p>
+<p>La corrida también informó <code>meta.toda_cantidad_comparada_tiene_unidad_derivable</code>. Para resolver ese segundo problema, declarás qué produce el sensor, las unidades y el alcance de sus hechos:</p>
 <pre class="archivo" data-lenguaje="relaciones/documento.relacion"><code><span class="tok-storage">relacion</span> <span class="tok-entity">documento</span>:
     nombre: texto
     sigue_convencion: booleano
@@ -296,14 +296,24 @@ Un hecho nuevo se agrega desde su SENSOR, no acá: el sensor produce, el álgebr
 </div>
 <script src="./assets/pixel-sitio.js" defer></script>
 <script>
-if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+const menu = document.querySelector(".menu");
+const pantallaChica = matchMedia("(max-width: 760px)");
+const ajustarMenu = () => { menu.open = !pantallaChica.matches; };
+ajustarMenu();
+pantallaChica.addEventListener("change", ajustarMenu);
 document.querySelectorAll(".prosa pre:not(.salida):not(.arbol)").forEach((pre) => {
   const b = document.createElement("button");
   b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
-  b.addEventListener("click", () => {
-    navigator.clipboard.writeText(pre.querySelector("code").textContent)
-      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
-      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  b.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(pre.querySelector("code").textContent);
+      b.textContent = "Copiado";
+      setTimeout(() => { b.textContent = "Copiar"; }, 1500);
+    } catch (_) {
+      const r = document.createRange(); r.selectNodeContents(pre.querySelector("code"));
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      b.textContent = "Texto seleccionado: copialo";
+    }
   });
   pre.append(b);
 });

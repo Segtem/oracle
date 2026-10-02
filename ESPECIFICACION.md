@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `1.0`, sintaxis `1.1`, distribución `0.38.0`.**
+**Versiones vigentes: álgebra `1.0`, sintaxis `1.1`, distribución `0.38.1`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,13 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.38.1 (2026-10-02): `VERSION_DISTRIBUCION` sube de `0.38.0` a `0.38.1`.**
+La guía desde cero se reproduce con archivos completos, comandos de terminal y árboles de rutas
+obtenidos de la corrida real. El sitio resalta Oracle con la gramática del editor, conserva los
+saltos de línea al copiar y recupera el menú cuando cambia el ancho de pantalla. La documentación
+aclara el alcance de la verificación y los requisitos para empezar. Son arreglos de herramientas,
+ejemplos y documentación: no cambian el álgebra `1.0` ni la sintaxis `1.1`.
 
 **Corte 0.38.0 (2026-09-30): `VERSION_DISTRIBUCION` sube de `0.37.0` a `0.38.0`.** Dos mejoras.
 `oracle requisito importar <spec.md | openspec/specs>` convierte cada `### Requirement:` de OpenSpec

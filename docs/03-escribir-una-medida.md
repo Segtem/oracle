@@ -85,7 +85,7 @@ proyecto donde estás parado:
 1. Qué declara toda medida: `umbral <comparador> <número> segun <origen> porque "<defensa>"` y
    `alcance "<punto ciego>"`.
 2. Las relaciones con sus campos y tipos derivados de la evidencia que existe.
-3. Con qué se escribe: operadores (`agrupar`, `de`, `donde`, `resumen`, `unir`), comparadores,
+3. Con qué se escribe: operadores (`agrupar`, `de`, `desde`, `donde`, `resumen`, `sin`, `unir`), comparadores,
    lógicos, agregados y escalares declaradas.
 4. Las medidas que ya existen en el catálogo con lo que NO ven.
 5. La regla de orden: escribir el caso antes que la medida.
@@ -226,7 +226,9 @@ ninguno proceso.test_con_mutante_que_lo_mata:
 | `ninguno` | ninguna fila debe cumplir el predicado |
 | `ninguno-requiere` | lo mismo, declarando evidencia indispensable |
 | `ninguno-par` | lo mismo sobre PARES de la misma relación |
+| `ninguno-par-requiere` | lo mismo sobre pares, exigiendo filas en la relación de origen |
 | `peor` | el peor caso de una expresión no pasa de una tolerancia |
+| `peor-requiere` | lo mismo, exigiendo filas en la relación de origen |
 
 **`peor` exige la misma tolerancia en el filtro y en el umbral**; la plantilla valida que coincidan:
 

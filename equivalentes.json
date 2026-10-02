@@ -114,25 +114,25 @@
   "razon": "En `tools/sitio.py`, `split(\"·\", 1)[1]` → `split(\"·\", 2)[1]`. El identificador `d[\"mutante\"]` tiene la forma `{medida}·{mutante}` producida por `nucleo/mutacion.py`, con un único separador `·`. Para toda cadena con un solo separador, `split(..., 1)` y `split(..., 2)` devuelven listas idénticas de dos elementos; el índice `[1]` extrae exactamente el identificador del mutante."
  },
  {
-  "id": "tools/sitio.py:467:28:comparador",
+  "id": "tools/sitio.py:471:28:comparador",
   "linea_texto": "and not (j > i and _ITEM.match(lineas[j]))",
   "ordinal": 1,
   "razon": "En `tools/sitio.py`, `j > i` → `j >= i` en la guarda de fin de párrafo. La línea en la posición `i` ya fue evaluada contra `_ITEM.match` en la bifurcación previa (línea 347); si hubiera coincidido, se habría procesado como lista mediante `continue`. Por lo tanto, en `j == i` la expresión `_ITEM.match(lineas[j])` es invariablemente `None` (falso), haciendo que `(j >= i and _ITEM.match)` y `(j > i and _ITEM.match)` evalúen a `False` para `j == i`, y a valores idénticos para todo `j > i`. Ninguna entrada puede distinguir ambos comparadores."
  },
  {
-  "id": "tools/sitio.py:493:36:comparador",
+  "id": "tools/sitio.py:497:36:comparador",
   "linea_texto": "suelta = suelta or (indent > base and not otro)",
   "ordinal": 1,
   "razon": "En `tools/sitio.py`, `indent > base` → `indent >= base` en el cálculo de lista suelta. La guarda inmediata anterior corta con `break` si `indent <= base and not (otro and len(otro.group(1)) == base)`. Cuando `indent == base` y `not otro` se cumple, dicha guarda siempre interrumpe el bucle antes de alcanzar esta línea. En las iteraciones que superan la guarda, o bien `indent > base` o bien `otro` es verdadero (en cuyo caso `not otro` es falso y anula la conjunción). Ambos comparadores producen idéntico valor booleano en todas las ejecuciones alcanzables."
  },
  {
-  "id": "tools/sitio.py:507:51:constante",
+  "id": "tools/sitio.py:511:51:constante",
   "linea_texto": "cuerpo = cuerpo.replace(\"<p>\", \"\", 1).replace(\"</p>\", \"\", 1)",
   "ordinal": 1,
   "razon": "En `tools/sitio.py`, `replace(\"<p>\", \"\", 1)` → `replace(\"<p>\", \"\", 2)`. La condición inmediata anterior exige `cuerpo.count(\"<p>\") == 1`. Dado que la subcadena `\"<p>\"` aparece exactamente una sola vez en el texto, reemplazar a lo sumo una o a lo sumo dos ocurrencias genera la misma cadena resultante para toda entrada."
  },
  {
-  "id": "tools/sitio.py:507:74:constante",
+  "id": "tools/sitio.py:511:74:constante",
   "linea_texto": "cuerpo = cuerpo.replace(\"<p>\", \"\", 1).replace(\"</p>\", \"\", 1)",
   "ordinal": 1,
   "razon": "En `tools/sitio.py`, `replace(\"</p>\", \"\", 1)` → `replace(\"</p>\", \"\", 2)`. El cuerpo HTML generado para un elemento de lista no suelta con un único párrafo contiene exactamente una etiqueta de cierre `</p>`. Al haber una única ocurrencia, reemplazar como máximo una o dos instancias produce exactamente la misma cadena."

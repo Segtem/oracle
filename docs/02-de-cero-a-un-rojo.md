@@ -3,7 +3,7 @@
 Cinco minutos, sin abrir el código de Oracle. Al final vas a tener una regla que **falla** sobre un
 defecto de verdad y te dice **qué filas** lo causaron.
 
-Todo lo que sigue está copiado de una corrida real con Oracle 0.38.0. Si algo no te da igual,
+Todo lo que sigue está copiado de una corrida real con Oracle 0.38.1. Si algo no te da igual,
 es un defecto de esta página: [abrí un issue](https://github.com/Segtem/oracle/issues).
 
 ---
@@ -16,7 +16,7 @@ oracle --version
 ```
 
 ```text salida
-oracle 0.38.0
+oracle 0.38.1
   álgebra:  1.0   (qué SIGNIFICA una medida)
   sintaxis: 1.1   (cómo se ESCRIBE)
   corriendo desde: …/oracle
@@ -298,8 +298,8 @@ Pero la aceptación queda en rojo, y hay que leerlo:
 
 ## 7. Declarar lo que entrega el sensor (L−1)
 
-Aunque ese rojo ya no aparece en esta corrida, declarás qué produce el sensor y el alcance de
-sus hechos:
+La corrida también informó `meta.toda_cantidad_comparada_tiene_unidad_derivable`. Para resolver
+ese segundo problema, declarás qué produce el sensor, las unidades y el alcance de sus hechos:
 
 ```relacion archivo=relaciones/documento.relacion incluir=ejemplo/biblioteca-guia/relaciones/documento.relacion
 ```
