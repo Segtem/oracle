@@ -1128,19 +1128,19 @@ class BibliotecaInstaladas(CliTestCase):
 
 
 class TareaMudadaTests(CliTestCase):
-    """`oracle tarea` se mudó a trackertast (comando `tasks`) y queda como alias por un tiempo."""
+    """`oracle tarea` se mudó a oracle_task (comando `tasks`) y queda como alias por un tiempo."""
 
-    def test_sin_trackertast_dice_como_instalarlo(self) -> None:
-        with mock.patch.dict(sys.modules, {"trackertast": None}):
+    def test_sin_oracle_task_dice_como_instalarlo(self) -> None:
+        with mock.patch.dict(sys.modules, {"oracle_task": None}):
             rc, _ = self._callado(cli.main, ["tarea", "listar"])
         self.assertEqual(rc, 1)
 
-    def test_con_trackertast_delega_sin_perder_argumentos(self) -> None:
+    def test_con_oracle_task_delega_sin_perder_argumentos(self) -> None:
         recibido = []
         falso_cli = types.SimpleNamespace(main=lambda argv: recibido.append(argv) or 0)
-        paquete = types.ModuleType("trackertast")
+        paquete = types.ModuleType("oracle_task")
         paquete.cli = falso_cli
-        with mock.patch.dict(sys.modules, {"trackertast": paquete, "trackertast.cli": falso_cli}):
+        with mock.patch.dict(sys.modules, {"oracle_task": paquete, "oracle_task.cli": falso_cli}):
             rc, _ = self._callado(cli.main, ["--proyecto", "p", "tarea", "nueva", "tarea"])
         self.assertEqual(rc, 0)
         # Sólo se quita el sustantivo: un título que dice «tarea» llega entero.

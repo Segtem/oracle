@@ -6,6 +6,7 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 <!-- notas_indice:inicio -->
 | versión | qué trae |
 |---|---|
+| [0.38.2](#0382--el-tracker-ahora-es-oracle-task) | el tracker ahora es Oracle Task |
 | [0.38.1](#0381--la-guía-desde-cero-y-una-web-más-clara) | la guía desde cero y una web más clara |
 | [0.38.0](#0380--las-promesas-de-openspec-y-un-generador-que-busca) | las promesas de OpenSpec, y un generador que busca |
 | [0.37.0](#0370--lo-que-respalda-la-fijación-lo-que-alimenta-a-las-medidas-y-lo-que-se-cumple) | lo que respalda la fijación, lo que alimenta a las medidas y lo que se cumple |
@@ -34,6 +35,22 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 | [0.20.0](#0200--motor-juzga-con-el-mismo-catálogo-y-las-mismas-sombras-que-oracle-test) | `Motor` juzga con el mismo catálogo y las mismas sombras que `oracle test` |
 | 0.19.0 y anteriores | en [docs/notas/anteriores-a-0.20.md](docs/notas/anteriores-a-0.20.md) |
 <!-- notas_indice:fin -->
+
+# 0.38.2 — el tracker ahora es Oracle Task
+
+`oracle tarea` delega al módulo `oracle_task`, del paquete `oracle-task`. El comando
+independiente `tasks` y los archivos de tareas conservan su formato. La documentación y CI
+usan `oracle-task==0.2.0`; Oracle sigue sin dependencias obligatorias de runtime.
+
+Para reemplazar una herramienta uv anterior:
+
+```bash
+uv tool uninstall trackertast
+uv tool install oracle-task==0.2.0
+```
+
+Si usás el alias `oracle tarea`, Oracle Task debe estar en el mismo entorno Python que Oracle.
+El álgebra sigue en 1.0 y la sintaxis en 1.1.
 
 # 0.38.1 — la guía desde cero y una web más clara
 

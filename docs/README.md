@@ -24,7 +24,7 @@ cazás sus mutantes. Si nunca usaste Oracle, no hace falta leer nada antes.
 | ver un dominio completo con geometría | [Tutorial práctico](tutorial-practico.md) | un `LEFT JOIN` sin nulos, escalares de volumen y penetración, la API `Motor` desde Python |
 | saber por qué hace falta mutar | [Por qué la mutación](05-por-que-la-mutacion.md) | los dos autores de los mutadores, qué hacer con un sobreviviente y qué mide el respaldo real |
 | correr la mutación sin quedarte sin memoria | [Memoria de la mutación](mutacion-memoria.md) | cómo medir la memoria y limitar las rondas con systemd |
-| llevar las tareas del proyecto | [trackertast](https://github.com/Segtem/trackertast) (paquete aparte) | el comando `tasks` y el próximo paso como relevo |
+| llevar las tareas del proyecto | [oracle-task](https://github.com/Segtem/trackertast) (paquete aparte) | el comando `tasks` y el próximo paso como relevo |
 | usar un modelo como sensor de prosa | [Un modelo como sensor](14-sensor-prosa.md) | el patrón optativo, con calibración y revisión humana |
 | verificar una spec de OpenSpec | [OpenSpec y Oracle](openspec.md) | `oracle requisito importar`, medir cada escenario y `oracle cobertura --con` en CI o `/opsx:verify` |
 | conectar un agente por MCP | [El servidor MCP](mcp.md) (paquete aparte, oracle-mcp) | cómo configurarlo en Claude Code y Codex, y por qué es sólo de lectura |

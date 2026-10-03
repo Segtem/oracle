@@ -4,7 +4,7 @@ Trabajá en español.
 
 ## Protocolo de tareas y relevo
 
-- Para retomar: `tasks list` muestra las abiertas por prioridad; `tasks show <id>` da el contexto (paquete trackertast).
+- Para retomar: `tasks list` muestra las abiertas por prioridad; `tasks show <id>` da el contexto (paquete oracle-task).
 - Referite a una tarea por su id completo o por su sufijo; nunca reconstruyas un id a mano ni la busques con un glob.
 - Desde este repo también se puede usar `python3 tools/cli.py tarea …`.
 - La tarea es la fuente de verdad: qué se pidió, qué se hizo y cuál es el próximo paso.

@@ -116,7 +116,7 @@ Uso:
   oracle plantilla sensor-prosa <destino> Copia el sensor opcional a un directorio nuevo
   oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, juzgar, relaciones, escalares, cobertura, cambios)
   oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
-  oracle tarea <verbo>                    (mudado) el tracker es el paquete trackertast: usá `tasks <verbo>`
+  oracle tarea <verbo>                    (mudado) el tracker es el paquete oracle-task: usá `tasks <verbo>`
   oracle convertir <archivo>              Convierte medidas JSON a superficie
   oracle formatear <ruta> [--escribir]     Lleva a la forma única; las líneas # no cuentan y se conservan
   oracle convertir <directorio> --a-superficie [--escribir]  Migra medidas, casos y relaciones JSON con ida y vuelta exacta
@@ -1325,15 +1325,15 @@ def version() -> None:
 
 
 def _tarea_mudada(argv: list[str]) -> int:
-    """`oracle tarea` se mudó al paquete trackertast (comando `tasks`). Queda como alias por una
+    """`oracle tarea` se mudó al paquete oracle-task (comando `tasks`). Queda como alias por una
     o dos versiones para que los repos y los agentes que lo usan no se rompan de golpe."""
-    print("aviso: `oracle tarea` se mudó al paquete trackertast; usá `tasks <verbo>`.",
+    print("aviso: `oracle tarea` se mudó al paquete oracle-task; usá `tasks <verbo>`.",
           file=sys.stderr)
     try:
-        from trackertast import cli as tareas_cli
+        from oracle_task import cli as tareas_cli
     except ImportError:
-        print("trackertast no está instalado. Instalalo con `uv tool install trackertast` "
-              "(o `pip install trackertast`) y usá `tasks <verbo>`.", file=sys.stderr)
+        print("oracle-task no está instalado. Instalalo con `uv tool install oracle-task` "
+              "(o `pip install oracle-task`) y usá `tasks <verbo>`.", file=sys.stderr)
         return 1
     return tareas_cli.main(argv)
 

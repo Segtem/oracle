@@ -1,6 +1,6 @@
 # Políticas optativas para el tracker
 
-> El tracker es desde Oracle 0.34.0 el paquete aparte [trackertast](https://github.com/Segtem/trackertast),
+> El tracker es desde Oracle 0.34.0 el paquete aparte [oracle-task](https://github.com/Segtem/trackertast),
 > y este ejemplo vive completo allá, con el flujo de cierre (`cierre_medidas.py`). Acá queda como
 > ejemplo de un proyecto Oracle que juzga hechos de otra herramienta, y lo usan los tests de `juzgar`.
 
@@ -18,7 +18,7 @@ alcance y defensa propios:
 - `lectura_sin_omisiones`: requiere una lectura que no declare omisiones del formato soportado.
   Conviene combinarla con la de referencias para no confundir un análisis parcial con uno completo.
 
-Con trackertast y Oracle instalados, desde la raíz del checkout:
+Con oracle-task y Oracle instalados, desde la raíz del checkout:
 
 ```bash
 tasks facts --proyecto /ruta/al/proyecto --git > /tmp/hechos-tareas.json
@@ -37,7 +37,7 @@ oracle juzgar --proyecto ejemplo/seguimiento-tareas --con /tmp/hechos-tareas.jso
   --medida seguimiento.referencias_locales_presentes --medida seguimiento.lectura_sin_omisiones
 ```
 
-Para ejecutar el tracker desde el código fuente, se puede usar `python3 -m trackertast.cli`.
+Para ejecutar el tracker desde el código fuente, se puede usar `python3 -m oracle_task.cli`.
 Oracle se instala desde PyPI y se invoca con `oracle` (o `uvx --from oracle-metalenguaje oracle`).
 
 Para adoptar estas políticas, copiar sólo las medidas y declaraciones de relaciones deseadas a

@@ -104,10 +104,10 @@ jobs:
       # 0.18.0 (tarea 20260915-010206-juzgar): el tracker deja de ser un vecino. Oracle juzga su propio
       # `tareas/` con las políticas de seguimiento: referencias locales presentes, archivos confirmados
       # sin cambios y lectura sin omisiones. Un TAREA.md con un enlace roto o sin commitear pone CI en rojo.
-      # Desde 0.34.0 el tracker es el paquete trackertast (comando `tasks`).
+      # Desde 0.34.0 el tracker es el paquete oracle-task (comando `tasks`).
       - name: juzgar el tracker de Oracle
         run: |
-          python -m pip install "trackertast==0.1.0"
+          python -m pip install "oracle-task==0.2.0"
           tasks facts --git > /tmp/hechos-tareas.json
           python tools/cli.py juzgar --proyecto ejemplo/seguimiento-tareas --con /tmp/hechos-tareas.json --parcial
 
