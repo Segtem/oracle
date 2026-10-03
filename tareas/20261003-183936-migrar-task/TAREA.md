@@ -59,8 +59,32 @@ Borrar trackertast rompe la instalación de las versiones antiguas de Factory/MC
 código no puede cambiar esa metadata histórica. El retiro solicitado se hace después de
 publicar/verificar los sucesores, con acceso a la cuenta PyPI.
 
+
+## Corte preparado
+
+Los ocho repositorios están commiteados y empujados. Releases y tags publicados:
+
+- [Oracle 0.38.2](https://github.com/Segtem/oracle/releases/tag/v0.38.2).
+- [Oracle Factory 0.1.0a2](https://github.com/Segtem/oracle-factory/releases/tag/v0.1.0a2).
+- [Oracle MCP 0.1.2](https://github.com/Segtem/oracle-mcp/releases/tag/v0.1.2).
+
+Cada release tiene wheel, sdist y SHA256SUMS. Los archivos están también en `dist/` de su repo.
+Oracle test dio VERDE; mutación de código de módulos cambiados comprobada aparte (815/815).
+La web Factory publicada devuelve HTTP 200 y coincide byte por byte con main. CI de MCP,
+Factory y Oracle Task dio éxito. Oracle/MCP globales usan los releases GitHub con SHA256
+verificado, junto con Oracle Task publicado; no queda trackertast en esos entornos.
+
+Publicar desde la máquina del mantenedor:
+
+```bash
+uv publish ~/Dev/oracle/dist/oracle_metalenguaje-0.38.2-py3-none-any.whl ~/Dev/oracle/dist/oracle_metalenguaje-0.38.2.tar.gz
+uv publish ~/Dev/factory/dist/oracle_factory-0.1.0a2-py3-none-any.whl ~/Dev/factory/dist/oracle_factory-0.1.0a2.tar.gz
+uv publish ~/Dev/oracle-mcp/dist/oracle_mcp-0.1.2-py3-none-any.whl ~/Dev/oracle-mcp/dist/oracle_mcp-0.1.2.tar.gz
+```
+
 ## Próximo paso
 
-Empujar los ocho repositorios y publicar tags/releases GitHub de Oracle 0.38.2, Factory
-0.1.0a2 y MCP 0.1.2. El mantenedor sube esos artefactos a PyPI; comprobar las publicaciones,
-actualizar el vendor de Jam y retirar trackertast desde la cuenta PyPI.
+El mantenedor publica esos tres cortes en PyPI. Verificar metadata, SHA256 e instalaciones
+limpias; actualizar el vendor Oracle de Jam reinstalando 0.38.2 desde PyPI según sus instrucciones,
+actualizar las herramientas uv globales al pin PyPI y quitar el aviso de publicación pendiente
+con evidencia real. Con acceso a la cuenta PyPI, retirar el proyecto trackertast al final.
