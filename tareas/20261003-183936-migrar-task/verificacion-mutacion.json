@@ -1,0 +1,16 @@
+{
+  "alcance": "--alto; m\u00f3dulos cambiados contra v0.38.1",
+  "objetivos": [
+    "nucleo/version.py",
+    "tools/cli.py"
+  ],
+  "mutantes": 815,
+  "estados": {
+    "tests_fallaron": 815
+  },
+  "sobrevivientes": 0,
+  "timeout": 0,
+  "error_arnes": 0,
+  "huella": "03e333d7fe8829fdc6bf64e1ed9a6c425e998a8626f7905a7b6c78c85f3202cb",
+  "huella_completados": "09dc68397e25e19dafc7115655103e5355dff7c50e1ccfe27f8782b33276506d"
+}
