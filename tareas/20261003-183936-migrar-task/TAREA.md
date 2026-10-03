@@ -82,6 +82,11 @@ uv publish ~/Dev/factory/dist/oracle_factory-0.1.0a2-py3-none-any.whl ~/Dev/fact
 uv publish ~/Dev/oracle-mcp/dist/oracle_mcp-0.1.2-py3-none-any.whl ~/Dev/oracle-mcp/dist/oracle_mcp-0.1.2.tar.gz
 ```
 
+### Nota (2026-10-03 23:46:03 UTC)
+
+CI Oracle del commit del corte: 37162191846 exitoso, contratos Python 3.11 y 3.13 verdes. Tags GitHub y artefactos remotos presentes; Oracle test verde. Resta publicación PyPI del mantenedor, verificación de consumidores nuevos, renovación del vendor Jam y retiro final de trackertast.
+
+
 ## Próximo paso
 
 El mantenedor publica esos tres cortes en PyPI. Verificar metadata, SHA256 e instalaciones
