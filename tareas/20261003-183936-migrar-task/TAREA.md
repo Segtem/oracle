@@ -1,6 +1,6 @@
-# Migrar consumidores a oracle-task y retirar trackertast de PyPI
+# Migrar consumidores a oracle-task y archivar trackertast de PyPI
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 50
 - ETIQUETAS: 
 
@@ -48,7 +48,7 @@ anterior de conservar el paquete publicado. No cambiar los IDs ni los datos de l
   Los dos repositorios remotos Segtem/Segtem y Segtem/jamprotocol-deprecated no tienen
   referencias vigentes. La búsqueda GitHub indexada no se usa como prueba de exhaustividad.
 
-## Publicación verificada y retiro pendiente
+## Publicación verificada y archivo confirmado
 
 El mantenedor publicó los tres cortes. SHA256 de wheel y sdist coincide con los releases;
 instalaciones nuevas de Oracle 0.38.2, Factory 0.1.0a2 y MCP 0.1.2 verificadas en Python 3.13,
@@ -56,12 +56,11 @@ sin módulo/distribución trackertast. Factory completó el ejemplo aislado. Jam
 vendor desde PyPI 0.38.2, pasó 1448 tests y quedó empujado. Oracle/MCP globales usan ahora
 los pins PyPI. Evidencia: resultados.json y notas de esta tarea.
 
-No hay credenciales ni navegador disponible para administrar PyPI. El retiro de trackertast
-requiere acceso autenticado del mantenedor en https://pypi.org/manage/project/trackertast/settings/.
-
-Borrar trackertast rompe la instalación de las versiones antiguas de Factory/MCP. El nuevo
-código no puede cambiar esa metadata histórica. El retiro solicitado se hace después de
-publicar/verificar los sucesores, con acceso a la cuenta PyPI.
+El usuario archivó trackertast y lo confirmó el 2026-10-04 UTC. La API oficial PyPI Simple
+1.4 devuelve project-status.status=archived y conserva la versión0.1.0. Este pedido reemplaza
+el borrado anterior. El archivo señala que no habrá mantenimiento, pero no elimina paquetes
+ni impide instalar versiones históricas. No queda un borrado pendiente. Evidencia adjunta:
+trackertast-archive-status.json. Fuente de semántica: https://blog.pypi.org/posts/2025-01-30-archival/.
 
 
 ## Corte preparado
@@ -104,6 +103,12 @@ Jam actualizado y empujado en 0d4c339; relevo OK y pre-push sin aflojamiento de 
 
 Factory web publicada: https://segtem.github.io/oracle-factory/; Pages 37167107976 success y seis archivos HTTP 200 idénticos a main. Auditorías agy1/agy2, 23 tests y 11 comprobaciones Chromium, guía PyPI completa en Linux. Implementación/documentación empujadas; pendientes de producto y piloto humano registrados en Factory. Trackertast 0.1.0 sigue con HTTP 200 en PyPI; no se pudo retirar sin acceso autenticado.
 
+### Nota (2026-10-04 01:26:46 UTC)
+
+El usuario informó que archivó trackertast y pidió continuar. Se verifica en API PyPI Simple1.4: project-status.status=archived, versión0.1.0 conservada. Este pedido final reemplaza el borrado anterior: archivado no eliminado, instalación histórica conservada. Migración de consumidores y publicación verificadas completas; no queda acción de borrado pendiente.
+
+- Adjunto: [trackertast-archive-status.json](trackertast-archive-status.json)
+
 ## Próximo paso
 
-Retirar trackertast desde la cuenta PyPI autenticada del mantenedor: no hay navegador conectado ni credenciales disponibles en esta sesión. Todos los consumidores activos inventariados están migrados y los sucesores verificados. Después del retiro, comprobar que el proyecto anterior no pueda instalarse desde PyPI y cerrar esta tarea. El borrado rompe las dependencias inmutables de Factory/MCP antiguos; usar los sucesores publicados.
+Ninguno. Consumidores migrados, cortes PyPI verificados y trackertast archivado según la decisión final del usuario. Se conservan los artefactos históricos instalables; no se solicita borrado.
