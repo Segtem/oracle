@@ -75,8 +75,8 @@ Los ocho repositorios están commiteados y empujados. Releases y tags publicados
 Cada release tiene wheel, sdist y SHA256SUMS. Los archivos están también en `dist/` de su repo.
 Oracle test dio VERDE; mutación de código de módulos cambiados comprobada aparte (815/815).
 La web Factory publicada devuelve HTTP 200 y coincide byte por byte con main. CI de MCP,
-Factory y Oracle Task dio éxito. Oracle/MCP globales usan los releases GitHub con SHA256
-verificado, junto con Oracle Task publicado; no queda trackertast en esos entornos.
+Factory y Oracle Task dio éxito. Oracle/MCP globales usan los pins PyPI verificados,
+junto con Oracle Task publicado; no queda trackertast en esos entornos.
 
 Comandos del corte ya publicado por el mantenedor (registro histórico):
 
@@ -99,6 +99,10 @@ Publicación PyPI confirmada: Oracle 0.38.2, Factory 0.1.0a2 y MCP 0.1.2; SHA256
 ### Nota (2026-10-04 01:07:49 UTC)
 
 Jam actualizado y empujado en 0d4c339; relevo OK y pre-push sin aflojamiento de catálogo. No se empujó etiqueta de identidad histórica. MCP cerrado y empujado en 8aa4cd0. La web se revisó con agy1/agy2 en Factory 20261003-235610-web-rigurosa; 23 tests y 11 comprobaciones Chromium, recorrido desde PyPI por comandos extraídos de guía hasta cierre fixture. Nuevo producto propuesto en cuatro tareas, sin implementación de CLI no solicitada.
+
+### Nota (2026-10-04 01:17:06 UTC)
+
+Factory web publicada: https://segtem.github.io/oracle-factory/; Pages 37167107976 success y seis archivos HTTP 200 idénticos a main. Auditorías agy1/agy2, 23 tests y 11 comprobaciones Chromium, guía PyPI completa en Linux. Implementación/documentación empujadas; pendientes de producto y piloto humano registrados en Factory. Trackertast 0.1.0 sigue con HTTP 200 en PyPI; no se pudo retirar sin acceso autenticado.
 
 ## Próximo paso
 
