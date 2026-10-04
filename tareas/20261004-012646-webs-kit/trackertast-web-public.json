@@ -1,0 +1,77 @@
+{
+  "repo": "Segtem/trackertast",
+  "head": "075e29ce340807ffb935448ce3ee79ce302786c7",
+  "files": [
+    {
+      "url": "https://segtem.github.io/trackertast/agentes.html",
+      "status": 200,
+      "expected_sha256": "6dd6bc3760fef4e1da688daed5f4c3e3ca60de61239abd1a8488cff34d7d58e8",
+      "actual_sha256": "6dd6bc3760fef4e1da688daed5f4c3e3ca60de61239abd1a8488cff34d7d58e8",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/trackertast/assets/emblema.svg",
+      "status": 200,
+      "expected_sha256": "a46391fe61f249961abfaf9d11ee36881ed503e224692a3bad52cab24fa94157",
+      "actual_sha256": "a46391fe61f249961abfaf9d11ee36881ed503e224692a3bad52cab24fa94157",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/trackertast/assets/portada.css",
+      "status": 200,
+      "expected_sha256": "96a7ad67f30a420cf02a9e5cd795c242097f1f8d2876a68e64f75e3141103222",
+      "actual_sha256": "96a7ad67f30a420cf02a9e5cd795c242097f1f8d2876a68e64f75e3141103222",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/trackertast/assets/portada.js",
+      "status": 200,
+      "expected_sha256": "26069d2784d8f9c1358de89ec48e5d2e5a7617faa88d5f69362dcc7f73655e30",
+      "actual_sha256": "26069d2784d8f9c1358de89ec48e5d2e5a7617faa88d5f69362dcc7f73655e30",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/trackertast/assets/sitio.css",
+      "status": 200,
+      "expected_sha256": "5767d7576c1487a5795546b386dc2684a45a2a618a2ccd32be0077cd56103490",
+      "actual_sha256": "5767d7576c1487a5795546b386dc2684a45a2a618a2ccd32be0077cd56103490",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/trackertast/guia.html",
+      "status": 200,
+      "expected_sha256": "441609e6b299d9b927f629d09450961f3e8096732b5d51de6f7d41c5c5265712",
+      "actual_sha256": "441609e6b299d9b927f629d09450961f3e8096732b5d51de6f7d41c5c5265712",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/trackertast/index.html",
+      "status": 200,
+      "expected_sha256": "22d846e689c12951a4a5adc1591ab38b347453b10cc675eedacfbbbad7059934",
+      "actual_sha256": "22d846e689c12951a4a5adc1591ab38b347453b10cc675eedacfbbbad7059934",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/trackertast/oracle.html",
+      "status": 200,
+      "expected_sha256": "10b7d0f64208399d64b02acd26fd185aea0e729c52c69f98e1c119c096f1bd9e",
+      "actual_sha256": "10b7d0f64208399d64b02acd26fd185aea0e729c52c69f98e1c119c096f1bd9e",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/trackertast/referencia.html",
+      "status": 200,
+      "expected_sha256": "964426b790ed78b894f3aa685e6b92e28e3ddd20ab309161de1dcc963f768f4d",
+      "actual_sha256": "964426b790ed78b894f3aa685e6b92e28e3ddd20ab309161de1dcc963f768f4d",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/trackertast/tareas.html",
+      "status": 200,
+      "expected_sha256": "04db84f32b1ba6ca8d41bbcd1368890353171e7f4adb0a94dbeb982398f7a894",
+      "actual_sha256": "04db84f32b1ba6ca8d41bbcd1368890353171e7f4adb0a94dbeb982398f7a894",
+      "matches": true
+    }
+  ],
+  "all_match": true
+}

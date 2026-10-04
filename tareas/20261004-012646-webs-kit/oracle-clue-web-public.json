@@ -1,0 +1,63 @@
+{
+  "repo": "Segtem/oracle-clue",
+  "head": "f4caedbf57d87649335a47ce36a7f536db27020b",
+  "files": [
+    {
+      "url": "https://segtem.github.io/oracle-clue/assets/clue.js",
+      "status": 200,
+      "expected_sha256": "e636a3c7e52082bdb465ab396d4916c5c0cf5519c412e6a6224c02bdc4327557",
+      "actual_sha256": "e636a3c7e52082bdb465ab396d4916c5c0cf5519c412e6a6224c02bdc4327557",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/oracle-clue/assets/favicon.svg",
+      "status": 200,
+      "expected_sha256": "9ee3092e8a9878fe9a33e8a498cf6d2c4f648cf0d3da0037ad93e29805fd0cf3",
+      "actual_sha256": "9ee3092e8a9878fe9a33e8a498cf6d2c4f648cf0d3da0037ad93e29805fd0cf3",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/oracle-clue/assets/guide.js",
+      "status": 200,
+      "expected_sha256": "b588502aba01d62ddff76a3944bb8eb3d4013b3ef6f8ce51e422b8b79f3e31b1",
+      "actual_sha256": "b588502aba01d62ddff76a3944bb8eb3d4013b3ef6f8ce51e422b8b79f3e31b1",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/oracle-clue/assets/style.css",
+      "status": 200,
+      "expected_sha256": "cf8215d377ede58e348616ff7889455d1540d43f2cb8004d19840aa5425edafb",
+      "actual_sha256": "cf8215d377ede58e348616ff7889455d1540d43f2cb8004d19840aa5425edafb",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/oracle-clue/desde-cero.html",
+      "status": 200,
+      "expected_sha256": "93bea241949d1241d837b569d20dbcec4c1356d91b47ef951cc17961f17fb7ca",
+      "actual_sha256": "93bea241949d1241d837b569d20dbcec4c1356d91b47ef951cc17961f17fb7ca",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/oracle-clue/hallazgos.schema.json",
+      "status": 200,
+      "expected_sha256": "1b87f67c307f3f373f6d2f1a4737f560332f3a427993e038ae5a24fe836bb5c8",
+      "actual_sha256": "1b87f67c307f3f373f6d2f1a4737f560332f3a427993e038ae5a24fe836bb5c8",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/oracle-clue/index.html",
+      "status": 200,
+      "expected_sha256": "a795b8daa338085f14e8df3883fefc4c191585d7d0d6c00adc1c6b20d9eeecf1",
+      "actual_sha256": "a795b8daa338085f14e8df3883fefc4c191585d7d0d6c00adc1c6b20d9eeecf1",
+      "matches": true
+    },
+    {
+      "url": "https://segtem.github.io/oracle-clue/triage.schema.json",
+      "status": 200,
+      "expected_sha256": "6e233bd5379832a8df345682d07019cfcb01d1813d20f8f05291a6d44b281c38",
+      "actual_sha256": "6e233bd5379832a8df345682d07019cfcb01d1813d20f8f05291a6d44b281c38",
+      "matches": true
+    }
+  ],
+  "all_match": true
+}
