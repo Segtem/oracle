@@ -48,12 +48,16 @@ anterior de conservar el paquete publicado. No cambiar los IDs ni los datos de l
   Los dos repositorios remotos Segtem/Segtem y Segtem/jamprotocol-deprecated no tienen
   referencias vigentes. La búsqueda GitHub indexada no se usa como prueba de exhaustividad.
 
-## Publicación y retiro pendientes
+## Publicación verificada y retiro pendiente
 
-No hay credenciales de publicación configuradas en las variables del entorno ni un navegador
-con sesión disponible. El mantenedor publica los wheels/sdist preparados siguiendo el flujo
-usado en releases anteriores. Después se verifican PyPI, instalaciones limpias y se actualiza
-el Oracle vendorizado de Jam reinstalando el artefacto publicado, según AGENTS.md de Jam.
+El mantenedor publicó los tres cortes. SHA256 de wheel y sdist coincide con los releases;
+instalaciones nuevas de Oracle 0.38.2, Factory 0.1.0a2 y MCP 0.1.2 verificadas en Python 3.13,
+sin módulo/distribución trackertast. Factory completó el ejemplo aislado. Jam reinstaló su
+vendor desde PyPI 0.38.2, pasó 1448 tests y quedó empujado. Oracle/MCP globales usan ahora
+los pins PyPI. Evidencia: resultados.json y notas de esta tarea.
+
+No hay credenciales ni navegador disponible para administrar PyPI. El retiro de trackertast
+requiere acceso autenticado del mantenedor en https://pypi.org/manage/project/trackertast/settings/.
 
 Borrar trackertast rompe la instalación de las versiones antiguas de Factory/MCP. El nuevo
 código no puede cambiar esa metadata histórica. El retiro solicitado se hace después de
@@ -74,7 +78,7 @@ La web Factory publicada devuelve HTTP 200 y coincide byte por byte con main. CI
 Factory y Oracle Task dio éxito. Oracle/MCP globales usan los releases GitHub con SHA256
 verificado, junto con Oracle Task publicado; no queda trackertast en esos entornos.
 
-Publicar desde la máquina del mantenedor:
+Comandos del corte ya publicado por el mantenedor (registro histórico):
 
 ```bash
 uv publish ~/Dev/oracle/dist/oracle_metalenguaje-0.38.2-py3-none-any.whl ~/Dev/oracle/dist/oracle_metalenguaje-0.38.2.tar.gz
@@ -86,10 +90,16 @@ uv publish ~/Dev/oracle-mcp/dist/oracle_mcp-0.1.2-py3-none-any.whl ~/Dev/oracle-
 
 CI Oracle del commit del corte: 37162191846 exitoso, contratos Python 3.11 y 3.13 verdes. Tags GitHub y artefactos remotos presentes; Oracle test verde. Resta publicación PyPI del mantenedor, verificación de consumidores nuevos, renovación del vendor Jam y retiro final de trackertast.
 
+### Nota (2026-10-04 00:48:53 UTC)
+
+Publicación PyPI confirmada: Oracle 0.38.2, Factory 0.1.0a2 y MCP 0.1.2; SHA256 de wheel y sdist coincide con releases. Instalaciones nuevas Python 3.13 sin trackertast; Factory completa su ejemplo hasta cierre fixture. Oracle/MCP globales ahora instalados desde PyPI. Jam reinstalado desde PyPI 0.38.2, 1448 tests verdes, pendiente commit/push. Retiro de trackertast bloqueado por falta de acceso autenticado: no hay credenciales ni navegador disponible.
+
+- Adjunto: [resultados.json](resultados.json)
+
+### Nota (2026-10-04 01:07:49 UTC)
+
+Jam actualizado y empujado en 0d4c339; relevo OK y pre-push sin aflojamiento de catálogo. No se empujó etiqueta de identidad histórica. MCP cerrado y empujado en 8aa4cd0. La web se revisó con agy1/agy2 en Factory 20261003-235610-web-rigurosa; 23 tests y 11 comprobaciones Chromium, recorrido desde PyPI por comandos extraídos de guía hasta cierre fixture. Nuevo producto propuesto en cuatro tareas, sin implementación de CLI no solicitada.
 
 ## Próximo paso
 
-El mantenedor publica esos tres cortes en PyPI. Verificar metadata, SHA256 e instalaciones
-limpias; actualizar el vendor Oracle de Jam reinstalando 0.38.2 desde PyPI según sus instrucciones,
-actualizar las herramientas uv globales al pin PyPI y quitar el aviso de publicación pendiente
-con evidencia real. Con acceso a la cuenta PyPI, retirar el proyecto trackertast al final.
+Retirar trackertast desde la cuenta PyPI autenticada del mantenedor: no hay navegador conectado ni credenciales disponibles en esta sesión. Todos los consumidores activos inventariados están migrados y los sucesores verificados. Después del retiro, comprobar que el proyecto anterior no pueda instalarse desde PyPI y cerrar esta tarea. El borrado rompe las dependencias inmutables de Factory/MCP antiguos; usar los sucesores publicados.

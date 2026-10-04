@@ -1,0 +1,32 @@
+[
+  {
+    "project": "oracle-metalenguaje",
+    "version": "0.38.2",
+    "python": "/tmp/oracle-pypi-consumers-pc4jp8_c/oracle-metalenguaje/tools/oracle-metalenguaje/bin/python",
+    "bin": "/tmp/oracle-pypi-consumers-pc4jp8_c/oracle-metalenguaje/bin",
+    "sha256": {
+      "oracle_metalenguaje-0.38.2-py3-none-any.whl": "46ea04f9634716baafe03cbc6907bacea586a59b103318357ad25335d69ae222",
+      "oracle_metalenguaje-0.38.2.tar.gz": "3769989fecede263d5440c3ecef09f5da94a54fab49e99a1896ca72129d6c78e"
+    }
+  },
+  {
+    "project": "oracle-factory",
+    "version": "0.1.0a2",
+    "python": "/tmp/oracle-pypi-consumers-pc4jp8_c/oracle-factory/tools/oracle-factory/bin/python",
+    "bin": "/tmp/oracle-pypi-consumers-pc4jp8_c/oracle-factory/bin",
+    "sha256": {
+      "oracle_factory-0.1.0a2-py3-none-any.whl": "fcc47f2d7793423641253e0dc95a708fc15652444db70262c2ed8dec9ba0b3c8",
+      "oracle_factory-0.1.0a2.tar.gz": "2bb780929481ff98b42432a1c1ee2a0a03a5e51ce9b35008a5b7c6655acab305"
+    }
+  },
+  {
+    "project": "oracle-mcp",
+    "version": "0.1.2",
+    "python": "/tmp/oracle-pypi-consumers-pc4jp8_c/oracle-mcp/tools/oracle-mcp/bin/python",
+    "bin": "/tmp/oracle-pypi-consumers-pc4jp8_c/oracle-mcp/bin",
+    "sha256": {
+      "oracle_mcp-0.1.2-py3-none-any.whl": "ce4c5a1860a9993e4f3e53b4752dcd3ed8b0cc731cd03db1d8c7b6f92c47fdfa",
+      "oracle_mcp-0.1.2.tar.gz": "1025a56384cc99f6e37da511bbf7d6121571a176cafdfdeed0fdc029a21813e7"
+    }
+  }
+]
