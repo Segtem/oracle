@@ -74,7 +74,7 @@ def main(proy, *, confiar: bool = False, con: str | list[str] | None = None) -> 
         print(f"✗ no se pudo juzgar la evidencia: {e}")
         return 1
     if evidencia is not None:
-        return _con_juicio(requisitos, catalogo, informe)
+        return _con_juicio(requisitos, catalogo, informe, rutas)
     cuenta = {"total": 0, "parcial": 0, "ninguna": 0}
     inexistentes = 0
     usadas: set[str] = set()
@@ -102,7 +102,7 @@ def main(proy, *, confiar: bool = False, con: str | list[str] | None = None) -> 
     return 1 if inexistentes else 0
 
 
-def _con_juicio(requisitos, catalogo, informe) -> int:
+def _con_juicio(requisitos, catalogo, informe, rutas) -> int:
     cuenta = {"cumple": 0, "no_cumple": 0, "sin_juicio": 0, "sin_medir": 0}
     inexistentes = parciales = rojos = 0
     ids_rojos = {v.id for v in informe.rojos}
@@ -129,6 +129,9 @@ def _con_juicio(requisitos, catalogo, informe) -> int:
     print(f"\n{len(requisitos)} requisitos: {cuenta['cumple']} se cumplen ({parciales} sólo en lo medido)"
           f" · {cuenta['no_cumple']} no se cumplen · {cuenta['sin_juicio']} sin juicio"
           f" · {cuenta['sin_medir']} sin medir · {inexistentes} con medidas inexistentes")
-    for mid, motivo in informe.no_juzgaron:
-        print(f"✗ {mid} no juzgó: {motivo}")
+    if informe.no_juzgaron:
+        from tools.juzgar import archivo_del_error
+        donde = archivo_del_error(rutas)
+        for mid, motivo in informe.no_juzgaron:
+            print(f"✗ {mid} no juzgó: {motivo}{donde}")
     return 1 if inexistentes or rojos or informe.no_juzgaron else 0

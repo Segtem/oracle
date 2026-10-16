@@ -136,11 +136,6 @@ def _leer_evidencias(rutas: list[str]) -> tuple[dict | None, str | None]:
         if identidad in vistas:
             return None, f"el archivo «{ruta}» está dos veces en `--con` (también como «{vistas[identidad]}»)"
         vistas[identidad] = ruta
-        if len(rutas) > 1:  # combinadas, el error del núcleo ya no diría de qué archivo vino
-            try:
-                validar_evidencia(evidencia)
-            except ErrorDeAlgebra as e:
-                return None, f"{e} (en «{ruta}»)"
         for relacion, filas in evidencia.items():
             if relacion in origen:
                 return None, (f"la relación «{relacion}» viene en «{origen[relacion]}» y en «{ruta}»: dos sensores "
@@ -148,6 +143,24 @@ def _leer_evidencias(rutas: list[str]) -> tuple[dict | None, str | None]:
             combinada[relacion] = filas
             origen[relacion] = ruta
     return combinada, None
+
+
+def archivo_del_error(rutas: list[str]) -> str:
+    """Con varios `--con`, « (en «archivo»)» para el primero cuya evidencia el núcleo rechaza; si no, nada.
+
+    Se busca sólo después de que el núcleo falló: validar antes cambiaría el veredicto de una relación rota que
+    ninguna medida usa, y combinadas deben juzgarse igual que un solo archivo.
+    """
+    if len(rutas) < 2:
+        return ""
+    for ruta in rutas:
+        evidencia, error = _leer_evidencia(ruta)
+        try:
+            if error is None:
+                validar_evidencia(evidencia)
+        except ErrorDeAlgebra:
+            return f" (en «{ruta}»)"
+    return ""
 
 
 class MedidaDesconocida(Exception):
@@ -298,8 +311,9 @@ def cmd_juzgar(argv: list[str]) -> int:
             # Primero lo que no se pudo juzgar: una medida que levantó tampoco dejó veredicto, y
             # contarla como «ninguna aplica» esconde el error.
             if informe.no_juzgaron:
+                donde = archivo_del_error(rutas_evidencia)
                 for mid, motivo in informe.no_juzgaron:
-                    print(f"ERROR AL EVALUAR — «{mid}»: {motivo}", file=sys.stderr)
+                    print(f"ERROR AL EVALUAR — «{mid}»: {motivo}{donde}", file=sys.stderr)
                 return 2
             if not informe.veredictos:
                 relaciones = sorted(evidencia.keys())
@@ -327,7 +341,10 @@ def cmd_juzgar(argv: list[str]) -> int:
     except ProyectoInvalido as e:
         print(f"PROYECTO INVÁLIDO — {e}", file=sys.stderr)
         return 2
-    except (MedidaMalDeclarada, ErrorDeAlgebra, KeyError) as e:
+    except ErrorDeAlgebra as e:
+        print(f"ERROR AL EVALUAR — {e}{archivo_del_error(rutas_evidencia)}", file=sys.stderr)
+        return 2
+    except (MedidaMalDeclarada, KeyError) as e:
         print(f"ERROR AL EVALUAR — {e}", file=sys.stderr)
         return 2
 
