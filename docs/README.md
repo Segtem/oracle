@@ -40,7 +40,7 @@ cazás sus mutantes. Si nunca usaste Oracle, no hace falta leer nada antes.
   `oracle manual --instalar-man <dir>` deja `man oracle` funcionando.
 - **`oracle contexto [--compacto]`**: lo que tu proyecto declara hoy (relaciones, campos, operadores,
   escalares y medidas), para pasárselo a un modelo en unos 1.600 tokens.
-- **`oracle cobertura [--con <hechos.json>]`**: qué requisitos están medidos; con evidencia, cuáles
+- **`oracle cobertura [--con <hechos.json>]…`**: qué requisitos están medidos; con evidencia (un archivo por sensor), cuáles
   se cumplen (✓), cuáles en parte (◐ con su `SIN MEDIR`) y cuáles no (✗).
 - **`oracle cambios [--desde <ref>]`**: qué medidas se aflojaron, qué relaciones o escalares cambiaron,
   y qué archivos de sensores declarados en `oracle.json` fueron tocados.

@@ -4,7 +4,7 @@ Lee `requisitos/*.requisito` y el catálogo efectivo. No evalúa nada: dice qué
 declara por qué no se mide y qué nombra una medida que no existe. Esto último es un error (sale con
 1), porque un requisito que apunta a la nada se lee como cubierto y no lo está.
 
-Con `--con <hechos.json>` además juzga esa evidencia —igual que `oracle juzgar`, con sombras y
+Con `--con <hechos.json>` (repetible, uno por sensor) además juzga esa evidencia —igual que `oracle juzgar`, con sombras y
 cotas— y dice de cada requisito si **se cumple** hoy, no sólo si tiene medida: una medida roja o en
 sombra deja el requisito sin cumplir, y una que no tuvo evidencia lo deja sin juicio. Es la pregunta
 «¿el código cumple la spec?», contestada con su `sin_medir` al lado. Sale con 1 si algún requisito
@@ -43,7 +43,7 @@ def juicio(estados: list[str]) -> str:
     return "cumple" if all(e == "cumple" for e in estados) else "sin_juicio"
 
 
-def main(proy, *, confiar: bool = False, con: str | None = None) -> int:
+def main(proy, *, confiar: bool = False, con: str | list[str] | None = None) -> int:
     try:
         requisitos = cargar_requisitos(proy.raiz / "requisitos")
     except RequisitoMalDeclarado as e:
@@ -55,8 +55,8 @@ def main(proy, *, confiar: bool = False, con: str | None = None) -> int:
     # Las medidas de un proyecto pueden usar sus escalares: sin registrarlas, el catálogo no carga.
     evidencia = None
     if con is not None:
-        from tools.juzgar import _leer_evidencia
-        evidencia, error = _leer_evidencia(con)
+        from tools.juzgar import _leer_evidencias
+        evidencia, error = _leer_evidencias([con] if isinstance(con, str) else con)
         if error:
             print(f"✗ {error}")
             return 1

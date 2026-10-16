@@ -482,7 +482,10 @@ el catálogo?— es otro veredicto, y desde 0.18.0 tiene su verbo:
 oracle juzgar --con hechos.json [--proyecto <ruta>] [--medida <id>]… [--json] [--confiar-escalares]
 ```
 
-La evidencia es un objeto JSON `relación → lista de filas`. Juzga con el catálogo **efectivo** del
+La evidencia es un objeto JSON `relación → lista de filas`. `--con` se repite, un archivo por sensor
+(`--con frente-a.json --con frente-b.json`): sus relaciones se combinan, y si dos archivos traen la
+misma relación es un error —dos frentes emiten la misma interfaz y la medida de uno contaría filas del
+otro—; también en `oracle cobertura`. Juzga con el catálogo **efectivo** del
 proyecto —una medida `del_origen` heredada no obliga a quien la hereda— y respeta las sombras de
 `oracle.json`, igual que la aceptación: el mismo proyecto no da dos veredictos. Una sombra con `cota`
 perdona sólo hasta esa cota: por encima —o sin un número que comparar— el rojo vuelve, marcado

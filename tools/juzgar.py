@@ -30,12 +30,13 @@ def ayuda() -> None:
     print("""oracle juzgar — evalúa evidencia contra las medidas del proyecto
 
 Uso:
-  oracle proyecto juzgar --con <hechos.json> [--proyecto <ruta>]
+  oracle proyecto juzgar --con <hechos.json>... [--proyecto <ruta>]
                          [--confiar-escalares] [--medida <id>]... [--parcial] [--json]
   oracle juzgar --con <hechos.json> ...    (alias directo)
 
 Opciones:
-  --con <archivo>        Ruta al archivo JSON con la evidencia (obligatorio)
+  --con <archivo>        Ruta al archivo JSON con la evidencia (obligatorio). Repetible, uno por
+                         sensor: se combinan sus relaciones, y cada relación sólo puede venir de uno
   --proyecto <ruta>      Ruta al proyecto (por defecto: directorio actual o $ORACLE_PROYECTO)
   --confiar-escalares    Autoriza la ejecución de funciones en escalares.py
   --medida <id>          Evalúa sólo esta medida (repetible, sin duplicados)
@@ -113,6 +114,32 @@ def _leer_evidencia(ruta_str: str) -> tuple[dict | None, str | None]:
     return datos, None
 
 
+def _leer_evidencias(rutas: list[str]) -> tuple[dict | None, str | None]:
+    """Lee varios archivos de evidencia (uno por sensor) y combina sus relaciones.
+
+    Cada relación la aporta un solo archivo: si dos traen la misma, es un solapamiento de interfaz entre
+    frentes que Git no ve —la medida de uno contaría filas del otro—, y se rechaza en vez de combinarlas.
+    """
+    combinada: dict = {}
+    origen: dict[str, str] = {}
+    vistas: dict[Path, str] = {}
+    for ruta in rutas:
+        real = Path(ruta).expanduser().resolve()
+        if real in vistas:
+            return None, f"el archivo «{ruta}» está dos veces en `--con` (también como «{vistas[real]}»)"
+        vistas[real] = ruta
+        evidencia, error = _leer_evidencia(ruta)
+        if error is not None:
+            return None, error
+        for relacion, filas in evidencia.items():
+            if relacion in origen:
+                return None, (f"la relación «{relacion}» viene en «{origen[relacion]}» y en «{ruta}»: dos sensores "
+                              "emiten la misma relación; cada relación la emite un solo archivo")
+            combinada[relacion] = filas
+            origen[relacion] = ruta
+    return combinada, None
+
+
 class MedidaDesconocida(Exception):
     """Una medida pedida explícitamente no existe en el catálogo efectivo."""
 
@@ -185,7 +212,7 @@ def cmd_juzgar(argv: list[str]) -> int:
     args = list(argv)
 
     # 1. Parseo de banderas CLI
-    ruta_evidencia_str: str | None = None
+    rutas_evidencia: list[str] = []
     es_json = False
     parcial = False
     medidas_pedidas: list[str] = []
@@ -193,14 +220,11 @@ def cmd_juzgar(argv: list[str]) -> int:
     i = 0
     while i < len(args):
         arg = args[i]
-        if arg == "--con":
-            if ruta_evidencia_str is not None:
-                print("bandera repetida: `--con`", file=sys.stderr)
-                return 2
+        if arg == "--con":  # repetible: un archivo por sensor
             if i + 1 >= len(args) or args[i + 1].startswith("--"):
                 print("falta la ruta: `--con <archivo.json>`", file=sys.stderr)
                 return 2
-            ruta_evidencia_str = args[i + 1]
+            rutas_evidencia.append(args[i + 1])
             i += 2
         elif arg == "--medida":
             if i + 1 >= len(args) or args[i + 1].startswith("--"):
@@ -229,7 +253,7 @@ def cmd_juzgar(argv: list[str]) -> int:
             print(f"argumento desconocido para `oracle juzgar`: {arg}", file=sys.stderr)
             return 2
 
-    if ruta_evidencia_str is None:
+    if not rutas_evidencia:
         print("falta la evidencia: indicá `--con <archivo.json>`", file=sys.stderr)
         return 2
 
@@ -252,7 +276,7 @@ def cmd_juzgar(argv: list[str]) -> int:
         return 2
 
     # 4. Lectura de evidencia
-    evidencia, error_evidencia = _leer_evidencia(ruta_evidencia_str)
+    evidencia, error_evidencia = _leer_evidencias(rutas_evidencia)
     if error_evidencia is not None:
         print(f"EVIDENCIA INVÁLIDA — {error_evidencia}", file=sys.stderr)
         return 2

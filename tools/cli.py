@@ -686,10 +686,10 @@ def cmd_contexto(proy: Proyecto, argv: list[str]) -> int:
 def cmd_cobertura(proy: Proyecto, args: list[str], confiar: bool = False) -> int:
     from tools import cobertura
     args = [a for a in args if a != "--rapido"]
-    if args and (args[0] != "--con" or len(args) != 2):
-        print("uso: oracle cobertura [--con <hechos.json>]")
+    if len(args) % 2 or any(args[i] != "--con" or args[i + 1].startswith("--") for i in range(0, len(args), 2)):
+        print("uso: oracle cobertura [--con <hechos.json>]...")
         return 1
-    return cobertura.main(proy, confiar=confiar, con=args[1] if args else None)
+    return cobertura.main(proy, confiar=confiar, con=args[1::2] or None)
 
 
 USO_REQUISITO = "uso: oracle requisito importar <spec.md | openspec/specs> [--dominio <d>] [--escribir]"

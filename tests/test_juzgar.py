@@ -188,14 +188,15 @@ class TestEntradaInvalida(BaseJuzgarTest):
         self.assertEqual(rc2, 2)
         self.assertIn("falta la ruta", err2)
 
-    def test_con_repetido_retorna_dos(self) -> None:
+    def test_con_repetido_con_la_misma_relacion_retorna_dos(self) -> None:
+        # `--con` es repetible (un archivo por sensor, tests/test_juzgar_varios.py); la misma relación en dos no.
         con1 = self.escribir_evidencia({"x": []}, "a.json")
         con2 = self.escribir_evidencia({"x": []}, "b.json")
         rc, out, err = self.correr_cli(
             "juzgar", "--con", str(con1), "--con", str(con2), "--proyecto", str(self.proyecto)
         )
         self.assertEqual(rc, 2)
-        self.assertIn("repetida", err)
+        self.assertIn("dos sensores emiten la misma relación", err)
 
     def test_archivo_ausente_retorna_dos_y_nombra_ruta(self) -> None:
         ausente = self.temporal / "inexistente.json"
