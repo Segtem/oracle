@@ -11,7 +11,7 @@ import sys
 from dataclasses import replace
 from pathlib import Path
 
-from nucleo.algebra import ErrorDeAlgebra
+from nucleo.algebra import ErrorDeAlgebra, validar_evidencia
 from nucleo.medida import (Catalogo, Informe, Medida, MedidaMalDeclarada, evaluar_conjunto,
                            medidas_aplicables, no_aplicadas, partes_de_lo_que_falla,
                            relaciones_de_medida)
@@ -122,15 +122,25 @@ def _leer_evidencias(rutas: list[str]) -> tuple[dict | None, str | None]:
     """
     combinada: dict = {}
     origen: dict[str, str] = {}
-    vistas: dict[Path, str] = {}
+    vistas: dict[tuple[int, int], str] = {}
     for ruta in rutas:
-        real = Path(ruta).expanduser().resolve()
-        if real in vistas:
-            return None, f"el archivo «{ruta}» está dos veces en `--con` (también como «{vistas[real]}»)"
-        vistas[real] = ruta
+        # El mismo archivo con otro nombre, por un enlace simbólico o uno duro: mismo dispositivo e inodo.
+        try:
+            info = Path(ruta).expanduser().stat()
+            identidad = (info.st_dev, info.st_ino)
+        except OSError:
+            identidad = None  # no se puede consultar: _leer_evidencia lo dice con el error de siempre
         evidencia, error = _leer_evidencia(ruta)
         if error is not None:
             return None, error
+        if identidad in vistas:
+            return None, f"el archivo «{ruta}» está dos veces en `--con` (también como «{vistas[identidad]}»)"
+        vistas[identidad] = ruta
+        if len(rutas) > 1:  # combinadas, el error del núcleo ya no diría de qué archivo vino
+            try:
+                validar_evidencia(evidencia)
+            except ErrorDeAlgebra as e:
+                return None, f"{e} (en «{ruta}»)"
         for relacion, filas in evidencia.items():
             if relacion in origen:
                 return None, (f"la relación «{relacion}» viene en «{origen[relacion]}» y en «{ruta}»: dos sensores "

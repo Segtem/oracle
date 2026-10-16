@@ -479,7 +479,7 @@ ni su tratamiento de las medidas que no se aplicaron.
 el catálogo?— es otro veredicto, y desde 0.18.0 tiene su verbo:
 
 ```bash
-oracle juzgar --con hechos.json [--proyecto <ruta>] [--medida <id>]… [--json] [--confiar-escalares]
+oracle juzgar --con hechos.json… [--proyecto <ruta>] [--medida <id>]… [--json] [--confiar-escalares]
 ```
 
 La evidencia es un objeto JSON `relación → lista de filas`. `--con` se repite, un archivo por sensor
@@ -691,7 +691,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-2258 tests · 1026/1026 mutantes de medida · **8218 sitios de mutación de código** (7920 + 298 del motor Python).
+2266 tests · 1026/1026 mutantes de medida · **8228 sitios de mutación de código** (7930 + 298 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

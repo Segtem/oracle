@@ -54,9 +54,10 @@ def main(proy, *, confiar: bool = False, con: str | list[str] | None = None) -> 
         return 0
     # Las medidas de un proyecto pueden usar sus escalares: sin registrarlas, el catálogo no carga.
     evidencia = None
-    if con is not None:
+    rutas = [con] if isinstance(con, str) else list(con or [])  # una lista vacía es «sin evidencia»
+    if rutas:
         from tools.juzgar import _leer_evidencias
-        evidencia, error = _leer_evidencias([con] if isinstance(con, str) else con)
+        evidencia, error = _leer_evidencias(rutas)
         if error:
             print(f"✗ {error}")
             return 1
