@@ -6,6 +6,7 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 <!-- notas_indice:inicio -->
 | versión | qué trae |
 |---|---|
+| [0.39.0](#0390--un-archivo-de-hechos-por-sensor) | un archivo de hechos por sensor |
 | [0.38.2](#0382--el-tracker-ahora-es-oracle-task) | el tracker ahora es Oracle Task |
 | [0.38.1](#0381--la-guía-desde-cero-y-una-web-más-clara) | la guía desde cero y una web más clara |
 | [0.38.0](#0380--las-promesas-de-openspec-y-un-generador-que-busca) | las promesas de OpenSpec, y un generador que busca |
@@ -35,6 +36,29 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 | [0.20.0](#0200--motor-juzga-con-el-mismo-catálogo-y-las-mismas-sombras-que-oracle-test) | `Motor` juzga con el mismo catálogo y las mismas sombras que `oracle test` |
 | 0.19.0 y anteriores | en [docs/notas/anteriores-a-0.20.md](docs/notas/anteriores-a-0.20.md) |
 <!-- notas_indice:fin -->
+
+# 0.39.0 — un archivo de hechos por sensor
+
+```
+VERSION_DISTRIBUCION   0.38.2 → 0.39.0   `--con` repetible en juzgar y cobertura
+VERSION_ALGEBRA        1.0    → 1.0
+VERSION_SINTAXIS       1.1    → 1.1
+```
+
+- **`--con` se repite.** `oracle juzgar` y `oracle cobertura` aceptan un archivo de hechos por
+  sensor (`--con frente-a.json --con frente-b.json`) y juzgan la combinación exactamente como si
+  viniera en un solo archivo. Lo pidió Oracle Factory: un candidato integrado tiene un sensor por
+  frente, y hasta ahora había que combinarlos a mano.
+- **Una relación, un solo archivo.** Si dos archivos traen la misma relación, el juicio no las
+  combina: sale con error y nombra la relación y los dos archivos. Es un solapamiento de interfaz
+  entre frentes que Git no ve —la medida de uno contaría filas del otro—. El mismo archivo dos
+  veces, también por otro nombre o por un enlace, es error.
+- **El error dice de qué archivo vino.** Con varios archivos, un error de la evidencia que detecta
+  el núcleo (un `null`, una clave repetida) agrega «(en «archivo»)». Con un solo `--con`, todo
+  sigue igual.
+
+La revisión independiente la hicieron Codex (GPT) y Agy (Gemini) en tres vueltas. El álgebra
+sigue en 1.0 y la sintaxis en 1.1.
 
 # 0.38.2 — el tracker ahora es Oracle Task
 
