@@ -1358,7 +1358,18 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
                     finally:
                         cola.task_done()
 
-            hilos = [threading.Thread(target=trabajador, args=(k,)) for k in range(n_trabajadores)]
+            # Cada trabajador avisa que terminó con su propio evento: en Python 3.11, un join() que una señal
+            # interrumpió deja de esperar aunque el hilo siga vivo.
+            terminados = [threading.Event() for _ in range(n_trabajadores)]
+
+            def trabajador_que_avisa(k: int):
+                try:
+                    trabajador(k)
+                finally:
+                    terminados[k].set()
+
+            hilos = [threading.Thread(target=trabajador_que_avisa, args=(k,), name=f"trabajador-{k}")
+                     for k in range(n_trabajadores)]
             for h in hilos:
                 h.start()
             try:
@@ -1369,8 +1380,8 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
                 # borren sus copias; si no, uno lanzaba el mutante siguiente en una carpeta que se estaba borrando.
                 _TERMINANDO.set()
                 _terminar_activos()
-                for h in hilos:
-                    h.join()
+                for listo in terminados:
+                    listo.wait()
                 raise
 
             if error_hilo:
