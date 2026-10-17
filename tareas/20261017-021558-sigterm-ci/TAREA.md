@@ -1,6 +1,6 @@
 # test_SIGTERM de la mutación de código falla a veces en CI con Python 3.13.16
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 40
 - ETIQUETAS: ci, mutacion
 
@@ -11,3 +11,7 @@ Visto el 2026-10-17 al publicar 0.39.0: tests.test_mutacion_codigo.CorrerTests.t
 ### Nota (2026-10-17 12:10:58 UTC)
 
 Causa: el handler de SIGTERM levantaba SystemExit en el hilo principal mientras esperaba h.join(); los trabajadores seguían tomando sitios y lanzando mutantes mientras se borraba la carpeta de la ronda (se ve determinísticamente: la limpieza de oracle-mutacion-* empezaba con un trabajador vivo). Arreglo en 8c3d9a2: _TERMINANDO, join de los trabajadores antes de limpiar, sin lanzar ni anotar después, y kill del proceso registrado tarde. Falta: ver el CI de GitHub en verde con 3.13.
+
+### Nota (2026-10-17 12:34:53 UTC)
+
+CI de GitHub en verde con 3.11 y 3.13 sobre 6205487 (el CI de 3.11 mostró además que, en esa versión, un join() interrumpido por una señal deja de esperar con el hilo vivo; se espera a cada trabajador por su evento).
