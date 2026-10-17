@@ -480,6 +480,79 @@ class CorrerTests(unittest.TestCase):
             with self.assertRaises(ProcessLookupError):
                 os.kill(hijo, 0)
 
+    def test_con_la_ronda_terminando_no_se_lanza_ningun_proceso(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            marca = Path(d) / "lanzado"
+            comando = [sys.executable, "-c", f"open({str(marca)!r}, 'w').close()"]
+            mc._TERMINANDO.set()
+            try:
+                resultado = mc.ejecutar_tests(comando, Path(d), timeout=30)
+            finally:
+                mc._TERMINANDO.clear()
+            self.assertTrue(resultado.error_arnes)
+            self.assertIn("se está terminando", resultado.stderr)
+            self.assertFalse(marca.exists())
+            self.assertTrue(mc.ejecutar_tests(comando, Path(d), timeout=30).pasaron)  # sin la señal, corre
+            self.assertTrue(marca.exists())
+
+    def test_SIGTERM_espera_a_los_trabajadores_antes_de_limpiar(self) -> None:
+        """Tras SIGTERM, la ronda no borra sus copias mientras un trabajador sigue vivo (tarea sigterm-ci).
+
+        En CI con Python 3.13.16 el trabajador seguía tomando sitios de la cola: lanzaba el mutante siguiente, que
+        dormía 30 s en una carpeta que la ronda estaba borrando («Directory not empty»), y la ronda no terminaba.
+        """
+        import os
+        import signal as sig
+        import time
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as externo:
+            raiz, objetivo = self._entorno(d)
+            marcas, informe = Path(externo) / "marcas", Path(externo) / "limpiezas.txt"
+            marcas.mkdir()
+            comando = [
+                sys.executable, "-c",
+                ("from pathlib import Path; import os,time; "
+                 f"mutado = Path('m.py').read_text(encoding='utf-8') != {FUENTE!r}; "
+                 f"Path({str(marcas)!r}, f'mutante-{{os.getpid()}}').write_text('') if mutado else None; "
+                 "time.sleep(30) if mutado else None"),
+            ]
+            guion = raiz / "correr.py"
+            guion.write_text(
+                "import sys, tempfile, threading\n"
+                f"sys.path.insert(0, {str(RAIZ)!r})\n"
+                "limpiar = tempfile.TemporaryDirectory.cleanup\n"
+                "def anotada(self):\n"
+                "    vivos = [h.name for h in threading.enumerate() if 'trabajador' in h.name]\n"
+                "    if __import__('os').path.basename(self.name).startswith('oracle-mutacion-'):  # la de la ronda, no las de adentro\n"
+                f"        with open({str(informe)!r}, 'a', encoding='utf-8') as f: f.write(repr(vivos) + '\\n')\n"
+                "    limpiar(self)\n"
+                "tempfile.TemporaryDirectory.cleanup = anotada\n"
+                "from perfiles.python import mutacion_codigo as mc\n"
+                f"mc.correr(__import__('pathlib').Path({str(raiz)!r}), "
+                f"[__import__('pathlib').Path({str(objetivo)!r})], {comando!r}, "
+                f"manifiesto=__import__('pathlib').Path({str(Path(externo) / 'manifiesto.json')!r}))\n",
+                encoding="utf-8")
+            proc = subprocess.Popen([sys.executable, str(guion)])
+            limite = time.monotonic() + 10
+            while not list(marcas.iterdir()) and time.monotonic() < limite:
+                if proc.poll() is not None:
+                    self.fail("la ronda terminó antes de ejecutar el primer mutante")
+                time.sleep(0.01)
+            self.assertTrue(list(marcas.iterdir()), "la ronda no llegó al primer mutante")
+            os.kill(proc.pid, sig.SIGTERM)
+            proc.wait(timeout=15)
+            limpiezas = informe.read_text(encoding="utf-8").splitlines()
+            self.assertTrue(limpiezas)
+            self.assertEqual([l for l in limpiezas if l != "[]"], [],
+                             "la ronda limpió con un trabajador vivo")
+            # Ningún sitio sin correr queda anotado: a lo sumo el mutante que la señal cortó.
+            import json
+            filas = json.loads((Path(externo) / "manifiesto.json").read_text(encoding="utf-8"))["completados"]
+            self.assertLessEqual(len(filas), 1, [f["id"] for f in filas])
+            for marca in marcas.iterdir():
+                with self.assertRaises(ProcessLookupError):
+                    os.kill(int(marca.name.split("-")[1]), 0)
+            self.assertEqual(objetivo.read_text(encoding="utf-8"), FUENTE)
+
     def test_una_ronda_no_deja_su_archivo_de_bloqueo(self) -> None:
         with tempfile.TemporaryDirectory() as d:
             temporal = Path(d) / "temporales"

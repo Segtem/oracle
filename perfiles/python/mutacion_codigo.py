@@ -238,6 +238,8 @@ class ResultadoTests:
 
 _PROCESOS_ACTIVOS: set[subprocess.Popen] = set()
 _PROCESOS_GUARDA = threading.Lock()
+# Una señal de terminación corta la ronda: ningún trabajador lanza otro mutante después (tarea sigterm-ci).
+_TERMINANDO = threading.Event()
 
 CAMBIOS_COMPARADOR = {
     ast.Lt: ast.LtE, ast.LtE: ast.Lt,
@@ -561,6 +563,8 @@ def ejecutar_tests(comando: list[str], raiz: Path, *, timeout: float,
         resource.setrlimit(resource.RLIMIT_AS, topes)
 
     preexec = _aplicar_limites if topes is not None else None
+    if _TERMINANDO.is_set():
+        return ResultadoTests(EstadoTests.ERROR_ARNES, None, stderr="la ronda se está terminando: no se lanzó")
     try:
         proceso = subprocess.Popen(
             # stdin cerrado: un mutante que lleva a un input() tiene que fallar en el acto, no
@@ -580,6 +584,9 @@ def ejecutar_tests(comando: list[str], raiz: Path, *, timeout: float,
     ]
     with _PROCESOS_GUARDA:
         _PROCESOS_ACTIVOS.add(proceso)
+        tarde = _TERMINANDO.is_set()
+    if tarde:  # la señal llegó entre el Popen y el registro: quien terminaba los activos no lo vio
+        _terminar_proceso(proceso)
     for lector in lectores:
         lector.start()
     agotado = False
@@ -901,9 +908,10 @@ def _senales_de_ronda():
     anteriores = {}
 
     def terminar(sig, _marco):
-        _terminar_activos()
+        _terminar_activos()  # la ronda, al cortarse, marca _TERMINANDO y espera a sus trabajadores
         raise SystemExit(DESPLAZAMIENTO_SALIDA_POR_SENAL + sig)
 
+    _TERMINANDO.clear()
     try:
         for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
             anteriores[sig] = signal.getsignal(sig)
@@ -1282,7 +1290,7 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
                         sitio = cola.get_nowait()
                     except queue.Empty:
                         break
-                    if error_hilo:
+                    if error_hilo or _TERMINANDO.is_set():
                         cola.task_done()
                         break
                     try:
@@ -1353,8 +1361,17 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
             hilos = [threading.Thread(target=trabajador, args=(k,)) for k in range(n_trabajadores)]
             for h in hilos:
                 h.start()
-            for h in hilos:
-                h.join()
+            try:
+                for h in hilos:
+                    h.join()
+            except BaseException:
+                # Una señal (o cualquier corte) en el hilo principal: los trabajadores terminan antes de que se
+                # borren sus copias; si no, uno lanzaba el mutante siguiente en una carpeta que se estaba borrando.
+                _TERMINANDO.set()
+                _terminar_activos()
+                for h in hilos:
+                    h.join()
+                raise
 
             if error_hilo:
                 raise error_hilo[0]
